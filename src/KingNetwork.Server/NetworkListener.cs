@@ -12,12 +12,12 @@ namespace KingNetwork.Server
         #region private members 	
 
         /// <summary> 	
-        /// TCPListener to listen for incomming TCP connection requests. 	
+        /// The TCPListener to listen for incomming TCP connection requests. 	
         /// </summary> 	
         private Socket _tcpListener;
 
         /// <summary> 	
-        /// Server to tcp socket conection.
+        /// The Server to tcp socket conection.
         /// </summary> 	
         private KingServer _server;
 
@@ -58,7 +58,7 @@ namespace KingNetwork.Server
 
                 Console.WriteLine("Starting the network listener.");
 
-                SocketAsyncEventArgs socketAsyncEventArgs = new SocketAsyncEventArgs();
+                var socketAsyncEventArgs = new SocketAsyncEventArgs();
 
                 socketAsyncEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(TcpAcceptCompleted);
                 if (!_tcpListener.AcceptAsync(socketAsyncEventArgs))

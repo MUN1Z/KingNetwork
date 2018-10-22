@@ -1,19 +1,28 @@
-﻿namespace KingNetwork.Server
+﻿using KingNetwork.Server.Interfaces;
+
+namespace KingNetwork.Server
 {
+    /// <summary>
+    /// This class is responsible for manipulation of server.
+    /// </summary>
     public class KingServer
     {
-
         #region private members 	
         
         /// <summary> 	
-        /// Server address. 	
+        /// The Server address. 	
         /// </summary> 	
         public string Address { get; private set; }
 
         /// <summary> 	
-        /// Server port. 	
+        /// The Server port. 	
         /// </summary> 	
         public ushort Port { get; private set; }
+
+        /// <summary> 	
+        /// The client manager instance. 	
+        /// </summary> 	
+        public IClientManager ClientManager { get; private set; }
 
         #endregion
 
@@ -26,6 +35,8 @@
         {
             Address = address;
             Port = port;
+
+            ClientManager = new ClientManager();
         }
 
         /// <summary>
@@ -33,7 +44,7 @@
         /// </summary>
         public void Start()
         {
-
+            ClientManager.Start();
         }
     }
 }
