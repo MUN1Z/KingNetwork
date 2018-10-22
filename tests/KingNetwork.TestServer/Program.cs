@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KingNetwork.Server;
+using System;
 
 namespace KingNetwork.TestServer
 {
@@ -6,6 +7,10 @@ namespace KingNetwork.TestServer
     {
         static void Main(string[] args)
         {
+            var server = new KingServer("127.0.0.1", 7171);
+
+            server.Start();
+
             Console.ReadLine();
         }
     }

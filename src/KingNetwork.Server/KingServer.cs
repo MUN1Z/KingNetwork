@@ -1,4 +1,5 @@
 ﻿using KingNetwork.Server.Interfaces;
+using System;
 
 namespace KingNetwork.Server
 {
@@ -33,10 +34,17 @@ namespace KingNetwork.Server
         /// <param name="port">The server port.</param>
         public KingServer(string address, ushort port)
         {
-            Address = address;
-            Port = port;
+            try
+            {
+                Address = address;
+                Port = port;
 
-            ClientManager = new ClientManager();
+                ClientManager = new ClientManager(this);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
         }
 
         /// <summary>
@@ -44,7 +52,14 @@ namespace KingNetwork.Server
         /// </summary>
         public void Start()
         {
-            ClientManager.Start();
+            try
+            {
+                ClientManager.Start();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
         }
     }
 }

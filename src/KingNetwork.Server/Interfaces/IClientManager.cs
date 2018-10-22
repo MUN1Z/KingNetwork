@@ -8,6 +8,7 @@ namespace KingNetwork.Server.Interfaces
     public interface IClientManager
     {
         IPAddress IPAddress { get; }
+        ushort Port { get; }
 
         IClient this[ushort id] { get; }
 

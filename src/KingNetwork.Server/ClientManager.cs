@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using KingNetwork.Server.Interfaces;
@@ -13,9 +14,19 @@ namespace KingNetwork.Server
         #region private members
 
         /// <summary>
-        /// Dictionary of connected clients.
+        /// The dictionary of connected clients.
         /// </summary>
         private Dictionary<ushort, Client> _clients;
+
+        /// <summary>
+        /// The network listener.
+        /// </summary>
+        private NetworkListener _networkListener;
+
+        /// <summary>
+        /// The king server instance.
+        /// </summary>
+        private KingServer _server;
 
         #endregion
 
@@ -25,6 +36,11 @@ namespace KingNetwork.Server
         /// The ip adress.
         /// </summary>
         public IPAddress IPAddress { get; }
+
+        /// <summary>
+        /// The port number.
+        /// </summary>
+        public ushort Port { get; }
 
         /// <summary>
         /// The connected client.
@@ -38,9 +54,23 @@ namespace KingNetwork.Server
         /// <summary>
 		/// Creates a new instance of a <see cref="ClientManager"/>.
 		/// </summary>
-        public ClientManager()
+        /// <param name="server">The instance of KingServer.</param>
+        public ClientManager(KingServer server)
         {
-            _clients = new Dictionary<ushort, Client>();
+            try
+            {
+                Port = server.Port;
+                IPAddress = IPAddress.Parse(server.Address);
+
+                _server = server;
+
+                _clients = new Dictionary<ushort, Client>();
+                _networkListener = new NetworkListener(_server);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
         }
 
         #endregion
@@ -63,7 +93,14 @@ namespace KingNetwork.Server
         /// </summary>
         public void Start()
         {
-
+            try
+            {
+                _networkListener.StartListener();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
         }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using KingNetwork.Server.Interfaces;
+using System;
 
 namespace KingNetwork.Server
 {
@@ -32,7 +33,14 @@ namespace KingNetwork.Server
 		/// </summary>
         public Client()
         {
+            try
+            {
 
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
         }
 
         #endregion
