@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -45,7 +45,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The connected client.
         /// </summary>
-        public IClient this[ushort id] => GetClient(id);
+        public IClient this[ushort Id] => GetClient(Id);
 
         #endregion
 

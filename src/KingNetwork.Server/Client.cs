@@ -1,4 +1,4 @@
-﻿using KingNetwork.Server.Interfaces;
+using KingNetwork.Server.Interfaces;
 using System;
 
 namespace KingNetwork.Server
@@ -13,7 +13,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The king server instance.
         /// </summary>
-        private KingServer _server;
+        private readonly KingServer _server;
 
         #endregion
 
