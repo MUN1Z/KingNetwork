@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 
 namespace KingNetwork.Server.Interfaces
 {
@@ -7,7 +7,6 @@ namespace KingNetwork.Server.Interfaces
     /// </summary>
     public interface IClientManager
     {
-        IPAddress IPAddress { get; }
         ushort Port { get; }
 
         IClient this[ushort id] { get; }

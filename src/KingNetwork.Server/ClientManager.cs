@@ -31,12 +31,7 @@ namespace KingNetwork.Server
         #endregion
 
         #region public properties
-
-        /// <summary>
-        /// The ip adress.
-        /// </summary>
-        public IPAddress IPAddress { get; }
-
+        
         /// <summary>
         /// The port number.
         /// </summary>
@@ -60,10 +55,8 @@ namespace KingNetwork.Server
             try
             {
                 Port = server.Port;
-                IPAddress = IPAddress.Parse(server.Address);
 
                 _server = server;
-
                 _clients = new Dictionary<ushort, Client>();
                 _networkListener = new NetworkListener(_server);
             }

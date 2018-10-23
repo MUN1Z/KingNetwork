@@ -1,5 +1,7 @@
-﻿using KingNetwork.Server.Interfaces;
+using KingNetwork.Server.Interfaces;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace KingNetwork.Server
 {
@@ -10,11 +12,6 @@ namespace KingNetwork.Server
     {
         #region private members 	
         
-        /// <summary> 	
-        /// The Server address. 	
-        /// </summary> 	
-        public string Address { get; private set; }
-
         /// <summary> 	
         /// The Server port. 	
         /// </summary> 	
@@ -30,15 +27,12 @@ namespace KingNetwork.Server
         /// <summary>
 		/// Creates a new instance of a <see cref="KingServer"/>.
 		/// </summary>
-        /// <param name="address">The server adress.</param>
         /// <param name="port">The server port.</param>
-        public KingServer(string address, ushort port)
+        public KingServer(ushort port)
         {
             try
             {
-                Address = address;
                 Port = port;
-
                 ClientManager = new ClientManager(this);
             }
             catch (Exception ex)
@@ -54,12 +48,24 @@ namespace KingNetwork.Server
         {
             try
             {
-                ClientManager.Start();
+                var cancellationTokenSource = new CancellationTokenSource();
+
+                var listeningTask = RunAsync(cancellationTokenSource.Token);
+                
+                listeningTask.Wait(cancellationTokenSource.Token);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}.");
             }
+        }
+
+        private async Task RunAsync(CancellationToken cancellationToken)
+        {
+            ClientManager.Start();
+
+            while (!cancellationToken.IsCancellationRequested)
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
         }
     }
 }

@@ -49,5 +49,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\KingNetwork.Client\KingNetwork.Client.csproj">
+      <Project>{0197BEB5-1ED4-4684-84E2-032833E54B90}</Project>
+      <Name>KingNetwork.Client</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
