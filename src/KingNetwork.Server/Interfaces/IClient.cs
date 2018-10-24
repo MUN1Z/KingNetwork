@@ -13,5 +13,7 @@ namespace KingNetwork.Server.Interfaces
 	    string IP { get; }
 
 		NetworkStream Stream { get; }
-	}
+
+	    void StartListening();
+    }
 }

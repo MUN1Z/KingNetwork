@@ -108,12 +108,29 @@ namespace KingNetwork.Server {
             }
         }
 
-        private void OnClientConnected(TcpClient tcpClient) {
-	        try
-	        {
-		        var client = new Client(GetNextClientId(), tcpClient);
+        private void OnMessageReceived(long index, byte[] data)
+        {
+            try
+            {
+                ServerHandler serverHandler;
 
-		        Clients.Add(client);
+                Console.WriteLine("OnMessageReceived");
+
+                if (_serverHandlers.TryGetValue(messageType, out serverHandler))
+                    serverHandler(index, data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        private void OnClientConnected(TcpClient tcpClient) {
+	        try {
+
+		        var client = new Client(GetNextClientId(), tcpClient);
+		        client.StartListening();
+				Clients.Add(client);
 				
 		        Console.WriteLine($"Client connected from {client.IP}");
 			}
