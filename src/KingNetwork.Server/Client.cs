@@ -1,5 +1,6 @@
 using KingNetwork.Server.Interfaces;
 using System;
+using System.Net.Sockets;
 
 namespace KingNetwork.Server
 {
@@ -11,18 +12,24 @@ namespace KingNetwork.Server
         #region private members
 
         /// <summary>
-        /// The king server instance.
+        /// The id of client.
         /// </summary>
-        private readonly KingServer _server;
+        public Socket _socketClient { get; private set; }
+
 
         #endregion
 
-        #region public properties
+        #region properties
 
         /// <summary>
         /// The id of client.
         /// </summary>
-        public ushort ID { get; }
+        public ushort ID { get; set; }
+
+        /// <summary>
+        /// The stream of client.
+        /// </summary>
+        public NetworkStream Stream { get; private set; }
 
         #endregion
 
@@ -31,11 +38,13 @@ namespace KingNetwork.Server
         /// <summary>
 		/// Creates a new instance of a <see cref="Client"/>.
 		/// </summary>
-        public Client()
+        public Client(ushort id, Socket socketClient)
         {
             try
             {
-
+                ID = id;
+                Stream = new NetworkStream(socketClient);
+                _socketClient = socketClient;
             }
             catch (Exception ex)
             {

@@ -11,7 +11,7 @@ namespace KingNetwork.TestClient
 		{
 			var clients = new List<KingClient>();
 
-			for (var i = 0; i < 1000; i++)
+			for (var i = 0; i < 1; i++)
 				clients.Add(new KingClient());
 
 			foreach (var client in clients)

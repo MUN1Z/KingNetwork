@@ -1,17 +1,34 @@
 using KingNetwork.Server;
+using KingNetwork.Shared;
 using System;
 
-namespace KingNetwork.TestServer
-{
-    class Program
+namespace KingNetwork.TestServer {
+	class Program
     {
-        static void Main(string[] _args)
-        {
-            var server = new KingServer(7171);
+		private KingServer _server;
 
-            server.Start();
+		public void Run()
+		{
+			try 
+			{
+				_server = new KingServer(7171);
 
-            Console.ReadLine();
-        }
-    }
+				_server.PutHandler<MyPacketHandler>(MyPackets.Default);
+
+				_server.Start();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Error: {ex.Message}");
+			}
+		}
+
+		static void Main(string[] args) {
+
+			var program = new Program();
+			program.Run();
+
+			Console.ReadKey();
+		}
+	}
 }
