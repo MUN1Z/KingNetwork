@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace KingNetwork.TestClient
+namespace KingNetwork.Example.TestClient
 {
     class Program
     {

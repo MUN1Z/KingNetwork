@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+using System.Net;
+using System.Net.Sockets;
 
 namespace KingNetwork.Server.Interfaces
 {
@@ -9,6 +10,8 @@ namespace KingNetwork.Server.Interfaces
     {
         ushort ID { get; }
 
-        NetworkStream Stream { get; }
-    }
+	    string IP { get; }
+
+		NetworkStream Stream { get; }
+	}
 }

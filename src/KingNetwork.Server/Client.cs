@@ -1,5 +1,6 @@
 using KingNetwork.Server.Interfaces;
 using System;
+using System.Net;
 using System.Net.Sockets;
 
 namespace KingNetwork.Server
@@ -14,7 +15,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The id of client.
         /// </summary>
-        public Socket _socketClient { get; private set; }
+        public TcpClient _tcpClient { get; private set; }
 
 
         #endregion
@@ -26,25 +27,29 @@ namespace KingNetwork.Server
         /// </summary>
         public ushort ID { get; set; }
 
-        /// <summary>
-        /// The stream of client.
-        /// </summary>
-        public NetworkStream Stream { get; private set; }
+	    /// <summary>
+	    /// The ip of connected client.
+	    /// </summary>
+		public string IP => _tcpClient?.Client.RemoteEndPoint.ToString();
 
-        #endregion
+		/// <summary>
+		/// The stream of client.
+		/// </summary>
+		public NetworkStream Stream => _tcpClient?.GetStream();
 
-        #region constructors
+		#endregion
 
-        /// <summary>
+		#region constructors
+
+		/// <summary>
 		/// Creates a new instance of a <see cref="Client"/>.
 		/// </summary>
-        public Client(ushort id, Socket socketClient)
+		public Client(ushort id, TcpClient tcpClient)
         {
             try
             {
                 ID = id;
-                Stream = new NetworkStream(socketClient);
-                _socketClient = socketClient;
+                _tcpClient = tcpClient;
             }
             catch (Exception ex)
             {

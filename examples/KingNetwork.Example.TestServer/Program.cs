@@ -1,24 +1,20 @@
 using KingNetwork.Server;
-using KingNetwork.Shared;
 using System;
+using KingNetwork.Example.Shared.PacketHandlers;
 
-namespace KingNetwork.TestServer {
-	class Program
-    {
+namespace KingNetwork.Example.TestServer {
+	class Program {
 		private KingServer _server;
 
-		public void Run()
-		{
-			try 
-			{
+		public void Run() {
+			try {
 				_server = new KingServer(7171);
 
-				_server.PutHandler<MyPacketHandler>(MyPackets.Default);
+				_server.PutHandler<MyPacketHandlerOne>(MyPackets.Default);
 
 				_server.Start();
 			}
-			catch (Exception ex)
-			{
+			catch (Exception ex) {
 				Console.WriteLine($"Error: {ex.Message}");
 			}
 		}

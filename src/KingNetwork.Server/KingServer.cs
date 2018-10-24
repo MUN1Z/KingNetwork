@@ -1,5 +1,5 @@
 using KingNetwork.Server.Interfaces;
-using KingNetwork.Shared;
+using KingNetwork.Shared.PacketHandlers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +7,11 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace KingNetwork.Server
-{
-    /// <summary>
-    /// This class is responsible for manipulation of server.
-    /// </summary>
-    public class KingServer
+namespace KingNetwork.Server {
+	/// <summary>
+	/// This class is responsible for manipulation of server.
+	/// </summary>
+	public class KingServer
     {
 
         #region private members 	
@@ -86,7 +85,7 @@ namespace KingNetwork.Server
             {
                 var cancellationTokenSource = new CancellationTokenSource();
 
-                var listeningTask = RunAsync(cancellationTokenSource.Token);
+                var listeningTask = StartListenerAsync(cancellationTokenSource.Token);
 
                 listeningTask.Wait(cancellationTokenSource.Token);
             }
@@ -109,14 +108,21 @@ namespace KingNetwork.Server
             }
         }
 
-        private void OnClientConnected(Socket tcpClient)
-        {
-            Clients.Add(new Client(GetNextClientId(), tcpClient));
+        private void OnClientConnected(TcpClient tcpClient) {
+	        try
+	        {
+		        var client = new Client(GetNextClientId(), tcpClient);
 
-            Console.WriteLine("OnClientConnected");
+		        Clients.Add(client);
+				
+		        Console.WriteLine($"Client connected from {client.IP}");
+			}
+			catch (Exception ex) {
+				Console.WriteLine($"Error: {ex.Message}.");
+			}
         }
 
-        private async Task RunAsync(CancellationToken cancellationToken)
+        private async Task StartListenerAsync(CancellationToken cancellationToken)
         {
             _networkListener.StartListener();
 

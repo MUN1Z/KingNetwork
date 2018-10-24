@@ -22,7 +22,7 @@ namespace KingNetwork.Server
 
         #region constructors
 
-        public delegate void ConnectedHandler(Socket client);
+        public delegate void ConnectedHandler(TcpClient client);
 
         public ConnectedHandler Connected { get; set; }
 
@@ -70,33 +70,12 @@ namespace KingNetwork.Server
         
         public void OnAccept(IAsyncResult ar)
         {
-            var socket = ((TcpListener)ar.AsyncState).EndAcceptSocket(ar);
+            var client = ((TcpListener)ar.AsyncState).EndAcceptTcpClient(ar);
 
-            Console.WriteLine($"Accepted TCP connection from {socket.RemoteEndPoint}.");
-            
-            Connected(socket);
-
-            //var connection = new NetworkServerConnection();
-
-            //connection.OnCloseEvent += OnConnectionClose;
-            //connection.OnProcessEvent += Protocol.ProcessMessage;
-            //connection.OnPostProcessEvent += Protocol.PostProcessMessage;
-
-            //_connections.Add(connection);
-            //Protocol.OnAcceptNewConnection(connection, ar);
+            Connected(client);
 
             BeginAcceptSocket(OnAccept, this);
         }
-
-        //private void OnConnectionClose(NetworkServerConnection connection)
-        //{
-        //    // De-subscribe to this event first.
-        //    //connection.OnCloseEvent -= OnConnectionClose;
-        //    //connection.OnProcessEvent -= Protocol.ProcessMessage;
-        //    //connection.OnPostProcessEvent -= Protocol.PostProcessMessage;
-
-        //    _connections.Remove(connection);
-        //}
 
         #endregion
     }

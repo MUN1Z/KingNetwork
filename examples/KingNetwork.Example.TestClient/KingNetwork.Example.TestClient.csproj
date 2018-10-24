@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D6A7D736-22BB-40E0-9FE8-6B7E8AAE21A1}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>KingNetwork.TestClient</RootNamespace>
-    <AssemblyName>KingNetwork.TestClient</AssemblyName>
+    <RootNamespace>KingNetwork.Example.TestClient</RootNamespace>
+    <AssemblyName>KingNetwork.Example.TestClient</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

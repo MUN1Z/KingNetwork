@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{1241FB87-6F32-4F3A-A47C-A45836253431}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>KingNetwork.TestServer</RootNamespace>
-    <AssemblyName>KingNetwork.TestServer</AssemblyName>
+    <RootNamespace>KingNetwork.Example.TestServer</RootNamespace>
+    <AssemblyName>KingNetwork.Example.TestServer</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -57,6 +57,10 @@
     <ProjectReference Include="..\..\src\KingNetwork.Shared\KingNetwork.Shared.csproj">
       <Project>{C2F9F1E0-92F4-41A8-89A7-E0BEBA15D17A}</Project>
       <Name>KingNetwork.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\KingNetwork.Example.Shared\KingNetwork.Example.Shared.csproj">
+      <Project>{b4fbfcb2-ae58-42a1-9a3b-70600b3098aa}</Project>
+      <Name>KingNetwork.Example.Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
