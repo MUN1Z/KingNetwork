@@ -20,49 +20,68 @@ namespace KingNetwork.Server {
 		/// </summary>
 		private byte[] _buffer;
 
-		#endregion
-
-		#region properties
-
-		/// <summary>
-		/// The id of client.
+        /// <summary>
+		/// The message received method callback.
 		/// </summary>
-		public ushort ID { get; set; }
+        private MessageReceived _messageReceived { get; }
+
+        #endregion
+
+        #region properties
+
+        /// <summary>
+        /// The id of client.
+        /// </summary>
+        public ushort ID { get; set; }
 
 		/// <summary>
 		/// The ip of connected client.
 		/// </summary>
-		public string IP => _tcpClient?.Client.RemoteEndPoint.ToString();
+		public string IP => _tcpClient.Client.RemoteEndPoint.ToString();
 
 		/// <summary>
 		/// The stream of client.
 		/// </summary>
-		public NetworkStream Stream => _tcpClient?.GetStream();
+		public NetworkStream Stream => _tcpClient.GetStream();
 
-		#endregion
-
-		#region constructors
-
-		/// <summary>
-		/// Creates a new instance of a <see cref="Client"/>.
+        /// <summary>
+		/// The flag of client connection.
 		/// </summary>
-		public Client(ushort id, TcpClient tcpClient) {
+		public bool HasConnected => _tcpClient.Connected;
+
+        #endregion
+
+        #region delegates
+
+        /// <summary>
+		/// The delegate of message reveiced from client connection.
+		/// </summary>
+        public delegate void MessageReceived(IClient client, byte[] data);
+
+        #endregion
+
+        #region constructors
+
+        /// <summary>
+        /// Creates a new instance of a <see cref="Client"/>.
+        /// </summary>
+        public Client(ushort id, TcpClient tcpClient, MessageReceived messageReceived) {
 			try {
 				ID = id;
-				_tcpClient = tcpClient;
-			}
+                _tcpClient = tcpClient;
+                _messageReceived = messageReceived;
+
+                _tcpClient.ReceiveBufferSize = ConnectionSettings.MAX_MESSAGE_BUFFER;
+                _tcpClient.SendBufferSize = ConnectionSettings.MAX_MESSAGE_BUFFER;
+                _buffer = new byte[ConnectionSettings.MAX_MESSAGE_BUFFER];
+
+                Stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
+            }
 			catch (Exception ex) {
 				Console.WriteLine($"Error: {ex.Message}.");
 			}
 		}
-
-		public void StartListening() {
-			_tcpClient.ReceiveBufferSize = ConnectionSettings.MAX_MESSAGE_BUFFER;
-			_tcpClient.SendBufferSize = ConnectionSettings.MAX_MESSAGE_BUFFER;
-			_buffer = new byte[ConnectionSettings.MAX_MESSAGE_BUFFER];
-			Stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
-		}
-
+        
 		private void ReceiveDataCallback(IAsyncResult asyncResult) {
 			try {
 				int endRead = Stream.EndRead(asyncResult);
@@ -75,6 +94,8 @@ namespace KingNetwork.Server {
 					Stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
                     
 				    Console.WriteLine($"Received message from client '{IP}'.");
+
+                    _messageReceived(this, _buffer);
                 }
 				else {
 					_tcpClient.Close();

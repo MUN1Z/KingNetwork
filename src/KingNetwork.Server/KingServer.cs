@@ -1,5 +1,5 @@
 using KingNetwork.Server.Interfaces;
-using KingNetwork.Shared.PacketHandlers;
+using KingNetwork.Server.PacketHandlers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,13 +7,13 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace KingNetwork.Server {
-	/// <summary>
-	/// This class is responsible for manipulation of server.
-	/// </summary>
-	public class KingServer
+namespace KingNetwork.Server
+{
+    /// <summary>
+    /// This class is responsible for management of server.
+    /// </summary>
+    public class KingServer
     {
-
         #region private members 	
         
         /// <summary> 	
@@ -21,28 +21,43 @@ namespace KingNetwork.Server {
         /// </summary> 	
         public NetworkListener _networkListener { get; private set; }
 
-        private static Dictionary<ushort, ServerHandler> _serverHandlers;
+        /// <summary> 	
+        /// The network dictionary list of server handlers. 	
+        /// </summary> 	
+        private Dictionary<ushort, ServerHandler> _serverHandlers;
+
+        /// <summary> 	
+        /// The network dictionary of clients. 	
+        /// </summary> 	
+        private Dictionary<ushort, IClient> _clients;
+
+        /// <summary> 	
+        /// The Server port. 	
+        /// </summary> 	
+        private ushort _port;
+        
+        /// <summary> 	
+        /// The counter for generation of client id. 	
+        /// </summary> 	
+        private int _counter = 0;
 
         #endregion
 
         #region properties 	
 
-        /// <summary> 	
-        /// The Server port. 	
-        /// </summary> 	
-        public ushort Port { get; private set; }
-
-        public List<IClient> Clients { get; private set; }
-        
         #endregion
 
         #region delegates 	
 
+        /// <summary> 	
+        /// The server handler. 	
+        /// </summary> 	
+        /// <param name="index">The index of connected client.</param>
+        /// <param name="data">The bytes data from message.</param>
         public delegate void ServerHandler(ushort index, byte[] data);
 
         #endregion
         
-        int _counter = 0;
         private ushort GetNextClientId() => (ushort)Interlocked.Increment(ref _counter);
 
         /// <summary>
@@ -53,11 +68,8 @@ namespace KingNetwork.Server {
         {
             try
             {
-                Port = port;
-                Clients = new List<IClient>();
-
-                _networkListener = new NetworkListener(this, OnClientConnected);
-
+                _port = port;
+                _clients = new Dictionary<ushort, IClient>();
                 _serverHandlers = new Dictionary<ushort, ServerHandler>();
             }
             catch (Exception ex)
@@ -66,14 +78,87 @@ namespace KingNetwork.Server {
             }
         }
 
-        public void PutHandler<T>(ushort type) where T : PacketHandler, new()
+        #region internal methods
+
+        /// <summary>
+        /// Method responsible execute the callback of message received from client in server.
+        /// </summary>
+        /// <param name="client">The client instance.</param>
+        /// <param name="data">The bytes data from message.</param>
+        internal void OnMessageReceived(IClient client, byte[] data)
         {
-            if (_serverHandlers.ContainsKey(type))
-                _serverHandlers.Remove(type);
+            try
+            {
+                ServerHandler serverHandler;
+
+                Console.WriteLine("OnMessageReceived");
+
+                if (_serverHandlers.TryGetValue(data[0], out serverHandler))
+                    serverHandler(client.ID, data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
+        /// Method responsible execute the callback of client connected in server.
+        /// </summary>
+        /// <param name="tcpClient">The tcp client object from connected client.</param>
+        internal void OnClientConnected(TcpClient tcpClient) {
+	        try {
+
+		        var client = new Client(GetNextClientId(), tcpClient, OnMessageReceived);
+
+                _clients.Add(client.ID, client);
+
+                Console.WriteLine($"Client connected from {client.IP}");
+            }
+            catch (Exception ex) {
+				Console.WriteLine($"Error: {ex.Message}.");
+			}
+        }
+
+        /// <summary>
+        /// Method responsible for start the async network listener.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token for the task execution.</param>
+        internal async Task StartListenerAsync(CancellationToken cancellationToken)
+        {
+            _networkListener = new NetworkListener(_port, OnClientConnected);
+
+            while (!cancellationToken.IsCancellationRequested)
+                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+        }
+
+        #endregion
+
+        #region public methods
+
+        /// <summary>
+        /// Method responsible for return one connected client by id.
+        /// </summary>
+        /// <param name="id">The id of connected client.</param>
+        public IClient GetClient(ushort id) => _clients[id];
+
+        /// <summary>
+        /// Method responsible for return all connected clients.
+        /// </summary>
+        public IList<IClient> GetAllClients() => _clients.Values.ToList();
+
+        /// <summary>
+        /// Method responsible for put packet handler in the list of packet handlers.
+        /// </summary>
+        /// <param name="type">The value of packet handler.</param>
+        public void PutHandler<T>(ushort packet) where T : PacketHandler, new()
+        {
+            if (_serverHandlers.ContainsKey(packet))
+                _serverHandlers.Remove(packet);
 
             var handler = new T();
 
-            _serverHandlers.Add(type, handler.HandleMessageData);
+            _serverHandlers.Add(packet, handler.HandleMessageData);
         }
 
         /// <summary>
@@ -95,64 +180,73 @@ namespace KingNetwork.Server {
             }
         }
 
-        public void SendMessage(ushort clientId, byte[] data)
+        /// <summary>
+        /// Method responsible for send message to specific connected client.
+        /// </summary>
+        /// <param name="client">The client instance.</param>
+        /// <param name="data">The bytes data from message.</param>
+        public void SendMessage(IClient client, byte[] data)
         {
             try
             {
-                GetClient(clientId).Stream.Write(data, 0, data.Length);
-                GetClient(clientId).Stream.Flush();
+                if (client.HasConnected)
+                {
+                    client.Stream.Write(data, 0, data.Length);
+                    client.Stream.Flush();
+
+                    Console.WriteLine($"Message sended to client {client.ID}.");
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}.");
             }
         }
-
-        private void OnMessageReceived(long index, byte[] data)
-        {
-            try
-            {
-                ServerHandler serverHandler;
-
-                Console.WriteLine("OnMessageReceived");
-
-                if (_serverHandlers.TryGetValue(messageType, out serverHandler))
-                    serverHandler(index, data);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
-        }
-
-        private void OnClientConnected(TcpClient tcpClient) {
-	        try {
-
-		        var client = new Client(GetNextClientId(), tcpClient);
-		        client.StartListening();
-				Clients.Add(client);
-				
-		        Console.WriteLine($"Client connected from {client.IP}");
-			}
-			catch (Exception ex) {
-				Console.WriteLine($"Error: {ex.Message}.");
-			}
-        }
-
-        private async Task StartListenerAsync(CancellationToken cancellationToken)
-        {
-            _networkListener.StartListener();
-
-            while (!cancellationToken.IsCancellationRequested)
-                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
-        }
-
-        #region clients manager
 
         /// <summary>
-        /// Method responsible for return one connected client by id.
+        /// Method responsible for send message to all connected client.
         /// </summary>
-        public IClient GetClient(ushort id) => Clients.FirstOrDefault(c => c.ID == id);
+        /// <param name="data">The bytes data from message.</param>
+        public void SendMessageToAll(byte[] data)
+        {
+            try
+            {
+                foreach(var client in GetAllClients().Where(c => c.HasConnected))
+                {
+                    client.Stream.Write(data, 0, data.Length);
+                    client.Stream.Flush();
+
+                    Console.WriteLine($"Message sended to client {client.ID}.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
+        /// Method responsible for send message to all connected client minus one especific client.
+        /// </summary>
+        /// <param name="client">The client instance.</param>
+        /// <param name="data">The bytes data from message.</param>
+        public void SendMessageToAllMinus(IClient client, byte[] data)
+        {
+            try
+            {
+                foreach (var clientToSend in GetAllClients().Where(c => c.HasConnected && c.ID != client.ID))
+                {
+                    client.Stream.Write(data, 0, data.Length);
+                    client.Stream.Flush();
+
+                    Console.WriteLine($"Message sended to client {client.ID}.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
 
         #endregion
     }

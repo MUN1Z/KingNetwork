@@ -6,13 +6,12 @@ namespace KingNetwork.Client
 {
     public class KingClient
     {
-        private NetworkClientConnection _connection;
+        private NetworkListener _networkListener;
 
         private Thread _thread;
 
-        public bool Connected => _connection != null ? _connection.IsConnected : false;
-        public IPEndPoint RemoteEndPoint => _connection != null ? _connection.RemoteEndPoint : null;
-
+        public bool Connected => _networkListener != null ? _networkListener.IsConnected : false;
+        
         public KingClient()
         {
 
@@ -24,8 +23,9 @@ namespace KingNetwork.Client
             {
                 _thread = new Thread(() =>
                 {
-                    _connection = new NetworkClientConnection();
-                    _connection.StartClient(ip, port);
+                    _networkListener = new NetworkListener();
+                    _networkListener.StartClient(ip, port);
+                    _networkListener.StartListening();
                 });
 
                 _thread.IsBackground = true;
@@ -33,8 +33,13 @@ namespace KingNetwork.Client
             }
             catch (Exception ex)
             {
-
+                Console.WriteLine($"Error: {ex.Message}.");
             }
+        }
+
+        public void SendMessage()
+        {
+            _networkListener.SendMessage();
         }
     }
 }

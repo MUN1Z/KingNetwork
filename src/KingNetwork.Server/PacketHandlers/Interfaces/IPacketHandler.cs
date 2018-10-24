@@ -1,4 +1,4 @@
-namespace KingNetwork.Shared.PacketHandlers.Interfaces {
+namespace KingNetwork.Server.PacketHandlers.Interfaces {
 	internal interface IPacketHandler {
 		void HandleMessageData(ushort index, byte[] data);
 	}

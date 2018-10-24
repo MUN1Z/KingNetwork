@@ -14,6 +14,6 @@ namespace KingNetwork.Server.Interfaces
 
 		NetworkStream Stream { get; }
 
-	    void StartListening();
+		bool HasConnected { get; }
     }
 }

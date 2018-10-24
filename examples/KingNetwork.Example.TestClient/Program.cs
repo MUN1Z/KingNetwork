@@ -17,7 +17,9 @@ namespace KingNetwork.Example.TestClient
 			foreach (var client in clients)
 			{
 				client.Connect("127.0.0.1", 7171);
-				Thread.Sleep(15);
+
+				Thread.Sleep(2000);
+                client.SendMessage();
 			}
 
 			Console.ReadLine();

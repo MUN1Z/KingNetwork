@@ -1,6 +1,6 @@
-using KingNetwork.Shared.PacketHandlers.Interfaces;
+using KingNetwork.Server.PacketHandlers.Interfaces;
 
-namespace KingNetwork.Shared.PacketHandlers {
+namespace KingNetwork.Server.PacketHandlers {
     public abstract class PacketHandler : IPacketHandler {
         public abstract void HandleMessageData(ushort index, byte[] data);
     }

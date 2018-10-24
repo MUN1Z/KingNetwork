@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingNetwork.Shared.Tests", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{24804DEB-DD17-4FC8-8D2F-127EE489AF0E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KingNetwork.Example.Shared", "examples\KingNetwork.Example.Shared\KingNetwork.Example.Shared.csproj", "{B4FBFCB2-AE58-42A1-9A3B-70600B3098AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingNetwork.Example.Shared", "examples\KingNetwork.Example.Shared\KingNetwork.Example.Shared.csproj", "{B4FBFCB2-AE58-42A1-9A3B-70600B3098AA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KingNetwork.Example.TestClient", "examples\KingNetwork.Example.TestClient\KingNetwork.Example.TestClient.csproj", "{D6A7D736-22BB-40E0-9FE8-6B7E8AAE21A1}"
 EndProject
