@@ -11,10 +11,10 @@ namespace KingNetwork.Server
     {
         #region private members 	
 
-        /// <summary> 	
-        /// The callback of connected handler. 	
-        /// </summary> 	
-        public ConnectedHandler _connected;
+        /// <summary>
+		/// The callback of client connnected handler implementation.
+		/// </summary>
+        public ClientConnectedHandler _clientConnectedHandler;
 
         #endregion
 
@@ -24,7 +24,7 @@ namespace KingNetwork.Server
         /// The handler from callback of client connection. 	
         /// </summary> 	
         /// <param name="client">The tcp client from connected client.</param>
-        public delegate void ConnectedHandler(TcpClient client);
+        public delegate void ClientConnectedHandler(TcpClient client);
 
         #endregion
 
@@ -34,12 +34,12 @@ namespace KingNetwork.Server
         /// Creates a new instance of a <see cref="NetworkTcpListener"/>.
         /// </summary>
         /// <param name="port">The port of server.</param>
-        /// <param name="connectedHandler">The coonected handler callback implementation.</param>
-        public NetworkTcpListener(ushort port, ConnectedHandler connectedHandler) : base(IPAddress.Any, port)
+        /// <param name="clientConnectedHandler">The client connected handler callback implementation.</param>
+        public NetworkTcpListener(ushort port, ClientConnectedHandler clientConnectedHandler) : base(IPAddress.Any, port)
         {
             try
             {
-                _connected = connectedHandler;
+                _clientConnectedHandler = clientConnectedHandler;
 
                 Server.NoDelay = true;
                 Start();
@@ -63,7 +63,7 @@ namespace KingNetwork.Server
         /// <param name="asyncResult">The async result from socket accepted in connection.</param>
         private void OnAccept(IAsyncResult asyncResult)
         {
-            _connected(((TcpListener)asyncResult.AsyncState).EndAcceptTcpClient(asyncResult));
+            _clientConnectedHandler(((TcpListener)asyncResult.AsyncState).EndAcceptTcpClient(asyncResult));
             BeginAcceptSocket(OnAccept, this);
         }
 

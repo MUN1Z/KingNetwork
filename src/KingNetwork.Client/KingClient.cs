@@ -69,7 +69,7 @@ namespace KingNetwork.Client
             {
                 _clientThread = new Thread(() =>
                 {
-                    _networkListener = new NetworkTcpListener(OnMessageReceived);
+                    _networkListener = new NetworkTcpListener(OnMessageReceived, OnClientDisconnected);
                     _networkListener.StartClient(ip, port);
                 });
 
@@ -111,11 +111,24 @@ namespace KingNetwork.Client
             try
             {
                 ClientPacketHandler clientPacketHandler;
-
-                Console.WriteLine("OnMessageReceived");
-
+                
                 if (_clientPacketHandlers.TryGetValue(data[0], out clientPacketHandler))
                     clientPacketHandler(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
+        /// Method responsible for execute the callback of client disconnected from server.
+        /// </summary>
+        private void OnClientDisconnected()
+        {
+            try
+            {
+                //TODO
             }
             catch (Exception ex)
             {

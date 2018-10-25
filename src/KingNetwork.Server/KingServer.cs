@@ -83,9 +83,9 @@ namespace KingNetwork.Server
         #region private methods implementation
 
         /// <summary> 	
-        /// Method responsible for generation of id to connected client. 	
+        /// Method responsible for generation of key to new connected client. 	
         /// </summary> 	
-        private ushort GetNextClientId() => (ushort)Interlocked.Increment(ref _counter);
+        private ushort GetNewClientKey() => (ushort)Interlocked.Increment(ref _counter);
 
         /// <summary>
         /// Method responsible for execute the callback of message received from client in server.
@@ -101,7 +101,7 @@ namespace KingNetwork.Server
                 Console.WriteLine("OnMessageReceived");
 
                 if (_serverPacketHandlers.TryGetValue(data[0], out serverHandler))
-                    serverHandler(client.ID, data);
+                    serverHandler(client.Key, data);
             }
             catch (Exception ex)
             {
@@ -117,17 +117,35 @@ namespace KingNetwork.Server
         {
             try
             {
-                var client = new Client(GetNextClientId(), tcpClient, OnMessageReceived);
+                var client = new Client(GetNewClientKey(), tcpClient, OnMessageReceived, OnClientDisconnected);
 
-                _clients.Add(client.ID, client);
+                _clients.Add(client.Key, client);
 
-                Console.WriteLine($"Client connected from {client.IP}");
+                Console.WriteLine($"Client connected from '{client.IpAddress}'.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}.");
             }
         }
+
+        /// <summary>
+        /// Method responsible for execute the callback of client disconnected in server.
+        /// </summary>
+        /// <param name="key">The key of disconnected client.</param>
+        private void OnClientDisconnected(ushort key)
+        {
+            try
+            {
+                if (_clients.ContainsKey(key))
+                    _clients.Remove(key);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+        
 
         /// <summary>
         /// Method responsible for start the async network listener.
@@ -212,12 +230,12 @@ namespace KingNetwork.Server
         {
             try
             {
-                if (client.HasConnected)
+                if (client.IsConnected)
                 {
                     client.Stream.Write(data, 0, data.Length);
                     client.Stream.Flush();
 
-                    Console.WriteLine($"Message sended to client {client.ID}.");
+                    Console.WriteLine($"Message sended to client {client.Key}.");
                 }
             }
             catch (Exception ex)
@@ -234,12 +252,12 @@ namespace KingNetwork.Server
         {
             try
             {
-                foreach (var client in GetAllClients().Where(c => c.HasConnected))
+                foreach (var client in GetAllClients().Where(c => c.IsConnected))
                 {
                     client.Stream.Write(data, 0, data.Length);
                     client.Stream.Flush();
 
-                    Console.WriteLine($"Message sended to client {client.ID}.");
+                    Console.WriteLine($"Message sended to client {client.Key}.");
                 }
             }
             catch (Exception ex)
@@ -257,12 +275,12 @@ namespace KingNetwork.Server
         {
             try
             {
-                foreach (var clientToSend in GetAllClients().Where(c => c.HasConnected && c.ID != client.ID))
+                foreach (var clientToSend in GetAllClients().Where(c => c.IsConnected && c.Key != client.Key))
                 {
                     client.Stream.Write(data, 0, data.Length);
                     client.Stream.Flush();
 
-                    Console.WriteLine($"Message sended to client {client.ID}.");
+                    Console.WriteLine($"Message sended to client {client.Key}.");
                 }
             }
             catch (Exception ex)

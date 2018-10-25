@@ -1,4 +1,5 @@
 using KingNetwork.Shared;
+using KingNetwork.Shared.Helpers;
 using System;
 using System.Net.Sockets;
 
@@ -13,10 +14,15 @@ namespace KingNetwork.Client
         #region private members 	
 
         /// <summary>
-		/// The message received method callback.
-		/// </summary>
-        private MessageReceived _messageReceived { get; }
-
+        /// The callback of message received handler implementation.
+        /// </summary>
+        private MessageReceivedHandler _messageReceivedHandler { get; }
+        
+        /// <summary>
+        /// The callback of client disconnedted handler implementation.
+        /// </summary>
+        private ClientDisconnectedHandler _clientDisconnectedHandler { get; }
+        
         /// <summary>
         /// The buffer of client connection.
         /// </summary>
@@ -27,10 +33,15 @@ namespace KingNetwork.Client
         #region delegates 
 
         /// <summary>
-		/// The delegate of message reveiced from server connection.
+		/// The delegate of message reveiced handler from server connection.
 		/// </summary>
         /// <param name="data">The data bytes from message received.</param>
-        public delegate void MessageReceived(byte[] data);
+        public delegate void MessageReceivedHandler(byte[] data);
+        
+        /// <summary>
+		/// The delegate of client disconnected handler connection.
+		/// </summary>
+        public delegate void ClientDisconnectedHandler();
 
         #endregion
 
@@ -41,6 +52,11 @@ namespace KingNetwork.Client
         /// </summary>
         public NetworkStream Stream => GetStream();
 
+        /// <summary>
+		/// The flag of client connection.
+		/// </summary>
+		public bool IsConnected => SocketHelper.IsConnected(this);
+
         #endregion
 
         #region constructors
@@ -48,14 +64,15 @@ namespace KingNetwork.Client
         /// <summary>
         /// Creates a new instance of a <see cref="NetworkTcpListener"/>.
         /// </summary>
-        /// <param name="port">The port of server.</param>
-        /// <param name="connectedHandler">The coonected handler callback implementation.</param>
-        public NetworkTcpListener(MessageReceived messageReceived)
+        /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
+        /// <param name="clientDisconnectedHandler">The callback of client disconnedted handler implementation.</param>
+        public NetworkTcpListener(MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler)
         {
             try
             {
                 _buffer = new byte[ConnectionSettings.MAX_MESSAGE_BUFFER];
-                _messageReceived = messageReceived;
+                _messageReceivedHandler = messageReceivedHandler;
+                _clientDisconnectedHandler = clientDisconnectedHandler;
             }
             catch (Exception ex)
             {
@@ -121,24 +138,27 @@ namespace KingNetwork.Client
         {
             try
             {
-                int endRead = Stream.EndRead(asyncResult);
-
-                if (endRead != 0)
+                if (IsConnected)
                 {
-                    byte[] numArray = new byte[endRead];
-                    Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
+                    int endRead = Stream.EndRead(asyncResult);
 
-                    Stream.BeginRead(_buffer, 0, ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
+                    if (endRead != 0)
+                    {
+                        byte[] numArray = new byte[endRead];
+                        Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
 
-                    Console.WriteLine($"Received message from server.");
+                        Stream.BeginRead(_buffer, 0, ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
 
-                    _messageReceived(_buffer);
+                        Console.WriteLine($"Received message from server.");
+
+                        _messageReceivedHandler(_buffer);
+                    }
                 }
-                else
-                {
-                    Close();
-                    Console.WriteLine($"Client disconnected from server.");
-                }
+
+                Close();
+                Console.WriteLine($"Client disconnected from server.");
+
+                _clientDisconnectedHandler();
             }
             catch (Exception ex)
             {

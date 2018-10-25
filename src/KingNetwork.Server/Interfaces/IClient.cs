@@ -8,14 +8,14 @@ namespace KingNetwork.Server.Interfaces
     public interface IClient
     {
         /// <summary>
-        /// The id of client.
+        /// The key number of client.
         /// </summary>
-        ushort ID { get; }
+        ushort Key { get; }
 
         /// <summary>
-        /// The ip of connected client.
+        /// The ip address of connected client.
         /// </summary>
-        string IP { get; }
+        string IpAddress { get; }
 
         /// <summary>
         /// The stream of client.
@@ -25,6 +25,6 @@ namespace KingNetwork.Server.Interfaces
         /// <summary>
 		/// The flag of client connection.
 		/// </summary>
-        bool HasConnected { get; }
+        bool IsConnected { get; }
     }
 }

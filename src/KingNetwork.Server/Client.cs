@@ -1,5 +1,6 @@
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
+using KingNetwork.Shared.Helpers;
 using System;
 using System.Net.Sockets;
 
@@ -24,23 +25,28 @@ namespace KingNetwork.Server
         private byte[] _buffer;
 
         /// <summary>
-		/// The message received method callback.
+		/// The callback of message received handler implementation.
 		/// </summary>
-        private MessageReceived _messageReceived { get; }
+        private MessageReceivedHandler _messageReceivedHandler { get; }
+
+        /// <summary>
+        /// The callback of client disconnedted handler implementation.
+        /// </summary>
+        private ClientDisconnectedHandler _clientDisconnectedHandler { get; }
 
         #endregion
 
         #region properties
 
         /// <summary>
-        /// The id of client.
+        /// The key number of client.
         /// </summary>
-        public ushort ID { get; set; }
+        public ushort Key { get; set; }
 
         /// <summary>
-        /// The ip of connected client.
+        /// The ip address of connected client.
         /// </summary>
-        public string IP { get; }
+        public string IpAddress { get; }
 
         /// <summary>
         /// The stream of tcp client.
@@ -50,18 +56,24 @@ namespace KingNetwork.Server
         /// <summary>
 		/// The flag of client connection.
 		/// </summary>
-		public bool HasConnected => _tcpClient.Connected;
+		public bool IsConnected => SocketHelper.IsConnected(_tcpClient);
 
         #endregion
 
         #region delegates
 
         /// <summary>
-		/// The delegate of message reveiced from client connection.
+		/// The delegate of message reveiced handler from client connection.
 		/// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="data">The data bytes from message received.</param>
-        public delegate void MessageReceived(IClient client, byte[] data);
+        public delegate void MessageReceivedHandler(IClient client, byte[] data);
+
+        /// <summary>
+		/// The delegate of client disconnected handler connection.
+		/// </summary>
+        /// <param name="key">The key of client instance.</param>
+        public delegate void ClientDisconnectedHandler(ushort key);
 
         #endregion
 
@@ -70,22 +82,24 @@ namespace KingNetwork.Server
         /// <summary>
         /// Creates a new instance of a <see cref="Client"/>.
         /// </summary>
-        /// <param name="id">The id of connected client.</param>
+        /// <param name="key">The key number of connected client.</param>
         /// <param name="tcpClient">The tcp client from connected client.</param>
-        /// <param name="messageReceived">The message received callback implementation.</param>
-        public Client(ushort id, TcpClient tcpClient, MessageReceived messageReceived)
+        /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
+        /// <param name="clientDisconnectedHandler">The callback of client disconnedted handler implementation.</param>
+        public Client(ushort key, TcpClient tcpClient, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler)
         {
             try
             {
                 _tcpClient = tcpClient;
-                _messageReceived = messageReceived;
+                _messageReceivedHandler = messageReceivedHandler;
+                _clientDisconnectedHandler = clientDisconnectedHandler;
 
                 _tcpClient.ReceiveBufferSize = ConnectionSettings.MAX_MESSAGE_BUFFER;
                 _tcpClient.SendBufferSize = ConnectionSettings.MAX_MESSAGE_BUFFER;
                 _buffer = new byte[ConnectionSettings.MAX_MESSAGE_BUFFER];
 
-                ID = id;
-                IP = _tcpClient.Client.RemoteEndPoint.ToString();
+                Key = key;
+                IpAddress = _tcpClient.Client.RemoteEndPoint.ToString();
 
                 Stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
             }
@@ -103,29 +117,35 @@ namespace KingNetwork.Server
         {
             try
             {
-                int endRead = Stream.EndRead(asyncResult);
-
-                if (endRead != 0)
+                if (IsConnected)
                 {
-                    byte[] numArray = new byte[endRead];
-                    Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
+                    int endRead = Stream.EndRead(asyncResult);
 
-                    Stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
+                    if (endRead != 0)
+                    {
+                        byte[] numArray = new byte[endRead];
+                        Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
 
-                    Console.WriteLine($"Received message from client '{IP}'.");
+                        Stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
 
-                    _messageReceived(this, _buffer);
+                        Console.WriteLine($"Received message from client '{IpAddress}'.");
+
+                        _messageReceivedHandler(this, _buffer);
+
+                        return;
+                    }
                 }
-                else
-                {
-                    _tcpClient.Close();
-                    Console.WriteLine($"Client '{IP}' Disconnected.");
-                }
+                
+                _tcpClient.Close();
+                Console.WriteLine($"Client '{IpAddress}' Disconnected.");
+
+                _clientDisconnectedHandler(Key);
             }
             catch (Exception ex)
             {
                 _tcpClient.Close();
-                Console.WriteLine($"Client '{IP}' Disconnected.");
+                Console.WriteLine($"Client '{IpAddress}' Disconnected.");
+                Console.WriteLine($"Error: {ex.Message}.");
             }
         }
 
