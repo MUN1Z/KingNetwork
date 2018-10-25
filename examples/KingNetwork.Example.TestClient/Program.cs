@@ -1,6 +1,5 @@
 using KingNetwork.Client;
 using System;
-using System.Threading;
 
 namespace KingNetwork.Example.TestClient
 {
@@ -19,7 +18,7 @@ namespace KingNetwork.Example.TestClient
             {
                 var client = new KingClient();
                 client.Connect("127.0.0.1", 7171);
-                
+
                 Console.ReadLine();
             }
             catch (Exception ex)

@@ -43,7 +43,7 @@ namespace KingNetwork.Server
         public string IP { get; }
 
         /// <summary>
-        /// The stream of client.
+        /// The stream of tcp client.
         /// </summary>
         public NetworkStream Stream => _tcpClient.GetStream();
 
@@ -60,7 +60,7 @@ namespace KingNetwork.Server
 		/// The delegate of message reveiced from client connection.
 		/// </summary>
         /// <param name="client">The client instance.</param>
-        /// <param name="data">The bytes data from message.</param>
+        /// <param name="data">The data bytes from message received.</param>
         public delegate void MessageReceived(IClient client, byte[] data);
 
         #endregion

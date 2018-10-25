@@ -7,7 +7,7 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for managing the network tcp listener.
     /// </summary>
-    public class NetworkListener : TcpListener
+    public class NetworkTcpListener : TcpListener
     {
         #region private members 	
 
@@ -31,11 +31,11 @@ namespace KingNetwork.Server
         #region constructors
 
         /// <summary>
-        /// Creates a new instance of a <see cref="NetworkListener"/>.
+        /// Creates a new instance of a <see cref="NetworkTcpListener"/>.
         /// </summary>
         /// <param name="port">The port of server.</param>
         /// <param name="connectedHandler">The coonected handler callback implementation.</param>
-        public NetworkListener(ushort port, ConnectedHandler connectedHandler) : base(IPAddress.Any, port)
+        public NetworkTcpListener(ushort port, ConnectedHandler connectedHandler) : base(IPAddress.Any, port)
         {
             try
             {
@@ -55,13 +55,13 @@ namespace KingNetwork.Server
 
         #endregion
 
-        #region internal methods
+        #region private methods imlementation
 
         /// <summary> 	
         /// The callback from accept client connection. 	
         /// </summary> 	
         /// <param name="asyncResult">The async result from socket accepted in connection.</param>
-        internal void OnAccept(IAsyncResult asyncResult)
+        private void OnAccept(IAsyncResult asyncResult)
         {
             _connected(((TcpListener)asyncResult.AsyncState).EndAcceptTcpClient(asyncResult));
             BeginAcceptSocket(OnAccept, this);

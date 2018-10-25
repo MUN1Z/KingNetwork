@@ -4,6 +4,9 @@ using System.Threading;
 
 namespace KingNetwork.Client
 {
+    /// <summary>
+    /// This class is responsible for management of king client.
+    /// </summary>
     public class KingClient
     {
         #region private members 	
@@ -13,9 +16,24 @@ namespace KingNetwork.Client
         /// </summary> 	
         private Dictionary<ushort, ClientPacketHandler> _clientPacketHandlers;
 
-        private NetworkListener _networkListener;
+        /// <summary> 	
+        /// The network tcp listener instance. 	
+        /// </summary> 	
+        private NetworkTcpListener _networkListener;
 
+        /// <summary> 	
+        /// The thread for start the network listener. 	
+        /// </summary> 	
         private Thread _clientThread;
+
+        #endregion
+
+        #region properties
+
+        /// <summary>
+		/// The flag of client connection.
+		/// </summary>
+        public bool HasConnected => _networkListener.Connected;
 
         #endregion
 
@@ -29,22 +47,30 @@ namespace KingNetwork.Client
 
         #endregion
 
-        public bool HasConnected => _networkListener != null ? _networkListener.IsConnected : false;
+        #region constructors
 
-        public KingClient()
-        {
+        /// <summary>
+		/// Creates a new instance of a <see cref="KingServer"/>.
+		/// </summary>
+        public KingClient() { }
 
-        }
+        #endregion
 
+        #region public methods implementation
+
+        /// <summary>
+        /// Method responsible to connect clint in server.
+        /// </summary>
+        /// <param name="ip">The ip address from server.</param>
+        /// <param name="data">The port number from server.</param>
         public void Connect(string ip, ushort port)
         {
             try
             {
                 _clientThread = new Thread(() =>
                 {
-                    _networkListener = new NetworkListener();
+                    _networkListener = new NetworkTcpListener(OnMessageReceived);
                     _networkListener.StartClient(ip, port);
-                    _networkListener.StartListening();
                 });
 
                 _clientThread.IsBackground = true;
@@ -56,9 +82,47 @@ namespace KingNetwork.Client
             }
         }
 
-        public void SendMessage()
+        /// <summary>
+        /// Method responsible for send message to connected server.
+        /// </summary>
+        /// <param name="data">The data bytes from message.</param>
+        public void SendMessage(byte[] data)
         {
-            _networkListener.SendMessage();
+            try
+            {
+                _networkListener.SendMessage(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
         }
+
+        #endregion
+
+        #region private methods implementation 
+
+        /// <summary>
+        /// Method responsible for execute the callback of message received from client in server.
+        /// </summary>
+        /// <param name="data">The data bytes from message.</param>
+        private void OnMessageReceived( byte[] data)
+        {
+            try
+            {
+                ClientPacketHandler clientPacketHandler;
+
+                Console.WriteLine("OnMessageReceived");
+
+                if (_clientPacketHandlers.TryGetValue(data[0], out clientPacketHandler))
+                    clientPacketHandler(data);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        #endregion
     }
 }

@@ -10,16 +10,16 @@ using System.Threading.Tasks;
 namespace KingNetwork.Server
 {
     /// <summary>
-    /// This class is responsible for management of server.
+    /// This class is responsible for management of king server.
     /// </summary>
     public class KingServer
     {
         #region private members 	
 
         /// <summary> 	
-        /// The network listener instance. 	
+        /// The network tcp listener instance. 	
         /// </summary> 	
-        public NetworkListener _networkListener { get; private set; }
+        public NetworkTcpListener _networkListener { get; private set; }
 
         /// <summary> 	
         /// The network dictionary list of server packet handlers. 	
@@ -58,11 +58,11 @@ namespace KingNetwork.Server
 
         #endregion
 
-        private ushort GetNextClientId() => (ushort)Interlocked.Increment(ref _counter);
+        #region constructors
 
         /// <summary>
-		/// Creates a new instance of a <see cref="KingServer"/>.
-		/// </summary>
+        /// Creates a new instance of a <see cref="KingServer"/>.
+        /// </summary>
         /// <param name="port">The server port.</param>
         public KingServer(ushort port)
         {
@@ -78,14 +78,21 @@ namespace KingNetwork.Server
             }
         }
 
-        #region internal methods
+        #endregion
+
+        #region private methods implementation
+
+        /// <summary> 	
+        /// Method responsible for generation of id to connected client. 	
+        /// </summary> 	
+        private ushort GetNextClientId() => (ushort)Interlocked.Increment(ref _counter);
 
         /// <summary>
-        /// Method responsible execute the callback of message received from client in server.
+        /// Method responsible for execute the callback of message received from client in server.
         /// </summary>
         /// <param name="client">The client instance.</param>
-        /// <param name="data">The bytes data from message.</param>
-        internal void OnMessageReceived(IClient client, byte[] data)
+        /// <param name="data">The data bytes from message.</param>
+        private void OnMessageReceived(IClient client, byte[] data)
         {
             try
             {
@@ -103,14 +110,13 @@ namespace KingNetwork.Server
         }
 
         /// <summary>
-        /// Method responsible execute the callback of client connected in server.
+        /// Method responsible for execute the callback of client connected in server.
         /// </summary>
         /// <param name="tcpClient">The tcp client object from connected client.</param>
-        internal void OnClientConnected(TcpClient tcpClient)
+        private void OnClientConnected(TcpClient tcpClient)
         {
             try
             {
-
                 var client = new Client(GetNextClientId(), tcpClient, OnMessageReceived);
 
                 _clients.Add(client.ID, client);
@@ -127,17 +133,24 @@ namespace KingNetwork.Server
         /// Method responsible for start the async network listener.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token for the task execution.</param>
-        internal async Task StartListenerAsync(CancellationToken cancellationToken)
+        private async Task StartListenerAsync(CancellationToken cancellationToken)
         {
-            _networkListener = new NetworkListener(_port, OnClientConnected);
+            try
+            {
+                _networkListener = new NetworkTcpListener(_port, OnClientConnected);
 
-            while (!cancellationToken.IsCancellationRequested)
-                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+                while (!cancellationToken.IsCancellationRequested)
+                    await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
         }
 
         #endregion
 
-        #region public methods
+        #region public methods implementation
 
         /// <summary>
         /// Method responsible for return one connected client by id.
@@ -153,15 +166,22 @@ namespace KingNetwork.Server
         /// <summary>
         /// Method responsible for put packet handler in the list of packet handlers.
         /// </summary>
-        /// <param name="type">The value of packet handler.</param>
+        /// <param name="packet">The value of packet handler.</param>
         public void PutHandler<T>(ushort packet) where T : PacketHandler, new()
         {
-            if (_serverPacketHandlers.ContainsKey(packet))
-                _serverPacketHandlers.Remove(packet);
+            try
+            {
+                if (_serverPacketHandlers.ContainsKey(packet))
+                    _serverPacketHandlers.Remove(packet);
 
-            var handler = new T();
+                var handler = new T();
 
-            _serverPacketHandlers.Add(packet, handler.HandleMessageData);
+                _serverPacketHandlers.Add(packet, handler.HandleMessageData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
         }
 
         /// <summary>
@@ -187,7 +207,7 @@ namespace KingNetwork.Server
         /// Method responsible for send message to specific connected client.
         /// </summary>
         /// <param name="client">The client instance.</param>
-        /// <param name="data">The bytes data from message.</param>
+        /// <param name="data">The data bytes from message.</param>
         public void SendMessage(IClient client, byte[] data)
         {
             try
