@@ -1,28 +1,31 @@
 using KingNetwork.Client;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace KingNetwork.Example.TestClient
 {
+    /// <summary>
+    /// This class represents the program instance.
+    /// </summary>
     class Program
     {
-		static void Main(string[] _args)
-		{
-			var clients = new List<KingClient>();
-
-			for (var i = 0; i < 1; i++)
-				clients.Add(new KingClient());
-
-			foreach (var client in clients)
-			{
-				client.Connect("127.0.0.1", 7171);
-
-				Thread.Sleep(2000);
-                client.SendMessage();
-			}
-
-			Console.ReadLine();
-		}
-	}
+        /// <summary>
+        /// This method is responsible for main execution of console application.
+        /// </summary>
+        /// <param name="args">The string args receiveds by parameters.</param>
+        static void Main(string[] args)
+        {
+            try
+            {
+                var client = new KingClient();
+                client.Connect("127.0.0.1", 7171);
+                
+                Console.ReadLine();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+    }
 }

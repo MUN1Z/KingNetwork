@@ -1,53 +1,33 @@
 using KingNetwork.Example.Server.PacketHandlers;
 using KingNetwork.Example.Shared.PacketHandlers;
 using KingNetwork.Server;
-using KingNetwork.Shared;
 using System;
-using System.Threading;
 
 namespace KingNetwork.Example.TestServer
 {
+    /// <summary>
+    /// This class represents the program instance.
+    /// </summary>
     class Program
     {
-        private KingServer _server;
-
-        public void Run()
+        /// <summary>
+        /// This method is responsible for main execution of console application.
+        /// </summary>
+        /// <param name="args">The string args receiveds by parameters.</param>
+        static void Main(string[] args)
         {
             try
             {
-                _server = new KingServer(7171);
+                var server = new KingServer(7171);
+                server.PutHandler<MyPacketHandlerOne>(MyPackets.MyTestPacketOne);
+                server.Start();
 
-                _server.PutHandler<MyPacketHandlerOne>(MyPackets.Default);
-                _server.PutHandler<MyPacketHandlerOne>(MyPackets.MyTestPacketOne);
-
-                new Thread(() =>
-                {
-                    while (true)
-                    {
-                        Thread.Sleep(2000);
-
-                        var message = new byte[ConnectionSettings.MAX_MESSAGE_BUFFER];
-                        message[0] = 1;
-
-                        _server.SendMessageToAll(message);
-                    }
-                }).Start();
-
-                _server.Start();
+                Console.ReadLine();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
             }
-        }
-
-        static void Main(string[] args)
-        {
-
-            var program = new Program();
-            program.Run();
-
-            Console.ReadKey();
         }
     }
 }

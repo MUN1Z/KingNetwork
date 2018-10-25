@@ -22,9 +22,9 @@ namespace KingNetwork.Server
         public NetworkListener _networkListener { get; private set; }
 
         /// <summary> 	
-        /// The network dictionary list of server handlers. 	
+        /// The network dictionary list of server packet handlers. 	
         /// </summary> 	
-        private Dictionary<ushort, ServerHandler> _serverHandlers;
+        private Dictionary<ushort, ServerPacketHandler> _serverPacketHandlers;
 
         /// <summary> 	
         /// The network dictionary of clients. 	
@@ -50,11 +50,11 @@ namespace KingNetwork.Server
         #region delegates 	
 
         /// <summary> 	
-        /// The server handler. 	
+        /// The server packet handler delegate. 	
         /// </summary> 	
         /// <param name="index">The index of connected client.</param>
         /// <param name="data">The bytes data from message.</param>
-        public delegate void ServerHandler(ushort index, byte[] data);
+        public delegate void ServerPacketHandler(ushort index, byte[] data);
 
         #endregion
 
@@ -70,7 +70,7 @@ namespace KingNetwork.Server
             {
                 _port = port;
                 _clients = new Dictionary<ushort, IClient>();
-                _serverHandlers = new Dictionary<ushort, ServerHandler>();
+                _serverPacketHandlers = new Dictionary<ushort, ServerPacketHandler>();
             }
             catch (Exception ex)
             {
@@ -89,11 +89,11 @@ namespace KingNetwork.Server
         {
             try
             {
-                ServerHandler serverHandler;
+                ServerPacketHandler serverHandler;
 
                 Console.WriteLine("OnMessageReceived");
 
-                if (_serverHandlers.TryGetValue(data[0], out serverHandler))
+                if (_serverPacketHandlers.TryGetValue(data[0], out serverHandler))
                     serverHandler(client.ID, data);
             }
             catch (Exception ex)
@@ -156,12 +156,12 @@ namespace KingNetwork.Server
         /// <param name="type">The value of packet handler.</param>
         public void PutHandler<T>(ushort packet) where T : PacketHandler, new()
         {
-            if (_serverHandlers.ContainsKey(packet))
-                _serverHandlers.Remove(packet);
+            if (_serverPacketHandlers.ContainsKey(packet))
+                _serverPacketHandlers.Remove(packet);
 
             var handler = new T();
 
-            _serverHandlers.Add(packet, handler.HandleMessageData);
+            _serverPacketHandlers.Add(packet, handler.HandleMessageData);
         }
 
         /// <summary>
