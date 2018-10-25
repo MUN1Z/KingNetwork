@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Threading;
 
 namespace KingNetwork.Client
@@ -11,7 +10,7 @@ namespace KingNetwork.Client
         private Thread _thread;
 
         public bool Connected => _networkListener != null ? _networkListener.IsConnected : false;
-        
+
         public KingClient()
         {
 

@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Sockets;
 
 namespace KingNetwork.Server.Interfaces
@@ -8,12 +7,24 @@ namespace KingNetwork.Server.Interfaces
     /// </summary>
     public interface IClient
     {
+        /// <summary>
+        /// The id of client.
+        /// </summary>
         ushort ID { get; }
 
-	    string IP { get; }
+        /// <summary>
+        /// The ip of connected client.
+        /// </summary>
+        string IP { get; }
 
-		NetworkStream Stream { get; }
+        /// <summary>
+        /// The stream of client.
+        /// </summary>
+        NetworkStream Stream { get; }
 
-		bool HasConnected { get; }
+        /// <summary>
+		/// The flag of client connection.
+		/// </summary>
+        bool HasConnected { get; }
     }
 }

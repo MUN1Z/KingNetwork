@@ -15,7 +15,7 @@ namespace KingNetwork.Server
     public class KingServer
     {
         #region private members 	
-        
+
         /// <summary> 	
         /// The network listener instance. 	
         /// </summary> 	
@@ -35,7 +35,7 @@ namespace KingNetwork.Server
         /// The Server port. 	
         /// </summary> 	
         private ushort _port;
-        
+
         /// <summary> 	
         /// The counter for generation of client id. 	
         /// </summary> 	
@@ -57,7 +57,7 @@ namespace KingNetwork.Server
         public delegate void ServerHandler(ushort index, byte[] data);
 
         #endregion
-        
+
         private ushort GetNextClientId() => (ushort)Interlocked.Increment(ref _counter);
 
         /// <summary>
@@ -106,18 +106,21 @@ namespace KingNetwork.Server
         /// Method responsible execute the callback of client connected in server.
         /// </summary>
         /// <param name="tcpClient">The tcp client object from connected client.</param>
-        internal void OnClientConnected(TcpClient tcpClient) {
-	        try {
+        internal void OnClientConnected(TcpClient tcpClient)
+        {
+            try
+            {
 
-		        var client = new Client(GetNextClientId(), tcpClient, OnMessageReceived);
+                var client = new Client(GetNextClientId(), tcpClient, OnMessageReceived);
 
                 _clients.Add(client.ID, client);
 
                 Console.WriteLine($"Client connected from {client.IP}");
             }
-            catch (Exception ex) {
-				Console.WriteLine($"Error: {ex.Message}.");
-			}
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
         }
 
         /// <summary>
@@ -211,7 +214,7 @@ namespace KingNetwork.Server
         {
             try
             {
-                foreach(var client in GetAllClients().Where(c => c.HasConnected))
+                foreach (var client in GetAllClients().Where(c => c.HasConnected))
                 {
                     client.Stream.Write(data, 0, data.Length);
                     client.Stream.Flush();

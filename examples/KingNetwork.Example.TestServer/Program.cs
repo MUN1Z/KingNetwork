@@ -1,21 +1,24 @@
-using KingNetwork.Server;
-using System;
-using KingNetwork.Example.Shared.PacketHandlers;
-using System.Threading;
-using KingNetwork.Shared;
-using System.Linq;
 using KingNetwork.Example.Server.PacketHandlers;
+using KingNetwork.Example.Shared.PacketHandlers;
+using KingNetwork.Server;
+using KingNetwork.Shared;
+using System;
+using System.Threading;
 
-namespace KingNetwork.Example.TestServer {
-	class Program {
-		private KingServer _server;
+namespace KingNetwork.Example.TestServer
+{
+    class Program
+    {
+        private KingServer _server;
 
-		public void Run() {
-			try {
-				_server = new KingServer(7171);
-                
-				_server.PutHandler<MyPacketHandlerOne>(MyPackets.Default);
-				_server.PutHandler<MyPacketHandlerOne>(MyPackets.MyTestPacketOne);
+        public void Run()
+        {
+            try
+            {
+                _server = new KingServer(7171);
+
+                _server.PutHandler<MyPacketHandlerOne>(MyPackets.Default);
+                _server.PutHandler<MyPacketHandlerOne>(MyPackets.MyTestPacketOne);
 
                 new Thread(() =>
                 {
@@ -31,18 +34,20 @@ namespace KingNetwork.Example.TestServer {
                 }).Start();
 
                 _server.Start();
-			}
-			catch (Exception ex) {
-				Console.WriteLine($"Error: {ex.Message}");
-			}
-		}
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
 
-		static void Main(string[] args) {
+        static void Main(string[] args)
+        {
 
-			var program = new Program();
-			program.Run();
+            var program = new Program();
+            program.Run();
 
-			Console.ReadKey();
-		}
-	}
+            Console.ReadKey();
+        }
+    }
 }

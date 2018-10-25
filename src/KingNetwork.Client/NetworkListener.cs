@@ -5,9 +5,9 @@ using System.Net.Sockets;
 namespace KingNetwork.Client
 {
     public class NetworkListener : TcpClient
-	{
-		public bool IsConnected { get; private set; }
-        
+    {
+        public bool IsConnected { get; private set; }
+
         /// <summary>
         /// The stream of client.
         /// </summary>
@@ -16,17 +16,17 @@ namespace KingNetwork.Client
         private byte[] _buffer;
 
         public NetworkListener()
-		{
+        {
             _buffer = new byte[ConnectionSettings.MAX_MESSAGE_BUFFER];
-		}
+        }
 
-		public void StartClient(string ip, int port)
-		{
+        public void StartClient(string ip, int port)
+        {
             Client.NoDelay = true;
             Connect(ip, port);
 
             Console.WriteLine("Connected to server!");
-		}
+        }
 
         public void SendMessage()
         {
@@ -58,7 +58,7 @@ namespace KingNetwork.Client
 
                     Console.WriteLine($"Received message from server.");
 
-                   // _messageReceived(this, _buffer);
+                    // _messageReceived(this, _buffer);
                 }
                 else
                 {

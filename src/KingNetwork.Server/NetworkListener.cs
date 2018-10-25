@@ -1,35 +1,45 @@
-using KingNetwork.Server.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
 namespace KingNetwork.Server
 {
     /// <summary>
-    /// This class is responsible for managing the network listener.
+    /// This class is responsible for managing the network tcp listener.
     /// </summary>
-    public class NetworkListener: TcpListener
+    public class NetworkListener : TcpListener
     {
         #region private members 	
-        
+
+        /// <summary> 	
+        /// The callback of connected handler. 	
+        /// </summary> 	
+        public ConnectedHandler _connected;
+
+        #endregion
+
+        #region delegates 
+
+        /// <summary> 	
+        /// The handler from callback of client connection. 	
+        /// </summary> 	
+        /// <param name="client">The tcp client from connected client.</param>
+        public delegate void ConnectedHandler(TcpClient client);
+
         #endregion
 
         #region constructors
 
-        public delegate void ConnectedHandler(TcpClient client);
-
-        public ConnectedHandler Connected { get; set; }
-
         /// <summary>
-		/// Creates a new instance of a <see cref="NetworkListener"/>.
-		/// </summary>
+        /// Creates a new instance of a <see cref="NetworkListener"/>.
+        /// </summary>
         /// <param name="port">The port of server.</param>
+        /// <param name="connectedHandler">The coonected handler callback implementation.</param>
         public NetworkListener(ushort port, ConnectedHandler connectedHandler) : base(IPAddress.Any, port)
         {
             try
             {
-                Connected = connectedHandler;
+                _connected = connectedHandler;
 
                 Server.NoDelay = true;
                 Start();
@@ -45,14 +55,15 @@ namespace KingNetwork.Server
 
         #endregion
 
-        #region methods
-        
-        public void OnAccept(IAsyncResult ar)
+        #region internal methods
+
+        /// <summary> 	
+        /// The callback from accept client connection. 	
+        /// </summary> 	
+        /// <param name="asyncResult">The async result from socket accepted in connection.</param>
+        internal void OnAccept(IAsyncResult asyncResult)
         {
-            var client = ((TcpListener)ar.AsyncState).EndAcceptTcpClient(ar);
-
-            Connected(client);
-
+            _connected(((TcpListener)asyncResult.AsyncState).EndAcceptTcpClient(asyncResult));
             BeginAcceptSocket(OnAccept, this);
         }
 
