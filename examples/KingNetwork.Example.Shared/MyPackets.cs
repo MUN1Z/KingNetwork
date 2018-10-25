@@ -1,9 +1,15 @@
-using KingNetwork.Shared.PacketHandlers;
+using KingNetwork.Shared.Network;
 
-namespace KingNetwork.Example.Shared.PacketHandlers {
-	public class MyPackets : Packets {
-		public static ushort MyTestPacketOne => 1;
-		public static ushort MyTestPacketTwo => 2;
-		public static ushort MyTestPacketThree => 3;
-	}
+namespace KingNetwork.Example.Shared.PacketHandlers
+{
+    /// <summary>
+    /// This class is responsible for represents the packets of messages to client and server handlers.
+    /// </summary>
+    public class MyPackets : Packets
+    {
+        /// <summary>
+        /// This MyTestPacketOne.
+        /// </summary>
+        public static ushort MyTestPacketOne => 1;
+    }
 }
