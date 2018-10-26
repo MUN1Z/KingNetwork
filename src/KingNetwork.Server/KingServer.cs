@@ -127,7 +127,7 @@ namespace KingNetwork.Server
         {
             try
             {
-                var client = new Client(GetNewClientKey(), tcpClient, OnMessageReceived, OnClientDisconnected);
+                var client = new Client(GetNewClientKey(), tcpClient, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
 
                 _clients.Add(client.Key, client);
 

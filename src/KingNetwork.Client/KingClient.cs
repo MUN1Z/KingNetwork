@@ -26,7 +26,7 @@ namespace KingNetwork.Client
         /// The thread for start the network listener. 	
         /// </summary> 	
         private Thread _clientThread;
-
+        
         #endregion
 
         #region properties
@@ -51,7 +51,7 @@ namespace KingNetwork.Client
         #region constructors
 
         /// <summary>
-		/// Creates a new instance of a <see cref="KingServer"/>.
+		/// Creates a new instance of a <see cref="KingClient"/>.
 		/// </summary>
         public KingClient()
         {
@@ -92,14 +92,15 @@ namespace KingNetwork.Client
         /// </summary>
         /// <param name="ip">The ip address from server.</param>
         /// <param name="port">The port number from server, the default value us 7171</param>
-        public void Connect(string ip, ushort port = 7171)
+        /// <param name="maxMessageBuffer">The max length of message buffer, the default value is 4096.</param>
+        public void Connect(string ip, ushort port = 7171, ushort maxMessageBuffer = 4096)
         {
             try
             {
                 _clientThread = new Thread(() =>
                 {
                     _networkListener = new NetworkTcpListener(OnMessageReceived, OnClientDisconnected);
-                    _networkListener.StartClient(ip, port);
+                    _networkListener.StartClient(ip, port, maxMessageBuffer);
                 });
 
                 _clientThread.IsBackground = true;

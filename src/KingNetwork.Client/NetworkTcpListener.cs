@@ -27,7 +27,7 @@ namespace KingNetwork.Client
         /// The buffer of client connection.
         /// </summary>
         private byte[] _buffer;
-
+        
         #endregion
 
         #region delegates 
@@ -70,7 +70,6 @@ namespace KingNetwork.Client
         {
             try
             {
-                _buffer = new byte[ConnectionSettings.MAX_MESSAGE_BUFFER];
                 _messageReceivedHandler = messageReceivedHandler;
                 _clientDisconnectedHandler = clientDisconnectedHandler;
             }
@@ -89,17 +88,20 @@ namespace KingNetwork.Client
         /// </summary>
         /// <param name="ip">The ip address of server.</param>
         /// <param name="port">The port of server.</param>
-        public void StartClient(string ip, int port)
+        /// <param name="maxMessageBuffer">The max length of message buffer.</param>
+        public void StartClient(string ip, int port, ushort maxMessageBuffer)
         {
             try
+
             {
                 Client.NoDelay = true;
                 Connect(ip, port);
+                
+                _buffer = new byte[maxMessageBuffer];
 
-                _buffer = new byte[ConnectionSettings.MAX_MESSAGE_BUFFER];
+                ReceiveBufferSize = maxMessageBuffer;
+                SendBufferSize = maxMessageBuffer;
 
-                ReceiveBufferSize = ConnectionSettings.MAX_MESSAGE_BUFFER;
-                SendBufferSize = ConnectionSettings.MAX_MESSAGE_BUFFER;
                 Stream.BeginRead(_buffer, 0, ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
 
                 Console.WriteLine("Connected to server!");

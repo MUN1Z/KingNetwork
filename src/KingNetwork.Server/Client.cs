@@ -85,7 +85,8 @@ namespace KingNetwork.Server
         /// <param name="tcpClient">The tcp client from connected client.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnedted handler implementation.</param>
-        public Client(ushort key, TcpClient tcpClient, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler)
+        /// <param name="maxMessageBuffer">The max length of message buffer.</param>
+        public Client(ushort key, TcpClient tcpClient, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
         {
             try
             {
@@ -93,9 +94,9 @@ namespace KingNetwork.Server
                 _messageReceivedHandler = messageReceivedHandler;
                 _clientDisconnectedHandler = clientDisconnectedHandler;
 
-                _tcpClient.ReceiveBufferSize = ConnectionSettings.MAX_MESSAGE_BUFFER;
-                _tcpClient.SendBufferSize = ConnectionSettings.MAX_MESSAGE_BUFFER;
-                _buffer = new byte[ConnectionSettings.MAX_MESSAGE_BUFFER];
+                _tcpClient.ReceiveBufferSize = maxMessageBuffer;
+                _tcpClient.SendBufferSize = maxMessageBuffer;
+                _buffer = new byte[maxMessageBuffer];
 
                 Key = key;
                 IpAddress = _tcpClient.Client.RemoteEndPoint.ToString();
