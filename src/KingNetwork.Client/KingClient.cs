@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using KingNetwork.Shared;
 
 namespace KingNetwork.Client
 {
@@ -42,8 +43,8 @@ namespace KingNetwork.Client
         /// <summary> 	
         /// The client packet handler delegate. 	
         /// </summary> 	
-        /// <param name="data">The bytes data from message.</param>
-        public delegate void ClientPacketHandler(byte[] data);
+        /// <param name="kingBuffer">The king buffer of received message.</param>
+        public delegate void ClientPacketHandler(KingBuffer kingBuffer);
 
         #endregion
 
@@ -114,12 +115,12 @@ namespace KingNetwork.Client
         /// <summary>
         /// Method responsible for send message to connected server.
         /// </summary>
-        /// <param name="data">The data bytes from message.</param>
-        public void SendMessage(byte[] data)
+        /// <param name="kingBuffer">The king buffer to send message.</param>
+        public void SendMessage(KingBuffer kingBuffer)
         {
             try
             {
-                _networkListener.SendMessage(data);
+                _networkListener.SendMessage(kingBuffer);
             }
             catch (Exception ex)
             {
@@ -134,15 +135,15 @@ namespace KingNetwork.Client
         /// <summary>
         /// Method responsible for execute the callback of message received from client in server.
         /// </summary>
-        /// <param name="data">The data bytes from message.</param>
-        private void OnMessageReceived(byte[] data)
+        /// <param name="kingBuffer">The king buffer of received message.</param>
+        private void OnMessageReceived(KingBuffer kingBuffer)
         {
             try
             {
                 ClientPacketHandler clientPacketHandler;
 
-                if (_clientPacketHandlers.TryGetValue(data[0], out clientPacketHandler))
-                    clientPacketHandler(data);
+                if (_clientPacketHandlers.TryGetValue(kingBuffer.ReadMessagePacket(), out clientPacketHandler))
+                    clientPacketHandler(kingBuffer);
             }
             catch (Exception ex)
             {

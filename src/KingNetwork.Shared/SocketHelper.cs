@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 
-namespace KingNetwork.Shared.Helpers
+namespace KingNetwork.Shared
 {
     /// <summary>
     /// This class is responsible for provider methotds to help sockets.

@@ -1,5 +1,4 @@
 using KingNetwork.Shared;
-using KingNetwork.Shared.Helpers;
 using System;
 using System.Net.Sockets;
 
@@ -27,16 +26,16 @@ namespace KingNetwork.Client
         /// The buffer of client connection.
         /// </summary>
         private byte[] _buffer;
-        
+
         #endregion
 
         #region delegates 
 
         /// <summary>
-		/// The delegate of message reveiced handler from server connection.
-		/// </summary>
-        /// <param name="data">The data bytes from message received.</param>
-        public delegate void MessageReceivedHandler(byte[] data);
+        /// The delegate of message reveiced handler from server connection.
+        /// </summary>
+        /// <param name="kingBuffer">The king buffer of received message.</param>
+        public delegate void MessageReceivedHandler(KingBuffer kingBuffer);
         
         /// <summary>
 		/// The delegate of client disconnected handler connection.
@@ -115,12 +114,12 @@ namespace KingNetwork.Client
         /// <summary>
         /// Method responsible for send message to connected server.
         /// </summary>
-        /// <param name="data">The data bytes from message.</param>
-        public void SendMessage(byte[] data)
+        /// <param name="kingBuffer">The king buffer of received message.</param>
+        public void SendMessage(KingBuffer kingBuffer)
         {
             try
             {
-                Stream.BeginWrite(data, 0, data.Length, null, null);
+                Stream.BeginWrite(kingBuffer.ToArray(), 0, kingBuffer.Length(), null, null);
             }
             catch (Exception ex)
             {
@@ -153,7 +152,7 @@ namespace KingNetwork.Client
 
                         Console.WriteLine($"Received message from server.");
 
-                        _messageReceivedHandler(_buffer);
+                        _messageReceivedHandler(new KingBuffer(_buffer));
                     }
                 }
 

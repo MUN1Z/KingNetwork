@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace KingNetwork.Shared.Network
+namespace KingNetwork.Shared
 {
 
     /// <summary>
@@ -47,6 +47,15 @@ namespace KingNetwork.Shared.Network
         public KingBuffer()
         {
             _buffer = new List<byte>();
+            _readpos = 0;
+        }
+
+        /// <summary>
+        /// Creates a new instance of a <see cref="KingBuffer"/>.
+        /// </summary>
+        public KingBuffer(byte[] data)
+        {
+            _buffer = new List<byte>(data);
             _readpos = 0;
         }
 
@@ -135,7 +144,7 @@ namespace KingNetwork.Shared.Network
 
             return array;
         }
-
+        
         public float ReadFloat(bool peek = true)
         {
             if (_buffer.Count <= _readpos)
@@ -154,9 +163,20 @@ namespace KingNetwork.Shared.Network
             return single;
         }
 
-        public int ReadMessagePacketType()
+        public byte ReadMessagePacket()
         {
-            return ReadInteger(true);
+            if (_readpos == 0)
+                _readpos += 1;
+
+            return _buffer[0];
+        }
+
+        public TPacket ReadMessagePacket<TPacket>() where TPacket : IConvertible
+        {
+            if(_readpos == 0)
+                _readpos += 1;
+
+            return (TPacket)(IConvertible)_buffer[0];
         }
 
         public int ReadInteger(bool peek = true)

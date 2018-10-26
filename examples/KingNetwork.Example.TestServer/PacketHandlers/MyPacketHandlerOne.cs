@@ -1,21 +1,23 @@
-using KingNetwork.Server;
 using System;
+using KingNetwork.Server;
+using KingNetwork.Server.Interfaces;
+using KingNetwork.Shared;
 
-namespace KingNetwork.Example.Server.PacketHandlers
+namespace KingNetwork.Example.TestServer.PacketHandlers
 {
     /// <summary>
-    /// This interface is responsible for represents the imeplementation of MyPacketHandlerOne from server packet handler.
+    /// This interface is responsible for represents the implementation of MyPacketHandlerOne from server packet handler.
     /// </summary>
     public class MyPacketHandlerOne : PacketHandler
     {
         /// <summary>
         /// This method is responsible for receive the message from server packet handler.
         /// </summary>
-        /// <param name="index">The index of connected client.</param>
-        /// <param name="data">The bytes data of message.</param>
-        public override void HandleMessageData(ushort index, byte[] data)
+        /// <param name="client">The connected client.</param>
+        /// <param name="kingBuffer">The king buffer received from message.</param>
+        public override void HandleMessageData(IClient client, KingBuffer kingBuffer)
         {
-            Console.WriteLine("Received message in MyPacketHandlerOne");
+            Console.WriteLine($"OnMessageReceived PacketOne from {client.Key}");
         }
     }
 }

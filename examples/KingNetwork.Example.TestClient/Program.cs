@@ -1,7 +1,7 @@
 using KingNetwork.Client;
-using KingNetwork.Example.Client.PacketHandlers;
 using KingNetwork.Example.Shared;
 using System;
+using KingNetwork.Example.TestClient.PacketHandlers;
 
 namespace KingNetwork.Example.TestClient
 {

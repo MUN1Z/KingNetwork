@@ -1,6 +1,5 @@
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
-using KingNetwork.Shared.Helpers;
 using System;
 using System.Net.Sockets;
 
@@ -55,18 +54,18 @@ namespace KingNetwork.Server
         /// <summary>
 		/// The flag of client connection.
 		/// </summary>
-		public bool IsConnected => SocketHelper.IsConnected(_tcpClient);
+		public bool IsConnected => _tcpClient.IsConnected();
 
         #endregion
 
         #region delegates
 
         /// <summary>
-		/// The delegate of message reveiced handler from client connection.
+		/// The delegate of message received handler from client connection.
 		/// </summary>
         /// <param name="client">The client instance.</param>
-        /// <param name="data">The data bytes from message received.</param>
-        public delegate void MessageReceivedHandler(IClient client, byte[] data);
+        /// <param name="kingBuffer">The king buffer of received message.</param>
+        public delegate void MessageReceivedHandler(IClient client, KingBuffer kingBuffer);
 
         /// <summary>
 		/// The delegate of client disconnected handler connection.
@@ -129,8 +128,8 @@ namespace KingNetwork.Server
                         Stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
 
                         Console.WriteLine($"Received message from client '{IpAddress}'.");
-
-                        _messageReceivedHandler(this, _buffer);
+                        
+                        _messageReceivedHandler(this, new KingBuffer(_buffer));
 
                         return;
                     }

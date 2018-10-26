@@ -1,4 +1,5 @@
 using KingNetwork.Server.Interfaces;
+using KingNetwork.Shared;
 
 namespace KingNetwork.Server
 {
@@ -10,8 +11,8 @@ namespace KingNetwork.Server
         /// <summary>
         /// This method is responsible for receive the message from server packet handler.
         /// </summary>
-        /// <param name="index">The index of connected client.</param>
-        /// <param name="data">The bytes data of message.</param>
-        public abstract void HandleMessageData(ushort index, byte[] data);
+        /// <param name="client">The connected client.</param>
+        /// <param name="kingBuffer">The king buffer received from message.</param>
+        public abstract void HandleMessageData(IClient client, KingBuffer kingBuffer);
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using KingNetwork.Shared;
 
 namespace KingNetwork.Server
 {
@@ -18,27 +19,27 @@ namespace KingNetwork.Server
         /// <summary> 	
         /// The network tcp listener instance. 	
         /// </summary> 	
-        public NetworkTcpListener _networkListener { get; private set; }
+        private NetworkTcpListener _networkListener;
 
         /// <summary> 	
         /// The network dictionary list of server packet handlers. 	
         /// </summary> 	
-        private Dictionary<byte, ServerPacketHandler> _serverPacketHandlers;
+        private readonly Dictionary<byte, ServerPacketHandler> _serverPacketHandlers;
 
         /// <summary> 	
         /// The network dictionary of clients. 	
         /// </summary> 	
-        private Dictionary<ushort, IClient> _clients;
+        private readonly Dictionary<ushort, IClient> _clients;
 
         /// <summary> 	
         /// The Server port. 	
         /// </summary> 	
-        private ushort _port;
+        private readonly ushort _port;
 
         /// <summary>
         /// The max length of message buffer.
         /// </summary>
-        private ushort _maxMessageBuffer;
+        private readonly ushort _maxMessageBuffer;
 
         /// <summary>
         /// The number max of connected clients.
@@ -52,14 +53,23 @@ namespace KingNetwork.Server
 
         #endregion
 
+        #region properties
+
+        /// <summary>
+        /// The callback of message received handler implementation.
+        /// </summary>
+        public Client.MessageReceivedHandler MessageReceivedHandler { get; set; }
+
+        #endregion
+
         #region delegates 	
 
         /// <summary> 	
         /// The server packet handler delegate. 	
         /// </summary> 	
-        /// <param name="index">The index of connected client.</param>
-        /// <param name="data">The bytes data from message.</param>
-        public delegate void ServerPacketHandler(ushort index, byte[] data);
+        /// <param name="client">The connected client.</param>
+        /// <param name="buffer">The king buffer received from message.</param>
+        public delegate void ServerPacketHandler(IClient client, KingBuffer buffer);
 
         #endregion
 
@@ -99,18 +109,18 @@ namespace KingNetwork.Server
         /// <summary>
         /// Method responsible for execute the callback of message received from client in server.
         /// </summary>
-        /// <param name="client">The client instance.</param>
-        /// <param name="data">The data bytes from message.</param>
-        private void OnMessageReceived(IClient client, byte[] data)
+        /// <param name="client">The connected client.</param>
+        /// <param name="kingBuffer">The king buffer received from message.</param>
+        private void OnMessageReceived(IClient client, KingBuffer kingBuffer)
         {
             try
             {
-                ServerPacketHandler serverHandler;
-
                 Console.WriteLine("OnMessageReceived");
-
-                if (_serverPacketHandlers.TryGetValue(data[0], out serverHandler))
-                    serverHandler(client.Key, data);
+                
+                if (_serverPacketHandlers.TryGetValue(kingBuffer.ReadMessagePacket(), out var serverHandler))
+                    serverHandler(client, kingBuffer);
+                else
+                    MessageReceivedHandler(client, kingBuffer);
             }
             catch (Exception ex)
             {
@@ -126,11 +136,17 @@ namespace KingNetwork.Server
         {
             try
             {
-                var client = new Client(GetNewClientKey(), tcpClient, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
-
-                _clients.Add(client.Key, client);
-
-                Console.WriteLine($"Client connected from '{client.IpAddress}'.");
+                if (_clients.Count <= _maxClientConnections)
+                {
+                    var client = new Client(GetNewClientKey(), tcpClient, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
+                    _clients.Add(client.Key, client);
+                    Console.WriteLine($"Client connected from '{client.IpAddress}'.");
+                }
+                else
+                {
+                    tcpClient.Dispose();
+                    Console.WriteLine($"Max client connections {_maxClientConnections}.");
+                }
             }
             catch (Exception ex)
             {
@@ -205,8 +221,7 @@ namespace KingNetwork.Server
 
                     var handler = new TPacketHandler();
 
-                    if (handler != null)
-                        _serverPacketHandlers.Add((byte)(IConvertible)packet, handler.HandleMessageData);
+                    _serverPacketHandlers.Add((byte)(IConvertible)packet, handler.HandleMessageData);
                 }
             }
             catch (Exception ex)
@@ -238,17 +253,17 @@ namespace KingNetwork.Server
         /// Method responsible for send message to specific connected client.
         /// </summary>
         /// <param name="client">The client instance.</param>
-        /// <param name="data">The data bytes from message.</param>
-        public void SendMessage(IClient client, byte[] data)
+        /// <param name="kingBuffer">The king buffer of received message.</param>
+        public void SendMessage(IClient client, KingBuffer kingBuffer)
         {
             try
             {
                 if (client.IsConnected)
                 {
-                    client.Stream.Write(data, 0, data.Length);
+                    client.Stream.Write(kingBuffer.ToArray(), 0, kingBuffer.Length());
                     client.Stream.Flush();
 
-                    Console.WriteLine($"Message sended to client {client.Key}.");
+                    Console.WriteLine($"Message sent to client {client.Key}.");
                 }
             }
             catch (Exception ex)
@@ -260,18 +275,13 @@ namespace KingNetwork.Server
         /// <summary>
         /// Method responsible for send message to all connected client.
         /// </summary>
-        /// <param name="data">The bytes data from message.</param>
-        public void SendMessageToAll(byte[] data)
+        /// <param name="kingBuffer">The king buffer of received message.</param>
+        public void SendMessageToAll(KingBuffer kingBuffer)
         {
             try
             {
                 foreach (var client in GetAllClients().Where(c => c.IsConnected))
-                {
-                    client.Stream.Write(data, 0, data.Length);
-                    client.Stream.Flush();
-
-                    Console.WriteLine($"Message sended to client {client.Key}.");
-                }
+                    SendMessage(client, kingBuffer);
             }
             catch (Exception ex)
             {
@@ -280,21 +290,16 @@ namespace KingNetwork.Server
         }
 
         /// <summary>
-        /// Method responsible for send message to all connected client minus one especific client.
+        /// Method responsible for send message to all connected client minus one specific client.
         /// </summary>
         /// <param name="client">The client instance.</param>
-        /// <param name="data">The bytes data from message.</param>
-        public void SendMessageToAllMinus(IClient client, byte[] data)
+        /// <param name="kingBuffer">The king buffer of received message.</param>
+        public void SendMessageToAllMinus(IClient client, KingBuffer kingBuffer)
         {
             try
             {
                 foreach (var clientToSend in GetAllClients().Where(c => c.IsConnected && c.Key != client.Key))
-                {
-                    client.Stream.Write(data, 0, data.Length);
-                    client.Stream.Flush();
-
-                    Console.WriteLine($"Message sended to client {client.Key}.");
-                }
+                    SendMessage(clientToSend, kingBuffer);
             }
             catch (Exception ex)
             {
