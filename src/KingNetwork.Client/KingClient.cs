@@ -162,7 +162,7 @@ namespace KingNetwork.Client
         {
             try
             {
-                //TODO
+                _networkListener.Dispose();
             }
             catch (Exception ex)
             {

@@ -43,7 +43,7 @@ namespace KingNetwork.SimpleExample.Server
                 switch (data.ReadMessagePacket<MyPackets>())
                 {
                     case MyPackets.PacketOne:
-                        Console.WriteLine($"OnMessageReceived PacketOne from {client.Key}");
+                        Console.WriteLine($"OnMessageReceived PacketOne from {client.Id}");
                         break;
                 }
             }

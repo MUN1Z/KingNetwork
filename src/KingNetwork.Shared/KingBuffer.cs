@@ -4,7 +4,6 @@ using System.Text;
 
 namespace KingNetwork.Shared
 {
-
     /// <summary>
     /// This class is responsible for represents the buffer of application.
     /// </summary>

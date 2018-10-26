@@ -1,4 +1,4 @@
-using System.Net.Sockets;
+using KingNetwork.Shared;
 
 namespace KingNetwork.Server.Interfaces
 {
@@ -8,9 +8,9 @@ namespace KingNetwork.Server.Interfaces
     public interface IClient
     {
         /// <summary>
-        /// The key number of client.
+        /// The identification number of client.
         /// </summary>
-        ushort Key { get; }
+        ushort Id { get; }
 
         /// <summary>
         /// The ip address of connected client.
@@ -18,13 +18,14 @@ namespace KingNetwork.Server.Interfaces
         string IpAddress { get; }
 
         /// <summary>
-        /// The stream of client.
+        /// The flag of client connection.
         /// </summary>
-        NetworkStream Stream { get; }
+        bool IsConnected { get; }
 
         /// <summary>
-		/// The flag of client connection.
-		/// </summary>
-        bool IsConnected { get; }
+        /// Method responsible for send message to specific connected client.
+        /// </summary>
+        /// <param name="kingBuffer">The king buffer of received message.</param>
+        void SendMessage(KingBuffer kingBuffer);
     }
 }

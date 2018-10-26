@@ -102,9 +102,9 @@ namespace KingNetwork.Server
         #region private methods implementation
 
         /// <summary> 	
-        /// Method responsible for generation of key to new connected client. 	
+        /// Method responsible for generation of identifier to new connected client. 	
         /// </summary> 	
-        private ushort GetNewClientKey() => (ushort)Interlocked.Increment(ref _counter);
+        private ushort GetNewClientIdentifier() => (ushort)Interlocked.Increment(ref _counter);
 
         /// <summary>
         /// Method responsible for execute the callback of message received from client in server.
@@ -138,8 +138,8 @@ namespace KingNetwork.Server
             {
                 if (_clients.Count <= _maxClientConnections)
                 {
-                    var client = new Client(GetNewClientKey(), tcpClient, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
-                    _clients.Add(client.Key, client);
+                    var client = new Client(GetNewClientIdentifier(), tcpClient, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
+                    _clients.Add(client.Id, client);
                     Console.WriteLine($"Client connected from '{client.IpAddress}'.");
                 }
                 else
@@ -258,13 +258,7 @@ namespace KingNetwork.Server
         {
             try
             {
-                if (client.IsConnected)
-                {
-                    client.Stream.Write(kingBuffer.ToArray(), 0, kingBuffer.Length());
-                    client.Stream.Flush();
-
-                    Console.WriteLine($"Message sent to client {client.Key}.");
-                }
+                client.SendMessage(kingBuffer);
             }
             catch (Exception ex)
             {
@@ -298,7 +292,7 @@ namespace KingNetwork.Server
         {
             try
             {
-                foreach (var clientToSend in GetAllClients().Where(c => c.IsConnected && c.Key != client.Key))
+                foreach (var clientToSend in GetAllClients().Where(c => c.IsConnected && c.Id != client.Id))
                     SendMessage(clientToSend, kingBuffer);
             }
             catch (Exception ex)
