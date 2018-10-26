@@ -100,7 +100,7 @@ namespace KingNetwork.Client
                 ReceiveBufferSize = maxMessageBuffer;
                 SendBufferSize = maxMessageBuffer;
 
-                Stream.BeginRead(_buffer, 0, ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
+                Stream.BeginRead(_buffer, 0, ReceiveBufferSize, ReceiveDataCallback, null);
 
                 Console.WriteLine("Connected to server!");
             }
@@ -147,7 +147,7 @@ namespace KingNetwork.Client
                         var numArray = new byte[endRead];
                         Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
 
-                        Stream.BeginRead(_buffer, 0, ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
+                        Stream.BeginRead(_buffer, 0, ReceiveBufferSize, ReceiveDataCallback, null);
 
                         Console.WriteLine("Received message from server.");
 

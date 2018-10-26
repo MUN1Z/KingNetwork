@@ -101,7 +101,7 @@ namespace KingNetwork.Server
                 Id = id;
                 IpAddress = _tcpClient.Client.RemoteEndPoint.ToString();
 
-                _stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
+                _stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, ReceiveDataCallback, null);
             }
             catch (Exception ex)
             {
@@ -156,7 +156,7 @@ namespace KingNetwork.Server
                     {
                         Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
 
-                        _stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
+                        _stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, ReceiveDataCallback, null);
 
                         Console.WriteLine($"Received message from client '{IpAddress}'.");
 
