@@ -36,17 +36,23 @@ namespace KingNetwork.Server
         /// </summary> 	
         private ushort _port;
 
+        /// <summary>
+        /// The max length of message buffer.
+        /// </summary>
+        private ushort _maxMessageBuffer;
+
+        /// <summary>
+        /// The number max of connected clients.
+        /// </summary>
+        private ushort _maxClientConnections;
+        
         /// <summary> 	
         /// The counter for generation of client id. 	
         /// </summary> 	
         private int _counter = 0;
 
         #endregion
-
-        #region properties 	
-
-        #endregion
-
+        
         #region delegates 	
 
         /// <summary> 	
@@ -63,12 +69,16 @@ namespace KingNetwork.Server
         /// <summary>
         /// Creates a new instance of a <see cref="KingServer"/>.
         /// </summary>
-        /// <param name="port">The server port.</param>
-        public KingServer(ushort port)
+        /// <param name="port">The server port, the default value is 7171.</param>
+        /// <param name="maxMessageBuffer">The max length of message buffer, the default value is 4096.</param>
+        /// <param name="maxClientConnections">The number max of connected clients, the default value is 1000.</param>
+        public KingServer(ushort port = 7171, ushort maxMessageBuffer = 4096, ushort maxClientConnections = 1000)
         {
             try
             {
                 _port = port;
+                _maxMessageBuffer = maxMessageBuffer;
+                _maxClientConnections = maxClientConnections;
                 _clients = new Dictionary<ushort, IClient>();
                 _serverPacketHandlers = new Dictionary<ushort, ServerPacketHandler>();
             }
@@ -185,14 +195,18 @@ namespace KingNetwork.Server
         /// Method responsible for put packet handler in the list of packet handlers.
         /// </summary>
         /// <param name="packet">The value of packet handler.</param>
-        public void PutHandler<T>(ushort packet) where T : PacketHandler, new()
+        public void PutHandler<TPacketHandler, TPacket>() where TPacketHandler : PacketHandler, new() where TPacket : Enum, new()
         {
             try
             {
+                var a = typeof(TPacket);
+
+                var b = ()a;
+
                 if (_serverPacketHandlers.ContainsKey(packet))
                     _serverPacketHandlers.Remove(packet);
 
-                var handler = new T();
+                var handler = new TPacketHandler();
 
                 _serverPacketHandlers.Add(packet, handler.HandleMessageData);
             }

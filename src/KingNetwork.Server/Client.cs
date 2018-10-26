@@ -11,7 +11,6 @@ namespace KingNetwork.Server
     /// </summary>
     public class Client : IClient
     {
-
         #region private members
 
         /// <summary>
@@ -24,6 +23,11 @@ namespace KingNetwork.Server
         /// </summary>
         private byte[] _buffer;
 
+        /// <summary>
+        /// The buffer of client connection.
+        /// </summary>
+        private byte[] _buffer;
+        
         /// <summary>
 		/// The callback of message received handler implementation.
 		/// </summary>

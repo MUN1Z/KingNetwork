@@ -117,25 +117,7 @@ namespace KingNetwork.Shared.Network
         }
         
         #endregion
-
-        #region serializers and deserializers implementation
-
-        public static byte[] Serializer<TMessage>(TMessage message) where TMessage : KingMessage
-        {
-            message.Serialize();
-            return message.KingBuffer.ToArray();
-        }
-
-        public static TMessage DeSerializer<TMessage>(byte[] bytes) where TMessage : KingMessage, new()
-        {
-            var message = new TMessage();
-            message.DeSerialize(bytes);
-
-            return message;
-        }
-
-        #endregion
-
+        
         #region readers methods implementation 
 
         public byte[] ReadBytes(int Length, bool Peek = true)
