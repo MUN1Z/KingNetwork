@@ -1,4 +1,4 @@
-namespace KingNetwork.Example.Shared
+namespace KingNetwork.HandlerExample.Shared
 {
     /// <summary>
     /// This enum is responsible for represents the packets of messages to client and server handlers.

@@ -4,8 +4,4 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\KingNetwork.Shared\KingNetwork.Shared.csproj" />
-  </ItemGroup>
-
 </Project>

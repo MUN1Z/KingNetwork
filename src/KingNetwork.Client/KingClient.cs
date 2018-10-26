@@ -36,6 +36,11 @@ namespace KingNetwork.Client
         /// </summary>
         public bool HasConnected => _networkListener.Connected;
 
+        /// <summary>
+        /// The callback of message received handler implementation.
+        /// </summary>
+        public NetworkTcpListener.MessageReceivedHandler MessageReceivedHandler { get; set; }
+
         #endregion
 
         #region delegates 	
@@ -140,10 +145,10 @@ namespace KingNetwork.Client
         {
             try
             {
-                ClientPacketHandler clientPacketHandler;
-
-                if (_clientPacketHandlers.TryGetValue(kingBuffer.ReadMessagePacket(), out clientPacketHandler))
+                if (_clientPacketHandlers.TryGetValue(kingBuffer.ReadMessagePacket(), out var clientPacketHandler))
                     clientPacketHandler(kingBuffer);
+                else
+                    MessageReceivedHandler(kingBuffer);
             }
             catch (Exception ex)
             {

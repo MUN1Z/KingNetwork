@@ -1,11 +1,9 @@
-using KingNetwork.Server;
-using System;
-using KingNetwork.Example.Shared;
-using KingNetwork.Example.TestServer.PacketHandlers;
-using KingNetwork.Server.Interfaces;
+using KingNetwork.Client;
 using KingNetwork.Shared;
+using KingNetwork.SimpleExample.Shared;
+using System;
 
-namespace KingNetwork.Example.TestServer
+namespace KingNetwork.SimpleExample.Client
 {
     /// <summary>
     /// This class represents the program instance.
@@ -20,10 +18,9 @@ namespace KingNetwork.Example.TestServer
         {
             try
             {
-                var server = new KingServer();
-                server.PutHandler<MyPacketHandlerOne, MyPackets>(MyPackets.PacketOne);
-                server.MessageReceivedHandler = OnMessageReceived;
-                server.Start();
+                var client = new KingClient();
+                client.MessageReceivedHandler = OnMessageReceived;
+                client.Connect("127.0.0.1");
 
                 Console.ReadLine();
             }
@@ -34,18 +31,17 @@ namespace KingNetwork.Example.TestServer
         }
 
         /// <summary>
-        /// Method responsible for execute the callback of message received from client in server.
+        /// Method responsible for execute the callback of message received from server in client.
         /// </summary>
-        /// <param name="client">The client instance.</param>
         /// <param name="data">The king buffer from received message.</param>
-        private static void OnMessageReceived(IClient client, KingBuffer data)
+        private static void OnMessageReceived(KingBuffer data)
         {
             try
             {
                 switch (data.ReadMessagePacket<MyPackets>())
                 {
                     case MyPackets.PacketOne:
-                        Console.WriteLine($"OnMessageReceived PacketOne from {client.Key}");
+                        Console.WriteLine("OnMessageReceived for PacketOne");
                         break;
                 }
             }

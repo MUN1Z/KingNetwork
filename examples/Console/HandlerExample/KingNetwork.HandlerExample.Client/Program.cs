@@ -1,9 +1,9 @@
 using KingNetwork.Client;
-using KingNetwork.Example.Shared;
 using System;
-using KingNetwork.Example.TestClient.PacketHandlers;
+using KingNetwork.HandlerExample.Client.PacketHandlers;
+using KingNetwork.HandlerExample.Shared;
 
-namespace KingNetwork.Example.TestClient
+namespace KingNetwork.HandlerExample.Client
 {
     /// <summary>
     /// This class represents the program instance.
@@ -13,7 +13,7 @@ namespace KingNetwork.Example.TestClient
         /// <summary>
         /// This method is responsible for main execution of console application.
         /// </summary>
-        /// <param name="args">The string args receiveds by parameters.</param>
+        /// <param name="args">The string args received by parameters.</param>
         static void Main(string[] args)
         {
             try

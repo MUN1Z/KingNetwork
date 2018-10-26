@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D6A7D736-22BB-40E0-9FE8-6B7E8AAE21A1}</ProjectGuid>
+    <ProjectGuid>{1241FB87-6F32-4F3A-A47C-A45836253431}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>KingNetwork.Example.TestClient</RootNamespace>
-    <AssemblyName>KingNetwork.Example.TestClient</AssemblyName>
+    <RootNamespace>KingNetwork.HandlerExample.Server</RootNamespace>
+    <AssemblyName>KingNetwork.HandlerExample.Server</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -51,17 +51,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\KingNetwork.Client\KingNetwork.Client.csproj">
-      <Project>{0197BEB5-1ED4-4684-84E2-032833E54B90}</Project>
-      <Name>KingNetwork.Client</Name>
+    <ProjectReference Include="..\..\..\..\src\KingNetwork.Server\KingNetwork.Server.csproj">
+      <Project>{433DAEDE-F887-4191-A271-F8E1DAAB506D}</Project>
+      <Name>KingNetwork.Server</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\KingNetwork.Shared\KingNetwork.Shared.csproj">
+    <ProjectReference Include="..\..\..\..\src\KingNetwork.Shared\KingNetwork.Shared.csproj">
       <Project>{C2F9F1E0-92F4-41A8-89A7-E0BEBA15D17A}</Project>
       <Name>KingNetwork.Shared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\KingNetwork.Example.Shared\KingNetwork.Example.Shared.csproj">
-      <Project>{B4FBFCB2-AE58-42A1-9A3B-70600B3098AA}</Project>
-      <Name>KingNetwork.Example.Shared</Name>
+    <ProjectReference Include="..\KingNetwork.HandlerExample.Shared\KingNetwork.HandlerExample.Shared.csproj">
+      <Project>{B3A5DAEC-94C7-4E6B-85E8-8E7C8FE1FD6E}</Project>
+      <Name>KingNetwork.HandlerExample.Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

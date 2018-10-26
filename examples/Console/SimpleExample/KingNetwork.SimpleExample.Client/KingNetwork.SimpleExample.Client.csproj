@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1241FB87-6F32-4F3A-A47C-A45836253431}</ProjectGuid>
+    <ProjectGuid>{6030734D-CA57-4D81-B080-8E71EBB67BC1}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>KingNetwork.Example.TestServer</RootNamespace>
-    <AssemblyName>KingNetwork.Example.TestServer</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <RootNamespace>KingNetwork.SimpleExample.Client</RootNamespace>
+    <AssemblyName>KingNetwork.SimpleExample.Client</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -43,7 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PacketHandlers\MyPacketHandlerOne.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -51,17 +49,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\KingNetwork.Server\KingNetwork.Server.csproj">
-      <Project>{433DAEDE-F887-4191-A271-F8E1DAAB506D}</Project>
-      <Name>KingNetwork.Server</Name>
+    <ProjectReference Include="..\..\..\..\src\KingNetwork.Client\KingNetwork.Client.csproj">
+      <Project>{0197BEB5-1ED4-4684-84E2-032833E54B90}</Project>
+      <Name>KingNetwork.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\KingNetwork.Shared\KingNetwork.Shared.csproj">
+    <ProjectReference Include="..\..\..\..\src\KingNetwork.Shared\KingNetwork.Shared.csproj">
       <Project>{C2F9F1E0-92F4-41A8-89A7-E0BEBA15D17A}</Project>
       <Name>KingNetwork.Shared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\KingNetwork.Example.Shared\KingNetwork.Example.Shared.csproj">
-      <Project>{b4fbfcb2-ae58-42a1-9a3b-70600b3098aa}</Project>
-      <Name>KingNetwork.Example.Shared</Name>
+    <ProjectReference Include="..\KingNetwork.SimpleExample.Shared\KingNetwork.SimpleExample.Shared.csproj">
+      <Project>{936DCCA3-60CE-4C1A-8434-3DCBEDACFDBD}</Project>
+      <Name>KingNetwork.SimpleExample.Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

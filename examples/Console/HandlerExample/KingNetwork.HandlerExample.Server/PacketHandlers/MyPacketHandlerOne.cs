@@ -3,7 +3,7 @@ using KingNetwork.Server;
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
 
-namespace KingNetwork.Example.TestServer.PacketHandlers
+namespace KingNetwork.HandlerExample.Server.PacketHandlers
 {
     /// <summary>
     /// This interface is responsible for represents the implementation of MyPacketHandlerOne from server packet handler.

@@ -44,7 +44,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The number max of connected clients.
         /// </summary>
-        private ushort _maxClientConnections;
+        private readonly ushort _maxClientConnections;
 
         /// <summary> 	
         /// The counter for generation of client id. 	

@@ -2,7 +2,7 @@ using System;
 using KingNetwork.Client;
 using KingNetwork.Shared;
 
-namespace KingNetwork.Example.TestClient.PacketHandlers
+namespace KingNetwork.HandlerExample.Client.PacketHandlers
 {
     /// <summary>
     /// This interface is responsible for represents the implementation of MyPacketHandlerOne from client packet handler.
