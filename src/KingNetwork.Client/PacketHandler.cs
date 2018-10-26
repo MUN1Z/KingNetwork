@@ -1,6 +1,6 @@
-using KingNetwork.Client.PacketHandlers.Interfaces;
+using KingNetwork.Client.Interfaces;
 
-namespace KingNetwork.Client.PacketHandlers
+namespace KingNetwork.Client
 {
     /// <summary>
     /// This class is responsible for representation of abstract client packet handler.

@@ -1,4 +1,4 @@
-using KingNetwork.Server.PacketHandlers;
+using KingNetwork.Server;
 using System;
 
 namespace KingNetwork.Example.Server.PacketHandlers

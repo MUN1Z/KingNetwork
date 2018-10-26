@@ -1,5 +1,4 @@
 using KingNetwork.Server.Interfaces;
-using KingNetwork.Server.PacketHandlers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,14 +44,14 @@ namespace KingNetwork.Server
         /// The number max of connected clients.
         /// </summary>
         private ushort _maxClientConnections;
-        
+
         /// <summary> 	
         /// The counter for generation of client id. 	
         /// </summary> 	
         private int _counter = 0;
 
         #endregion
-        
+
         #region delegates 	
 
         /// <summary> 	
@@ -155,7 +154,7 @@ namespace KingNetwork.Server
                 Console.WriteLine($"Error: {ex.Message}.");
             }
         }
-        
+
 
         /// <summary>
         /// Method responsible for start the async network listener.
@@ -206,7 +205,7 @@ namespace KingNetwork.Server
 
                     var handler = new TPacketHandler();
 
-                    if(handler != null)
+                    if (handler != null)
                         _serverPacketHandlers.Add((byte)(IConvertible)packet, handler.HandleMessageData);
                 }
             }

@@ -1,6 +1,6 @@
-using KingNetwork.Server.PacketHandlers.Interfaces;
+using KingNetwork.Server.Interfaces;
 
-namespace KingNetwork.Server.PacketHandlers
+namespace KingNetwork.Server
 {
     /// <summary>
     /// This class is responsible for representation of abstract server packet handler.

@@ -1,4 +1,4 @@
-namespace KingNetwork.Server.PacketHandlers.Interfaces
+namespace KingNetwork.Server.Interfaces
 {
     /// <summary>
     /// This interface is responsible for represents the server packet handler.

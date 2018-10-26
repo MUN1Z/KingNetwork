@@ -1,4 +1,3 @@
-using KingNetwork.Client.PacketHandlers;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -26,14 +25,14 @@ namespace KingNetwork.Client
         /// The thread for start the network listener. 	
         /// </summary> 	
         private Thread _clientThread;
-        
+
         #endregion
 
         #region properties
 
         /// <summary>
-		/// The flag of client connection.
-		/// </summary>
+        /// The flag of client connection.
+        /// </summary>
         public bool HasConnected => _networkListener.Connected;
 
         #endregion
@@ -136,12 +135,12 @@ namespace KingNetwork.Client
         /// Method responsible for execute the callback of message received from client in server.
         /// </summary>
         /// <param name="data">The data bytes from message.</param>
-        private void OnMessageReceived( byte[] data)
+        private void OnMessageReceived(byte[] data)
         {
             try
             {
                 ClientPacketHandler clientPacketHandler;
-                
+
                 if (_clientPacketHandlers.TryGetValue(data[0], out clientPacketHandler))
                     clientPacketHandler(data);
             }
