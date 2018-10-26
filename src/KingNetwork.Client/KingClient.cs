@@ -1,3 +1,4 @@
+using KingNetwork.Client.PacketHandlers;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -14,7 +15,7 @@ namespace KingNetwork.Client
         /// <summary> 	
         /// The network dictionary list of server packet handlers. 	
         /// </summary> 	
-        private Dictionary<ushort, ClientPacketHandler> _clientPacketHandlers;
+        private Dictionary<byte, ClientPacketHandler> _clientPacketHandlers;
 
         /// <summary> 	
         /// The network tcp listener instance. 	
@@ -52,18 +53,46 @@ namespace KingNetwork.Client
         /// <summary>
 		/// Creates a new instance of a <see cref="KingServer"/>.
 		/// </summary>
-        public KingClient() { }
+        public KingClient()
+        {
+            _clientPacketHandlers = new Dictionary<byte, ClientPacketHandler>();
+        }
 
         #endregion
 
         #region public methods implementation
 
         /// <summary>
-        /// Method responsible to connect clint in server.
+        /// Method responsible for put packet handler in the list of packet handlers.
+        /// </summary>
+        /// <param name="packet">The value of packet handler.</param>
+        public void PutHandler<TPacketHandler, TPacket>(TPacket packet) where TPacketHandler : PacketHandler, new() where TPacket : IConvertible
+        {
+            try
+            {
+                if (Enum.IsDefined(typeof(TPacket), packet))
+                {
+                    if (_clientPacketHandlers.ContainsKey((byte)(IConvertible)packet))
+                        _clientPacketHandlers.Remove((byte)(IConvertible)packet);
+
+                    var handler = new TPacketHandler();
+
+                    if (handler != null)
+                        _clientPacketHandlers.Add((byte)(IConvertible)packet, handler.HandleMessageData);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
+        /// Method responsible to connect client in server.
         /// </summary>
         /// <param name="ip">The ip address from server.</param>
-        /// <param name="data">The port number from server.</param>
-        public void Connect(string ip, ushort port)
+        /// <param name="port">The port number from server, the default value us 7171</param>
+        public void Connect(string ip, ushort port = 7171)
         {
             try
             {

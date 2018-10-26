@@ -24,7 +24,7 @@ namespace KingNetwork.Server
         /// <summary> 	
         /// The network dictionary list of server packet handlers. 	
         /// </summary> 	
-        private Dictionary<ushort, ServerPacketHandler> _serverPacketHandlers;
+        private Dictionary<byte, ServerPacketHandler> _serverPacketHandlers;
 
         /// <summary> 	
         /// The network dictionary of clients. 	
@@ -80,7 +80,7 @@ namespace KingNetwork.Server
                 _maxMessageBuffer = maxMessageBuffer;
                 _maxClientConnections = maxClientConnections;
                 _clients = new Dictionary<ushort, IClient>();
-                _serverPacketHandlers = new Dictionary<ushort, ServerPacketHandler>();
+                _serverPacketHandlers = new Dictionary<byte, ServerPacketHandler>();
             }
             catch (Exception ex)
             {
@@ -195,20 +195,20 @@ namespace KingNetwork.Server
         /// Method responsible for put packet handler in the list of packet handlers.
         /// </summary>
         /// <param name="packet">The value of packet handler.</param>
-        public void PutHandler<TPacketHandler, TPacket>() where TPacketHandler : PacketHandler, new() where TPacket : Enum, new()
+        public void PutHandler<TPacketHandler, TPacket>(TPacket packet) where TPacketHandler : PacketHandler, new() where TPacket : IConvertible
         {
             try
             {
-                var a = typeof(TPacket);
+                if (Enum.IsDefined(typeof(TPacket), packet))
+                {
+                    if (_serverPacketHandlers.ContainsKey((byte)(IConvertible)packet))
+                        _serverPacketHandlers.Remove((byte)(IConvertible)packet);
 
-                var b = ()a;
+                    var handler = new TPacketHandler();
 
-                if (_serverPacketHandlers.ContainsKey(packet))
-                    _serverPacketHandlers.Remove(packet);
-
-                var handler = new TPacketHandler();
-
-                _serverPacketHandlers.Add(packet, handler.HandleMessageData);
+                    if(handler != null)
+                        _serverPacketHandlers.Add((byte)(IConvertible)packet, handler.HandleMessageData);
+                }
             }
             catch (Exception ex)
             {

@@ -1,5 +1,4 @@
 using KingNetwork.Example.Server.PacketHandlers;
-using KingNetwork.Example.Shared.PacketHandlers;
 using KingNetwork.Server;
 using System;
 using KingNetwork.Example.Shared;
@@ -20,7 +19,7 @@ namespace KingNetwork.Example.TestServer
             try
             {
                 var server = new KingServer();
-                server.PutHandler<MyPacketHandlerOne>(MyPackets.PacketOne);
+                server.PutHandler<MyPacketHandlerOne, MyPackets>(MyPackets.PacketOne);
                 server.Start();
 
                 Console.ReadLine();

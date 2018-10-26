@@ -1,4 +1,6 @@
 using KingNetwork.Client;
+using KingNetwork.Example.Client.PacketHandlers;
+using KingNetwork.Example.Shared;
 using System;
 
 namespace KingNetwork.Example.TestClient
@@ -17,7 +19,8 @@ namespace KingNetwork.Example.TestClient
             try
             {
                 var client = new KingClient();
-                client.Connect("127.0.0.1", 7171);
+                client.PutHandler<MyPacketHandlerOne, MyPackets>(MyPackets.PacketOne);
+                client.Connect("127.0.0.1");
 
                 Console.ReadLine();
             }

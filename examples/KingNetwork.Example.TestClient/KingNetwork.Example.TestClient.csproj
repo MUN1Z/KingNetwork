@@ -55,6 +55,10 @@
       <Project>{0197BEB5-1ED4-4684-84E2-032833E54B90}</Project>
       <Name>KingNetwork.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\KingNetwork.Example.Shared\KingNetwork.Example.Shared.csproj">
+      <Project>{B4FBFCB2-AE58-42A1-9A3B-70600B3098AA}</Project>
+      <Name>KingNetwork.Example.Shared</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

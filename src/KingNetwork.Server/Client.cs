@@ -22,11 +22,6 @@ namespace KingNetwork.Server
         /// The buffer of client connection.
         /// </summary>
         private byte[] _buffer;
-
-        /// <summary>
-        /// The buffer of client connection.
-        /// </summary>
-        private byte[] _buffer;
         
         /// <summary>
 		/// The callback of message received handler implementation.
