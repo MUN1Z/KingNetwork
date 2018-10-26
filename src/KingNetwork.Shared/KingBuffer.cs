@@ -15,7 +15,7 @@ namespace KingNetwork.Shared
         /// <summary>
         /// The list of bytes from buffer.
         /// </summary>
-        private List<byte> _buffer;
+        private readonly List<byte> _buffer;
 
         /// <summary>
         /// The array of bytes from read buffer.
@@ -25,17 +25,17 @@ namespace KingNetwork.Shared
         /// <summary>
         /// The read position of buffer.
         /// </summary>
-        private int _readpos;
+        private int _readPos;
 
         /// <summary>
         /// The buffer updated flag.
         /// </summary>
-        private bool _bufferUpdated = false;
+        private bool _bufferUpdated;
 
         /// <summary>
         /// The buffer disposed flag.
         /// </summary>
-        private bool _disposedValue = false;
+        private bool _disposedValue;
 
         #endregion
 
@@ -47,7 +47,7 @@ namespace KingNetwork.Shared
         public KingBuffer()
         {
             _buffer = new List<byte>();
-            _readpos = 0;
+            _readPos = 0;
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace KingNetwork.Shared
         public KingBuffer(byte[] data)
         {
             _buffer = new List<byte>(data);
-            _readpos = 0;
+            _readPos = 0;
         }
 
         #endregion
@@ -69,7 +69,7 @@ namespace KingNetwork.Shared
         public void Clear()
         {
             _buffer.Clear();
-            _readpos = 0;
+            _readPos = 0;
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace KingNetwork.Shared
         /// </summary>
         public long GetReadPos()
         {
-            return _readpos;
+            return _readPos;
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace KingNetwork.Shared
         /// </summary>
         public int Length()
         {
-            return Count() - _readpos;
+            return Count() - _readPos;
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace KingNetwork.Shared
                 if (disposing)
                     _buffer.Clear();
 
-                _readpos = 0;
+                _readPos = 0;
             }
             _disposedValue = true;
         }
@@ -129,7 +129,7 @@ namespace KingNetwork.Shared
         
         #region readers methods implementation 
 
-        public byte[] ReadBytes(int Length, bool Peek = true)
+        public byte[] ReadBytes(int length, bool peek = true)
         {
             if (_bufferUpdated)
             {
@@ -137,17 +137,17 @@ namespace KingNetwork.Shared
                 _bufferUpdated = false;
             }
 
-            byte[] array = _buffer.GetRange(_readpos, Length).ToArray();
+            var array = _buffer.GetRange(_readPos, length).ToArray();
 
-            if (Peek)
-                _readpos += Length;
+            if (peek)
+                _readPos += length;
 
             return array;
         }
         
         public float ReadFloat(bool peek = true)
         {
-            if (_buffer.Count <= _readpos)
+            if (_buffer.Count <= _readPos)
                 throw new Exception("Byte Buffer Past Limit!");
 
             if (_bufferUpdated)
@@ -156,32 +156,32 @@ namespace KingNetwork.Shared
                 _bufferUpdated = false;
             }
 
-            float single = BitConverter.ToSingle(_readBuffer, _readpos);
-            if (peek & _buffer.Count > _readpos)
-                _readpos += 4;
+            var single = BitConverter.ToSingle(_readBuffer, _readPos);
+            if (peek & _buffer.Count > _readPos)
+                _readPos += 4;
 
             return single;
         }
 
         public byte ReadMessagePacket()
         {
-            if (_readpos == 0)
-                _readpos += 1;
+            if (_readPos == 0)
+                _readPos += 1;
 
             return _buffer[0];
         }
 
         public TPacket ReadMessagePacket<TPacket>() where TPacket : IConvertible
         {
-            if(_readpos == 0)
-                _readpos += 1;
+            if(_readPos == 0)
+                _readPos += 1;
 
             return (TPacket)(IConvertible)_buffer[0];
         }
 
         public int ReadInteger(bool peek = true)
         {
-            if (_buffer.Count <= _readpos)
+            if (_buffer.Count <= _readPos)
                 throw new Exception("Byte Buffer Past Limit!");
 
             if (_bufferUpdated)
@@ -190,16 +190,16 @@ namespace KingNetwork.Shared
                 _bufferUpdated = false;
             }
 
-            var value = BitConverter.ToInt32(_readBuffer, _readpos);
-            if (peek & _buffer.Count > _readpos)
-                _readpos += 4;
+            var value = BitConverter.ToInt32(_readBuffer, _readPos);
+            if (peek & _buffer.Count > _readPos)
+                _readPos += 4;
 
             return value;
         }
 
         public bool ReadBoolean(bool peek = true)
         {
-            if (_buffer.Count <= _readpos)
+            if (_buffer.Count <= _readPos)
                 throw new Exception("Byte Buffer Past Limit!");
 
             if (_bufferUpdated)
@@ -208,16 +208,16 @@ namespace KingNetwork.Shared
                 _bufferUpdated = false;
             }
 
-            var value = BitConverter.ToBoolean(_readBuffer, _readpos);
-            if (peek & _buffer.Count > _readpos)
-                _readpos += 4;
+            var value = BitConverter.ToBoolean(_readBuffer, _readPos);
+            if (peek & _buffer.Count > _readPos)
+                _readPos += 4;
 
             return value;
         }
 
         public long ReadLong(bool peek = true)
         {
-            if (_buffer.Count < _readpos)
+            if (_buffer.Count < _readPos)
                 throw new Exception("Byte Buffer Past Limit!");
 
             if (_bufferUpdated)
@@ -226,16 +226,16 @@ namespace KingNetwork.Shared
                 _bufferUpdated = false;
             }
 
-            var value = BitConverter.ToInt64(_readBuffer, _readpos);
-            if (peek & _buffer.Count > _readpos)
-                _readpos += 8;
+            var value = BitConverter.ToInt64(_readBuffer, _readPos);
+            if (peek & _buffer.Count > _readPos)
+                _readPos += 8;
 
             return value;
         }
 
         public short ReadShort(bool peek = true)
         {
-            if (_buffer.Count <= _readpos)
+            if (_buffer.Count <= _readPos)
                 throw new Exception("Byte Buffer Past Limit!");
 
             if (_bufferUpdated)
@@ -244,26 +244,26 @@ namespace KingNetwork.Shared
                 _bufferUpdated = false;
             }
 
-            var value = BitConverter.ToInt16(_readBuffer, _readpos);
-            if (peek & _buffer.Count > _readpos)
-                _readpos += 2;
+            var value = BitConverter.ToInt16(_readBuffer, _readPos);
+            if (peek & _buffer.Count > _readPos)
+                _readPos += 2;
 
             return value;
         }
 
         public string ReadString(bool Peek = true)
         {
-            int count = ReadInteger(true);
+            var count = ReadInteger(true);
             if (_bufferUpdated)
             {
                 _readBuffer = _buffer.ToArray();
                 _bufferUpdated = false;
             }
 
-            var value = Encoding.ASCII.GetString(_readBuffer, _readpos, count);
-            if (Peek & _buffer.Count > _readpos)
+            var value = Encoding.ASCII.GetString(_readBuffer, _readPos, count);
+            if (Peek & _buffer.Count > _readPos)
                 if (value.Length > 0)
-                    _readpos += count;
+                    _readPos += count;
 
             return value;
         }

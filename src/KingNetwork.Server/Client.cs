@@ -15,22 +15,22 @@ namespace KingNetwork.Server
         /// <summary>
         /// The tcp client instance from client.
         /// </summary>
-        private TcpClient _tcpClient { get; set; }
+        private readonly TcpClient _tcpClient;
 
         /// <summary>
         /// The buffer of client connection.
         /// </summary>
-        private byte[] _buffer;
-        
-        /// <summary>
-		/// The callback of message received handler implementation.
-		/// </summary>
-        private MessageReceivedHandler _messageReceivedHandler { get; }
+        private readonly byte[] _buffer;
 
         /// <summary>
-        /// The callback of client disconnedted handler implementation.
+        /// The callback of message received handler implementation.
         /// </summary>
-        private ClientDisconnectedHandler _clientDisconnectedHandler { get; }
+        private readonly MessageReceivedHandler _messageReceivedHandler;
+
+        /// <summary>
+        /// The callback of client disconnected handler implementation.
+        /// </summary>
+        private readonly ClientDisconnectedHandler _clientDisconnectedHandler;
 
         #endregion
 

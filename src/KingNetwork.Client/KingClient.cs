@@ -15,7 +15,7 @@ namespace KingNetwork.Client
         /// <summary> 	
         /// The network dictionary list of server packet handlers. 	
         /// </summary> 	
-        private Dictionary<byte, ClientPacketHandler> _clientPacketHandlers;
+        private readonly Dictionary<byte, ClientPacketHandler> _clientPacketHandlers;
 
         /// <summary> 	
         /// The network tcp listener instance. 	
@@ -82,8 +82,7 @@ namespace KingNetwork.Client
 
                     var handler = new TPacketHandler();
 
-                    if (handler != null)
-                        _clientPacketHandlers.Add((byte)(IConvertible)packet, handler.HandleMessageData);
+                    _clientPacketHandlers.Add((byte)(IConvertible)packet, handler.HandleMessageData);
                 }
             }
             catch (Exception ex)

@@ -9,18 +9,17 @@ namespace KingNetwork.Client
     /// </summary>
     public class NetworkTcpListener : TcpClient
     {
-
         #region private members 	
 
         /// <summary>
         /// The callback of message received handler implementation.
         /// </summary>
-        private MessageReceivedHandler _messageReceivedHandler { get; }
-        
+        private readonly MessageReceivedHandler _messageReceivedHandler;
+
         /// <summary>
-        /// The callback of client disconnedted handler implementation.
+        /// The callback of client disconnected handler implementation.
         /// </summary>
-        private ClientDisconnectedHandler _clientDisconnectedHandler { get; }
+        private readonly ClientDisconnectedHandler _clientDisconnectedHandler;
         
         /// <summary>
         /// The buffer of client connection.
@@ -32,7 +31,7 @@ namespace KingNetwork.Client
         #region delegates 
 
         /// <summary>
-        /// The delegate of message reveiced handler from server connection.
+        /// The delegate of message received handler from server connection.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
         public delegate void MessageReceivedHandler(KingBuffer kingBuffer);
@@ -54,7 +53,7 @@ namespace KingNetwork.Client
         /// <summary>
 		/// The flag of client connection.
 		/// </summary>
-		public bool IsConnected => SocketHelper.IsConnected(this);
+		public bool IsConnected => this.IsConnected();
 
         #endregion
 
@@ -64,7 +63,7 @@ namespace KingNetwork.Client
         /// Creates a new instance of a <see cref="NetworkTcpListener"/>.
         /// </summary>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
-        /// <param name="clientDisconnectedHandler">The callback of client disconnedted handler implementation.</param>
+        /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         public NetworkTcpListener(MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler)
         {
             try
@@ -141,30 +140,32 @@ namespace KingNetwork.Client
             {
                 if (IsConnected)
                 {
-                    int endRead = Stream.EndRead(asyncResult);
+                    var endRead = Stream.EndRead(asyncResult);
 
                     if (endRead != 0)
                     {
-                        byte[] numArray = new byte[endRead];
+                        var numArray = new byte[endRead];
                         Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
 
                         Stream.BeginRead(_buffer, 0, ReceiveBufferSize, new AsyncCallback(ReceiveDataCallback), null);
 
-                        Console.WriteLine($"Received message from server.");
+                        Console.WriteLine("Received message from server.");
 
                         _messageReceivedHandler(new KingBuffer(_buffer));
                     }
                 }
 
                 Close();
-                Console.WriteLine($"Client disconnected from server.");
+
+                Console.WriteLine("Client disconnected from server.");
 
                 _clientDisconnectedHandler();
             }
             catch (Exception ex)
             {
                 Close();
-                Console.WriteLine($"Client disconnected from server.");
+                Console.WriteLine("Client disconnected from server.");
+                Console.WriteLine($"Error: {ex.Message}.");
             }
         }
 

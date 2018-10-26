@@ -12,9 +12,9 @@ namespace KingNetwork.Server
         #region private members 	
 
         /// <summary>
-		/// The callback of client connnected handler implementation.
+		/// The callback of client connected handler implementation.
 		/// </summary>
-        public ClientConnectedHandler _clientConnectedHandler;
+        private readonly ClientConnectedHandler _clientConnectedHandler;
 
         #endregion
 
