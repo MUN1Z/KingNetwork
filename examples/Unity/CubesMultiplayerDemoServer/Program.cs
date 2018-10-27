@@ -71,7 +71,7 @@ namespace CubesMultiplayerDemoServer
 
                         foreach (var posPlayers in sendPosDict)
                         {
-                            if (sendToPlayer.Key == posPlayers.Key)
+                            if (sendToPlayer.Key.Id == posPlayers.Key.Id)
                                 continue;
 
                             if (!posPlayers.Value.Moved)

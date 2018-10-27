@@ -1,6 +1,7 @@
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
 using System;
+using System.Linq;
 using System.Net.Sockets;
 
 namespace KingNetwork.Server
@@ -145,17 +146,20 @@ namespace KingNetwork.Server
         {
             try
             {
-                if (IsConnected)
+                if (!(_tcpClient.Client.Poll(1, SelectMode.SelectRead) && _tcpClient.Client.Available == 0))
                 {
-                    var messageSize = _stream.EndRead(asyncResult);
-                    
-                    if (messageSize != 0)
+                    var endRead = _stream.EndRead(asyncResult);
+
+                    var numArray = new byte[endRead];
+                    if (endRead != 0)
                     {
-                        _buffer = new byte[messageSize];
-                        
-                        _stream.BeginRead(_buffer, 0, messageSize, ReceiveDataCallback, null);
-                        
-                        _messageReceivedHandler(this, new KingBuffer(_buffer));
+                        Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
+
+                        _stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, ReceiveDataCallback, null);
+
+                        //Console.WriteLine($"Received message from client '{IpAddress}'.");
+
+                        _messageReceivedHandler(this, new KingBuffer(numArray));
 
                         return;
                     }

@@ -81,6 +81,9 @@ namespace KingNetwork.Benchmarks.Load
 
                 _messagesReceived++;
                 _dataReceived += kingBuffer.Length();
+
+
+                //Console.WriteLine($"Server: {kingBuffer.ReadString()}");
             }
             catch (Exception ex)
             {

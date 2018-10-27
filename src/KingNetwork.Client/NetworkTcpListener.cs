@@ -130,17 +130,23 @@ namespace KingNetwork.Client
         {
             try
             {
-                var messageSize = _stream.EndRead(asyncResult);
-
-                if (messageSize != 0)
+                if (!(Client.Poll(1, SelectMode.SelectRead) && Client.Available == 0))
                 {
-                    _buffer = new byte[messageSize];
-                    
-                    _stream.BeginRead(_buffer, 0, messageSize, ReceiveDataCallback, null);
-                    
-                    _messageReceivedHandler(new KingBuffer(_buffer));
-                    
-                    return;
+                    var endRead = _stream.EndRead(asyncResult);
+
+                    if (endRead != 0)
+                    {
+                        var numArray = new byte[endRead];
+                        Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
+
+                        _stream.BeginRead(_buffer, 0, ReceiveBufferSize, ReceiveDataCallback, null);
+
+                        //Console.WriteLine("Received message from server.");
+
+                        _messageReceivedHandler(new KingBuffer(numArray));
+
+                        return;
+                    }
                 }
 
                 Close();

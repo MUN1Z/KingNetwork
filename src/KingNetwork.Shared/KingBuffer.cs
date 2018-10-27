@@ -57,6 +57,7 @@ namespace KingNetwork.Shared
         {
             _buffer = new List<byte>(data);
             _readPos = 0;
+            _bufferUpdated = true;
         }
 
         #endregion
@@ -170,18 +171,28 @@ namespace KingNetwork.Shared
         /// <returns>Returns a float value from buffer.</returns>
         public float ReadFloat(bool peek = true)
         {
-            if (_buffer.Count <= _readPos)
-                throw new Exception("Byte Buffer Past Limit!");
+            var single = 0f;
 
-            if (_bufferUpdated)
+            try
             {
-                _readBuffer = _buffer.ToArray();
-                _bufferUpdated = false;
-            }
+                if (_buffer.Count <= _readPos)
+                    throw new Exception("Byte Buffer Past Limit!");
 
-            var single = BitConverter.ToSingle(_readBuffer, _readPos);
-            if (peek & _buffer.Count > _readPos)
-                _readPos += 4;
+                if (_bufferUpdated)
+                {
+                    _readBuffer = _buffer.ToArray();
+                    _bufferUpdated = false;
+                }
+
+                single = BitConverter.ToSingle(_readBuffer, _readPos);
+                if (peek & _buffer.Count > _readPos)
+                    _readPos += 4;
+               
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
 
             return single;
         }
@@ -193,18 +204,27 @@ namespace KingNetwork.Shared
         /// <returns>Returns a integer value from buffer.</returns>
         public int ReadInteger(bool peek = true)
         {
-            if (_buffer.Count <= _readPos)
-                throw new Exception("Byte Buffer Past Limit!");
+            var value = 0;
 
-            if (_bufferUpdated)
+            try
             {
-                _readBuffer = _buffer.ToArray();
-                _bufferUpdated = false;
-            }
+                if (_buffer.Count <= _readPos)
+                    throw new Exception("Byte Buffer Past Limit!");
 
-            var value = BitConverter.ToInt32(_readBuffer, _readPos);
-            if (peek & _buffer.Count > _readPos)
-                _readPos += 4;
+                if (_bufferUpdated)
+                {
+                    _readBuffer = _buffer.ToArray();
+                    _bufferUpdated = false;
+                }
+
+                value = BitConverter.ToInt32(_readBuffer, _readPos);
+                if (peek & _buffer.Count > _readPos)
+                    _readPos += 4;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
 
             return value;
         }
@@ -216,20 +236,30 @@ namespace KingNetwork.Shared
         /// <returns>Returns a boolean value from buffer.</returns>
         public bool ReadBoolean(bool peek = true)
         {
-            if (_buffer.Count <= _readPos)
-                throw new Exception("Byte Buffer Past Limit!");
+            var value = false;
 
-            if (_bufferUpdated)
+            try
             {
-                _readBuffer = _buffer.ToArray();
-                _bufferUpdated = false;
+                if (_buffer.Count <= _readPos)
+                    throw new Exception("Byte Buffer Past Limit!");
+
+                if (_bufferUpdated)
+                {
+                    _readBuffer = _buffer.ToArray();
+                    _bufferUpdated = false;
+                }
+
+                value = BitConverter.ToBoolean(_readBuffer, _readPos);
+                if (peek & _buffer.Count > _readPos)
+                    _readPos += 4;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
             }
 
-            var value = BitConverter.ToBoolean(_readBuffer, _readPos);
-            if (peek & _buffer.Count > _readPos)
-                _readPos += 4;
-
             return value;
+
         }
 
         /// <summary>
@@ -285,17 +315,26 @@ namespace KingNetwork.Shared
         /// <returns>Returns a string value from buffer.</returns>
         public string ReadString(bool peek = true)
         {
-            var count = ReadInteger();
-            if (_bufferUpdated)
-            {
-                _readBuffer = _buffer.ToArray();
-                _bufferUpdated = false;
-            }
+            var value = "";
 
-            var value = Encoding.ASCII.GetString(_readBuffer, _readPos, count);
-            if (peek & _buffer.Count > _readPos)
-                if (value.Length > 0)
-                    _readPos += count;
+            try
+            {
+                var count = ReadInteger();
+                if (_bufferUpdated)
+                {
+                    _readBuffer = _buffer.ToArray();
+                    _bufferUpdated = false;
+                }
+
+                value = Encoding.ASCII.GetString(_readBuffer, _readPos, count);
+                if (peek & _buffer.Count > _readPos)
+                    if (value.Length > 0)
+                        _readPos += count;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
 
             return value;
         }
@@ -307,9 +346,6 @@ namespace KingNetwork.Shared
         /// <returns>Returns a byte representation of message packet value from buffer.</returns>
         public byte ReadMessagePacket(bool peek = true)
         {
-            if (_readPos == 0)
-                _readPos += 1;
-
             return _buffer[0];
         }
 
@@ -320,6 +356,9 @@ namespace KingNetwork.Shared
         /// <returns>Returns a generic representation of message packet value from buffer.</returns>
         public TPacket ReadMessagePacket<TPacket>(bool peek = true) where TPacket : IConvertible
         {
+            if (_readPos == 0)
+                _readPos += 1;
+            
             return (TPacket)(IConvertible)ReadMessagePacket();
         }
 
