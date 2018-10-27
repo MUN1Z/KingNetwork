@@ -42,9 +42,6 @@ client.SendMessage(kingBuffer);
 client.Disconnect();
 ```
 
-# Unity Integration
-TODO 
-```
 # Benchmarks
 
 **Connections Test**<br/>
