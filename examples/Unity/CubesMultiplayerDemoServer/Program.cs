@@ -4,6 +4,8 @@ using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace CubesMultiplayerDemoServer
 {
@@ -12,10 +14,19 @@ namespace CubesMultiplayerDemoServer
     /// </summary>
     class Program
     {
-
+        /// <summary>
+        /// The network players dictionary.
+        /// </summary>
         private Dictionary<IClient, NetworkPlayer> _networkPlayersDictionary;
+
+        /// <summary>
+        /// The king server instance.
+        /// </summary>
         private KingServer _server;
 
+        /// <summary>
+        /// This method is responsible for run the server.
+        /// </summary>
         public void Run()
         {
             try
@@ -27,8 +38,61 @@ namespace CubesMultiplayerDemoServer
                 _server.OnMessageReceivedHandler = OnMessageReceived;
                 _server.OnClientConnectedHandler = OnClientConnectedHandler;
                 _server.OnClientDisconnectedHandler = OnClientDisconnectedHandler;
+                _server.OnServerStartedHandler = OnServerStartedHandler;
 
                 _server.Start();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// This method is responsible for sychronize the players positions.
+        /// </summary>
+        public void SynchronizePlayersPositions()
+        {
+            try
+            {
+                Dictionary<IClient, NetworkPlayer> sendPosDict = new Dictionary<IClient, NetworkPlayer>(_networkPlayersDictionary);
+
+                foreach (var sendToPlayer in sendPosDict)
+                {
+                    if (sendToPlayer.Value == null)
+                        continue;
+
+                    using (var kingBuffer = new KingBuffer())
+                    {
+                        kingBuffer.WriteMessagePacket(MyPackets.PlayerPositionsArray);
+                        kingBuffer.WriteInteger(sendPosDict.Count(c => c.Key.Id != sendToPlayer.Key.Id && c.Value.Moved));
+
+                        int amountPlayersMoved = 0;
+
+                        foreach (var posPlayers in sendPosDict)
+                        {
+                            if (sendToPlayer.Key == posPlayers.Key)
+                                continue;
+
+                            if (!posPlayers.Value.Moved)
+                                continue;
+
+                            kingBuffer.WriteInteger(posPlayers.Key.Id);
+
+                            kingBuffer.WriteFloat(posPlayers.Value.X);
+                            kingBuffer.WriteFloat(posPlayers.Value.Y);
+                            kingBuffer.WriteFloat(posPlayers.Value.Z);
+
+                            amountPlayersMoved++;
+                        }
+
+                        if (amountPlayersMoved > 0)
+                            _server.SendMessage(sendToPlayer.Key, kingBuffer);
+                    }
+                }
+
+                foreach (var player in _networkPlayersDictionary)
+                    player.Value.Moved = false;
             }
             catch (Exception ex)
             {
@@ -105,7 +169,7 @@ namespace CubesMultiplayerDemoServer
                     
                     foreach (var player in _networkPlayersDictionary)
                     {
-                        kingBuffer.WriteInteger(player.Value.IClient.Id);
+                        kingBuffer.WriteInteger(player.Key.Id);
 
                         kingBuffer.WriteFloat(player.Value.X);
                         kingBuffer.WriteFloat(player.Value.Y);
@@ -138,6 +202,29 @@ namespace CubesMultiplayerDemoServer
 
                 if (_networkPlayersDictionary.ContainsKey(client))
                     _networkPlayersDictionary.Remove(client);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
+        /// Method responsible for execute the callback of on server started handler.
+        /// </summary>
+        private void OnServerStartedHandler()
+        {
+            try
+            {
+                Console.WriteLine("OnServerStartedHandler");
+
+                new Thread(() => 
+                {
+                    while (true)
+                    {
+                        SynchronizePlayersPositions();
+                    }
+                }).Start();
             }
             catch (Exception ex)
             {
