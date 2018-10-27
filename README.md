@@ -12,9 +12,11 @@ private void OnMessageReceived(IClient client, KingBuffer kingBuffer)
 }
 
 // send a message to all clients
-var kingBuffer = new KingBuffer();
-kingBuffer.WriteString("Test message!");
-server.SendMessageToAll(kingBuffer);
+using(var kingBuffer = new KingBuffer())
+{
+    kingBuffer.WriteString("Test message!");
+    server.SendMessageToAll(kingBuffer);
+}
 
 // stop the server when you don't need it anymore
 server.Stop();
@@ -34,9 +36,11 @@ private void OnMessageReceived(KingBuffer kingBuffer)
 }
 
 /// send a message to server
-var kingBuffer = new KingBuffer();
-kingBuffer.WriteString("Test message!");
-client.SendMessage(kingBuffer);
+using(var kingBuffer = new KingBuffer())
+{
+    kingBuffer.WriteString("Test message!");
+    client.SendMessage(kingBuffer);
+}
 
 // disconnect from the server when we are done
 client.Disconnect();
