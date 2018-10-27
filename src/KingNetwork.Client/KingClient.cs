@@ -117,6 +117,22 @@ namespace KingNetwork.Client
         }
 
         /// <summary>
+        /// Method responsible for disconnect client from server.
+        /// </summary>
+        public void Disconnect()
+        {
+            try
+            {
+                _networkListener.Close();
+                _networkListener.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
         /// Method responsible for send message to connected server.
         /// </summary>
         /// <param name="kingBuffer">The king buffer to send message.</param>

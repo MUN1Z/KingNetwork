@@ -247,6 +247,21 @@ namespace KingNetwork.Server
         }
 
         /// <summary>
+        /// Method responsible for stop the server.
+        /// </summary>
+        public void Stop()
+        {
+            try
+            {
+                _networkListener.Stop();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+        
+        /// <summary>
         /// Method responsible for send message to specific connected client.
         /// </summary>
         /// <param name="client">The client instance.</param>
