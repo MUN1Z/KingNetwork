@@ -33,12 +33,12 @@ namespace KingNetwork.SimpleExample.Client
         /// <summary>
         /// Method responsible for execute the callback of message received from server in client.
         /// </summary>
-        /// <param name="data">The king buffer from received message.</param>
-        private static void OnMessageReceived(KingBuffer data)
+        /// <param name="kingBuffer">The king buffer from received message.</param>
+        private static void OnMessageReceived(KingBuffer kingBuffer)
         {
             try
             {
-                switch (data.ReadMessagePacket<MyPackets>())
+                switch (kingBuffer.ReadMessagePacket<MyPackets>())
                 {
                     case MyPackets.PacketOne:
                         Console.WriteLine("OnMessageReceived for PacketOne");

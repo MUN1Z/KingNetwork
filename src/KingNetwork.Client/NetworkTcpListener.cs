@@ -26,6 +26,13 @@ namespace KingNetwork.Client
         /// </summary>
         private byte[] _buffer;
 
+
+        /// <summary>
+        /// The stream of tcp client.
+        /// </summary>
+        private NetworkStream _stream;
+
+
         #endregion
 
         #region delegates 
@@ -42,21 +49,7 @@ namespace KingNetwork.Client
         public delegate void ClientDisconnectedHandler();
 
         #endregion
-
-        #region properties
-
-        /// <summary>
-        /// The stream of tcp client.
-        /// </summary>
-        public NetworkStream Stream => GetStream();
-
-        /// <summary>
-		/// The flag of client connection.
-		/// </summary>
-		public bool IsConnected => this.IsConnected();
-
-        #endregion
-
+        
         #region constructors
 
         /// <summary>
@@ -96,13 +89,12 @@ namespace KingNetwork.Client
                 Connect(ip, port);
                 
                 _buffer = new byte[maxMessageBuffer];
+                _stream = GetStream();
 
                 ReceiveBufferSize = maxMessageBuffer;
                 SendBufferSize = maxMessageBuffer;
 
-                Stream.BeginRead(_buffer, 0, ReceiveBufferSize, ReceiveDataCallback, null);
-
-                Console.WriteLine("Connected to server!");
+                _stream.BeginRead(_buffer, 0, ReceiveBufferSize, ReceiveDataCallback, null);
             }
             catch (Exception ex)
             {
@@ -118,7 +110,7 @@ namespace KingNetwork.Client
         {
             try
             {
-                Stream.BeginWrite(kingBuffer.ToArray(), 0, kingBuffer.Length(), null, null);
+                _stream.BeginWrite(kingBuffer.ToArray(), 0, kingBuffer.Length(), null, null);
             }
             catch (Exception ex)
             {
@@ -138,33 +130,26 @@ namespace KingNetwork.Client
         {
             try
             {
-                if (IsConnected)
+                var messageSize = _stream.EndRead(asyncResult);
+
+                if (messageSize != 0)
                 {
-                    var endRead = Stream.EndRead(asyncResult);
-
-                    if (endRead != 0)
-                    {
-                        var numArray = new byte[endRead];
-                        Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
-
-                        Stream.BeginRead(_buffer, 0, ReceiveBufferSize, ReceiveDataCallback, null);
-
-                        Console.WriteLine("Received message from server.");
-
-                        _messageReceivedHandler(new KingBuffer(_buffer));
-                    }
+                    _buffer = new byte[messageSize];
+                    
+                    _stream.BeginRead(_buffer, 0, messageSize, ReceiveDataCallback, null);
+                    
+                    _messageReceivedHandler(new KingBuffer(_buffer));
+                    
+                    return;
                 }
 
                 Close();
-
-                Console.WriteLine("Client disconnected from server.");
-
                 _clientDisconnectedHandler();
             }
             catch (Exception ex)
             {
                 Close();
-                Console.WriteLine("Client disconnected from server.");
+                _clientDisconnectedHandler();
                 Console.WriteLine($"Error: {ex.Message}.");
             }
         }

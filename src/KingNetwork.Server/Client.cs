@@ -20,7 +20,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The buffer of client connection.
         /// </summary>
-        private readonly byte[] _buffer;
+        private byte[] _buffer;
 
         /// <summary>
         /// The stream of tcp client.
@@ -54,7 +54,7 @@ namespace KingNetwork.Server
         /// <summary>
 		/// The flag of client connection.
 		/// </summary>
-		public bool IsConnected => _tcpClient.IsConnected();
+		public bool IsConnected => _tcpClient.Connected;
 
         #endregion
 
@@ -125,8 +125,6 @@ namespace KingNetwork.Server
                 {
                     _stream.Write(kingBuffer.ToArray(), 0, kingBuffer.Length());
                     _stream.Flush();
-
-                    Console.WriteLine($"Message sent to client {Id}.");
                 }
             }
             catch (Exception ex)
@@ -149,17 +147,14 @@ namespace KingNetwork.Server
             {
                 if (IsConnected)
                 {
-                    var endRead = _stream.EndRead(asyncResult);
-
-                    var numArray = new byte[endRead];
-                    if (endRead != 0)
+                    var messageSize = _stream.EndRead(asyncResult);
+                    
+                    if (messageSize != 0)
                     {
-                        Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
-
-                        _stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, ReceiveDataCallback, null);
-
-                        Console.WriteLine($"Received message from client '{IpAddress}'.");
-
+                        _buffer = new byte[messageSize];
+                        
+                        _stream.BeginRead(_buffer, 0, messageSize, ReceiveDataCallback, null);
+                        
                         _messageReceivedHandler(this, new KingBuffer(_buffer));
 
                         return;

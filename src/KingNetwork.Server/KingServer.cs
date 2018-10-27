@@ -115,8 +115,6 @@ namespace KingNetwork.Server
         {
             try
             {
-                Console.WriteLine("OnMessageReceived");
-                
                 if (_serverPacketHandlers.TryGetValue(kingBuffer.ReadMessagePacket(), out var serverHandler))
                     serverHandler(client, kingBuffer);
                 else
@@ -140,7 +138,6 @@ namespace KingNetwork.Server
                 {
                     var client = new Client(GetNewClientIdentifier(), tcpClient, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
                     _clients.Add(client.Id, client);
-                    Console.WriteLine($"Client connected from '{client.IpAddress}'.");
                 }
                 else
                 {
