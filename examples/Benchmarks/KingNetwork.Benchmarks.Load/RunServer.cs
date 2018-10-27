@@ -43,7 +43,7 @@ namespace KingNetwork.Benchmarks.Load
         public static void StartServer()
         {
             _server = new KingServer();
-            _server.MessageReceivedHandler = OnMessageReceived;
+            _server.OnMessageReceivedHandler = OnMessageReceived;
             
             new Thread(() =>
             {

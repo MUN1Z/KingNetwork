@@ -1,16 +1,37 @@
+﻿using CubesMultiplayerDemoShared;
 using KingNetwork.Server;
-using System;
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
-using KingNetwork.SimpleExample.Shared;
+using System;
+using System.Collections.Generic;
 
-namespace KingNetwork.SimpleExample.Server
+namespace CubesMultiplayerDemoServer
 {
     /// <summary>
     /// This class represents the program instance.
     /// </summary>
     class Program
     {
+
+        private Dictionary<IClient, NetworkPlayer> _networkPlayersDictionary;
+        private KingServer _server;
+
+        public void Run()
+        {
+            try
+            {
+                _networkPlayersDictionary = new Dictionary<IClient, NetworkPlayer>();
+
+                _server = new KingServer();
+                _server.OnMessageReceivedHandler = OnMessageReceived;
+                _server.Start();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
         /// <summary>
         /// This method is responsible for main execution of console application.
         /// </summary>
@@ -19,11 +40,10 @@ namespace KingNetwork.SimpleExample.Server
         {
             try
             {
-                var server = new KingServer();
-                server.OnMessageReceivedHandler = OnMessageReceived;
-                server.Start();
+                Program program = new Program();
+                program.Run();
 
-                Console.ReadLine();
+                Console.ReadKey();
             }
             catch (Exception ex)
             {
@@ -36,7 +56,7 @@ namespace KingNetwork.SimpleExample.Server
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer from received message.</param>
-        private static void OnMessageReceived(IClient client, KingBuffer kingBuffer)
+        private void OnMessageReceived(IClient client, KingBuffer kingBuffer)
         {
             try
             {

@@ -58,7 +58,17 @@ namespace KingNetwork.Server
         /// <summary>
         /// The callback of message received handler implementation.
         /// </summary>
-        public Client.MessageReceivedHandler MessageReceivedHandler { get; set; }
+        public Client.MessageReceivedHandler OnMessageReceivedHandler { get; set; }
+
+        /// <summary>
+        /// The callback of client connnected handler implementation.
+        /// </summary>
+        public ClientConnectedHandler OnClientConnectedHandler { get; set; }
+
+        /// <summary>
+        /// The callback of client disconnected handler implementation.
+        /// </summary>
+        public Client.ClientDisconnectedHandler OnClientDisconnectedHandler { get; set; }
 
         #endregion
 
@@ -70,6 +80,12 @@ namespace KingNetwork.Server
         /// <param name="client">The connected client.</param>
         /// <param name="buffer">The king buffer received from message.</param>
         public delegate void ServerPacketHandler(IClient client, KingBuffer buffer);
+
+        /// <summary> 	
+        /// The handler from callback of client connection. 	
+        /// </summary> 	
+        /// <param name="client">The connected client.</param>
+        public delegate void ClientConnectedHandler(IClient client);
 
         #endregion
 
@@ -118,7 +134,8 @@ namespace KingNetwork.Server
                 if (_serverPacketHandlers.TryGetValue(kingBuffer.ReadMessagePacket(), out var serverHandler))
                     serverHandler(client, kingBuffer);
                 else
-                    MessageReceivedHandler(client, kingBuffer);
+                    if(OnMessageReceivedHandler != null)
+                        OnMessageReceivedHandler(client, kingBuffer);
             }
             catch (Exception ex)
             {
@@ -138,6 +155,9 @@ namespace KingNetwork.Server
                 {
                     var client = new Client(GetNewClientIdentifier(), tcpClient, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
                     _clients.Add(client.Id, client);
+                    
+                    if(OnClientConnectedHandler != null)
+                        OnClientConnectedHandler(client);
                 }
                 else
                 {
@@ -154,13 +174,16 @@ namespace KingNetwork.Server
         /// <summary>
         /// Method responsible for execute the callback of client disconnected in server.
         /// </summary>
-        /// <param name="key">The key of disconnected client.</param>
-        private void OnClientDisconnected(ushort key)
+        /// <param name="client">The instance of disconnected client.</param>
+        private void OnClientDisconnected(IClient client)
         {
             try
             {
-                if (_clients.ContainsKey(key))
-                    _clients.Remove(key);
+                if (_clients.ContainsKey(client.Id))
+                    _clients.Remove(client.Id);
+
+                if (OnClientDisconnectedHandler != null)
+                    OnClientDisconnectedHandler(client);
             }
             catch (Exception ex)
             {

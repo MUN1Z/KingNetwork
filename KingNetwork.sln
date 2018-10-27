@@ -41,7 +41,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KingNetwork.SimpleExample.C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{567CF810-9ACD-4D5D-99CF-05326F9A996E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KingNetwork.Benchmarks.Load", "examples\Benchmarks\KingNetwork.Benchmarks.Load\KingNetwork.Benchmarks.Load.csproj", "{0FE02E61-8E0A-4948-A680-FA9C6CAF684E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KingNetwork.Benchmarks.Load", "examples\Benchmarks\KingNetwork.Benchmarks.Load\KingNetwork.Benchmarks.Load.csproj", "{0FE02E61-8E0A-4948-A680-FA9C6CAF684E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unity", "unity", "{C6CD38B5-81D6-4689-934D-FBE15CE09662}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cubes", "cubes", "{F512DEC5-A651-4D89-B16A-0E51D6D417E5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CubesMultiplayerDemoServer", "examples\Unity\CubesMultiplayerDemoServer\CubesMultiplayerDemoServer.csproj", "{5CDA37E7-68A7-4C8B-BCFD-8D355B023E0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CubesMultiplayerDemoShared", "examples\Unity\CubesMultiplayerDemoShared\CubesMultiplayerDemoShared.csproj", "{FE5E65AD-F6EB-4218-86F3-9241DD0F6A77}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,6 +109,14 @@ Global
 		{0FE02E61-8E0A-4948-A680-FA9C6CAF684E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FE02E61-8E0A-4948-A680-FA9C6CAF684E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FE02E61-8E0A-4948-A680-FA9C6CAF684E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CDA37E7-68A7-4C8B-BCFD-8D355B023E0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CDA37E7-68A7-4C8B-BCFD-8D355B023E0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CDA37E7-68A7-4C8B-BCFD-8D355B023E0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CDA37E7-68A7-4C8B-BCFD-8D355B023E0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE5E65AD-F6EB-4218-86F3-9241DD0F6A77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE5E65AD-F6EB-4218-86F3-9241DD0F6A77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE5E65AD-F6EB-4218-86F3-9241DD0F6A77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE5E65AD-F6EB-4218-86F3-9241DD0F6A77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -123,6 +139,10 @@ Global
 		{6030734D-CA57-4D81-B080-8E71EBB67BC1} = {4D3803DB-26BB-486B-9424-34E6894AE4DC}
 		{567CF810-9ACD-4D5D-99CF-05326F9A996E} = {24804DEB-DD17-4FC8-8D2F-127EE489AF0E}
 		{0FE02E61-8E0A-4948-A680-FA9C6CAF684E} = {567CF810-9ACD-4D5D-99CF-05326F9A996E}
+		{C6CD38B5-81D6-4689-934D-FBE15CE09662} = {24804DEB-DD17-4FC8-8D2F-127EE489AF0E}
+		{F512DEC5-A651-4D89-B16A-0E51D6D417E5} = {C6CD38B5-81D6-4689-934D-FBE15CE09662}
+		{5CDA37E7-68A7-4C8B-BCFD-8D355B023E0B} = {F512DEC5-A651-4D89-B16A-0E51D6D417E5}
+		{FE5E65AD-F6EB-4218-86F3-9241DD0F6A77} = {F512DEC5-A651-4D89-B16A-0E51D6D417E5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {986F3036-4ACE-45D9-8F51-C560EFCB1F42}

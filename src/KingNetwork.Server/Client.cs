@@ -70,8 +70,8 @@ namespace KingNetwork.Server
         /// <summary>
 		/// The delegate of client disconnected handler connection.
 		/// </summary>
-        /// <param name="id">The identifier number of client instance.</param>
-        public delegate void ClientDisconnectedHandler(ushort id);
+        /// <param name="client">The instance of disconnected client.</param>
+        public delegate void ClientDisconnectedHandler(IClient client);
 
         #endregion
 
@@ -162,16 +162,15 @@ namespace KingNetwork.Server
                 }
 
                 _tcpClient.Close();
-                Console.WriteLine($"Client '{IpAddress}' Disconnected.");
-
-                _clientDisconnectedHandler(Id);
+                _clientDisconnectedHandler(this);
             }
             catch (Exception ex)
             {
                 _tcpClient.Close();
-                Console.WriteLine($"Client '{IpAddress}' Disconnected.");
-                Console.WriteLine($"Error: {ex.Message}.");
+                _clientDisconnectedHandler(this);
             }
+            
+            Console.WriteLine($"Client '{IpAddress}' Disconnected.");
         }
 
         #endregion
