@@ -2,7 +2,6 @@
 using KingNetwork.Client;
 using KingNetwork.Shared;
 using System.Collections.Generic;
-using System.Threading;
 using UnityEngine;
 
 public class Network : MonoBehaviour {
@@ -18,6 +17,11 @@ public class Network : MonoBehaviour {
     public GameObject netPlayerPrefab;
     private Dictionary<int, NetPlayer> netPlayersDictionary;
 
+    public string remoteIp;
+    public string localIP;
+
+    public string ip;
+
     // Use this for initialization
     void Start()
     {
@@ -25,7 +29,7 @@ public class Network : MonoBehaviour {
 
         client = new KingClient();
         client.MessageReceivedHandler = OnMessageReceived;
-        client.Connect("127.0.0.1");
+        client.Connect(ip);
         
         if (client.HasConnected)
             Debug.Log("Client  started!");

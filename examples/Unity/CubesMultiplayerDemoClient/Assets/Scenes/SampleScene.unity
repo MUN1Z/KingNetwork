@@ -461,3 +461,6 @@ MonoBehaviour:
   player: {fileID: 124553732}
   netPlayerPrefab: {fileID: 1907576282027438, guid: c732c2a27348837429ae048c52fc4ff5,
     type: 2}
+  remoteIp: 45.35.96.143
+  localIP: 127.0.0.1
+  ip: 45.35.96.143
