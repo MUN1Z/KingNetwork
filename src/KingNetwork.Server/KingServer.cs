@@ -70,6 +70,12 @@ namespace KingNetwork.Server
         /// </summary>
         public Client.ClientDisconnectedHandler OnClientDisconnectedHandler { get; set; }
 
+        /// <summary>
+        /// The callback of started server handler implementation.
+        /// </summary>
+        public ServerStartedHandler OnServerStartedHandler { get; set; }
+
+
         #endregion
 
         #region delegates 	
@@ -86,6 +92,11 @@ namespace KingNetwork.Server
         /// </summary> 	
         /// <param name="client">The connected client.</param>
         public delegate void ClientConnectedHandler(IClient client);
+
+        /// <summary> 	
+        /// The handler from callback of started server. 	
+        /// </summary> 	
+        public delegate void ServerStartedHandler();
 
         #endregion
 
@@ -201,6 +212,9 @@ namespace KingNetwork.Server
             try
             {
                 _networkListener = new NetworkTcpListener(_port, OnClientConnected);
+
+                if (OnServerStartedHandler != null)
+                    OnServerStartedHandler();
 
                 while (!cancellationToken.IsCancellationRequested)
                     await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);

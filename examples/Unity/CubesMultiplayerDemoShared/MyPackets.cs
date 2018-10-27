@@ -5,6 +5,7 @@
     /// </summary>
     public enum MyPackets : byte
     {
-        PacketOne
+        PlayerPosition,
+        PlayerPositionsArray
     }
 }
