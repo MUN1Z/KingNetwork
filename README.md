@@ -55,4 +55,7 @@ Test Results:<br/>
 
 | Clients | CPU Usage | Ram Usage | Bandwidth Client+Server  | Result |
 | ------- | ----------| --------- | ------------------------ | ------ |
-|  1000   |       32% |     26 MB |         5-6 MB/s         | Passed |
+|  64     |      0.5% |      9 MB |         0.3 MB/s         | Passed |
+|  128    |        1% |     10 MB |         0.7 MB/s         | Passed |
+|  500    |       18% |     18 MB |         2~3 MB/s         | Passed |
+|  1000   |       32% |     26 MB |         5~6 MB/s         | Passed |
