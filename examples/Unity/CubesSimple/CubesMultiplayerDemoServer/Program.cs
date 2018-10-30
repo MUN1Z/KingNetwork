@@ -136,13 +136,25 @@ namespace CubesMultiplayerDemoServer
                         float y = kingBuffer.ReadFloat();
                         float z = kingBuffer.ReadFloat();
 
-                        Console.WriteLine($"Got position packet : {x} | {y} | {z}");
+                        Console.WriteLine($"client {client.Id} sent position packet : {x} | {y} | {z}");
 
                         _networkPlayersDictionary[client].X = x;
                         _networkPlayersDictionary[client].Y = y;
                         _networkPlayersDictionary[client].Z = z;
 
-                        _networkPlayersDictionary[client].Moved = true;
+                        using (var buffer = new KingBuffer())
+                        {
+                            buffer.WriteMessagePacket(MyPackets.PlayerPosition);
+
+                            buffer.WriteInteger(client.Id);
+
+                            buffer.WriteFloat(x);
+                            buffer.WriteFloat(y);
+                            buffer.WriteFloat(z);
+
+                            _server.SendMessageToAllMinus(client, buffer);
+                        }
+
                         break;
                 }
             }
@@ -162,6 +174,9 @@ namespace CubesMultiplayerDemoServer
             {
                 Console.WriteLine($"OnClientConnected: {client.Id}");
 
+                var newPlayer = new NetworkPlayer(client);
+                _networkPlayersDictionary.Add(client, newPlayer);
+
                 using (var kingBuffer = new KingBuffer())
                 {
                     kingBuffer.WriteMessagePacket(MyPackets.PlayerPositionsArray);
@@ -177,11 +192,19 @@ namespace CubesMultiplayerDemoServer
                     }
 
                     _server.SendMessage(client, kingBuffer);
+                }
 
-                    if (!_networkPlayersDictionary.ContainsKey(client))
-                        _networkPlayersDictionary.Add(client, new NetworkPlayer(client));
+                using (var kingBuffer = new KingBuffer())
+                {
+                    kingBuffer.WriteMessagePacket(MyPackets.PlayerPosition);
 
-                    _networkPlayersDictionary[client].Moved = true;
+                    kingBuffer.WriteInteger(newPlayer.IClient.Id);
+
+                    kingBuffer.WriteFloat(newPlayer.X);
+                    kingBuffer.WriteFloat(newPlayer.Y);
+                    kingBuffer.WriteFloat(newPlayer.Z);
+                    
+                    _server.SendMessageToAllMinus(client, kingBuffer);
                 }
             }
             catch (Exception ex)
@@ -216,15 +239,15 @@ namespace CubesMultiplayerDemoServer
         {
             try
             {
-                Console.WriteLine("OnServerStartedHandler");
+                //Console.WriteLine("OnServerStartedHandler");
 
-                new Thread(() => 
-                {
-                    while (true)
-                    {
-                        SynchronizePlayersPositions();
-                    }
-                }).Start();
+                //new Thread(() => 
+                //{
+                //    while (true)
+                //    {
+                //        SynchronizePlayersPositions();
+                //    }
+                //}).Start();
             }
             catch (Exception ex)
             {
