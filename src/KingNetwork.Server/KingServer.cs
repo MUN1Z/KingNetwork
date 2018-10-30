@@ -265,6 +265,29 @@ namespace KingNetwork.Server
         }
 
         /// <summary>
+        /// Method responsible for put packet handler in the list of packet handlers.
+        /// </summary>
+        /// <param name="packet">The value of packet handler.</param>
+        /// <param name="serverPacketHandler">The server packet handler callback implementation.</param>
+        public void PutHandler<TPacket>(TPacket packet, ServerPacketHandler serverPacketHandler) where TPacket : IConvertible
+        {
+            try
+            {
+                if (Enum.IsDefined(typeof(TPacket), packet))
+                {
+                    if (_serverPacketHandlers.ContainsKey((byte)(IConvertible)packet))
+                        _serverPacketHandlers.Remove((byte)(IConvertible)packet);
+                    
+                    _serverPacketHandlers.Add((byte)(IConvertible)packet, serverPacketHandler);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
         /// Method responsible for start the server.
         /// </summary>
         public void Start()

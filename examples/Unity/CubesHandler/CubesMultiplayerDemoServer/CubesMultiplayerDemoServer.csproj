@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\KingNetwork.Server\KingNetwork.Server.csproj" />
+    <ProjectReference Include="..\..\..\..\src\KingNetwork.Server\KingNetwork.Server.csproj" />
     <ProjectReference Include="..\CubesMultiplayerDemoShared\CubesMultiplayerDemoShared.csproj" />
   </ItemGroup>
 

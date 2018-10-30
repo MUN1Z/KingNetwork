@@ -92,6 +92,29 @@ namespace KingNetwork.Client
         }
 
         /// <summary>
+        /// Method responsible for put packet handler in the list of packet handlers.
+        /// </summary>
+        /// <param name="packet">The value of packet handler.</param>
+        /// <param name="clientPacketHandler">The client packet handler callback implementation.</param>
+        public void PutHandler<TPacket>(TPacket packet, ClientPacketHandler clientPacketHandler) where TPacket : IConvertible
+        {
+            try
+            {
+                if (Enum.IsDefined(typeof(TPacket), packet))
+                {
+                    if (_clientPacketHandlers.ContainsKey((byte)(IConvertible)packet))
+                        _clientPacketHandlers.Remove((byte)(IConvertible)packet);
+                    
+                    _clientPacketHandlers.Add((byte)(IConvertible)packet, clientPacketHandler);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
         /// Method responsible to connect client in server.
         /// </summary>
         /// <param name="ip">The ip address from server.</param>
