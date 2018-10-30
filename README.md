@@ -1,4 +1,7 @@
-![Logo](https://github.com/Mun1z/KingNetwork/blob/master/resources/logo.png)
+
+<p align="center">
+  <img src="https://github.com/Mun1z/KingNetwork/blob/master/resources/logo.png">
+</p>
 
 # Using the KingServer
 ```C#
