@@ -47,15 +47,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unity", "unity", "{C6CD38B5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cubes simple", "cubes simple", "{F512DEC5-A651-4D89-B16A-0E51D6D417E5}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cubes handler", "cubes handler", "{6BFF9F5C-B01B-4A05-B36C-51B24B4632AA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CubesMultiplayerDemoServer", "examples\Unity\CubesSimple\CubesMultiplayerDemoServer\CubesMultiplayerDemoServer.csproj", "{160291E7-5203-4232-B4F4-4F3E37B37F47}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CubesMultiplayerDemoShared", "examples\Unity\CubesSimple\CubesMultiplayerDemoShared\CubesMultiplayerDemoShared.csproj", "{AD4FB810-C6E7-43A5-8AE1-A7D2F13EA718}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CubesMultiplayerDemoServer", "examples\Unity\CubesHandler\CubesMultiplayerDemoServer\CubesMultiplayerDemoServer.csproj", "{EC490760-FEDB-4BC4-B326-D5714EDA5976}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CubesMultiplayerDemoShared", "examples\Unity\CubesHandler\CubesMultiplayerDemoShared\CubesMultiplayerDemoShared.csproj", "{8437727F-FF3B-4D9C-B79C-2C2C25E01AD6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -123,14 +117,6 @@ Global
 		{AD4FB810-C6E7-43A5-8AE1-A7D2F13EA718}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD4FB810-C6E7-43A5-8AE1-A7D2F13EA718}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD4FB810-C6E7-43A5-8AE1-A7D2F13EA718}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EC490760-FEDB-4BC4-B326-D5714EDA5976}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EC490760-FEDB-4BC4-B326-D5714EDA5976}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EC490760-FEDB-4BC4-B326-D5714EDA5976}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EC490760-FEDB-4BC4-B326-D5714EDA5976}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8437727F-FF3B-4D9C-B79C-2C2C25E01AD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8437727F-FF3B-4D9C-B79C-2C2C25E01AD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8437727F-FF3B-4D9C-B79C-2C2C25E01AD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8437727F-FF3B-4D9C-B79C-2C2C25E01AD6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -155,11 +141,8 @@ Global
 		{0FE02E61-8E0A-4948-A680-FA9C6CAF684E} = {567CF810-9ACD-4D5D-99CF-05326F9A996E}
 		{C6CD38B5-81D6-4689-934D-FBE15CE09662} = {24804DEB-DD17-4FC8-8D2F-127EE489AF0E}
 		{F512DEC5-A651-4D89-B16A-0E51D6D417E5} = {C6CD38B5-81D6-4689-934D-FBE15CE09662}
-		{6BFF9F5C-B01B-4A05-B36C-51B24B4632AA} = {C6CD38B5-81D6-4689-934D-FBE15CE09662}
 		{160291E7-5203-4232-B4F4-4F3E37B37F47} = {F512DEC5-A651-4D89-B16A-0E51D6D417E5}
 		{AD4FB810-C6E7-43A5-8AE1-A7D2F13EA718} = {F512DEC5-A651-4D89-B16A-0E51D6D417E5}
-		{EC490760-FEDB-4BC4-B326-D5714EDA5976} = {6BFF9F5C-B01B-4A05-B36C-51B24B4632AA}
-		{8437727F-FF3B-4D9C-B79C-2C2C25E01AD6} = {6BFF9F5C-B01B-4A05-B36C-51B24B4632AA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {986F3036-4ACE-45D9-8F51-C560EFCB1F42}
