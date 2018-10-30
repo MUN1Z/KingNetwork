@@ -1,19 +1,14 @@
 ﻿using CubesMultiplayerDemoShared;
-using KingNetwork.Client;
 using KingNetwork.Shared;
 using UnityEngine;
 
 public class RemotePlayer : MonoBehaviour
 {
-
-    public bool Active { get; set; }
     public Player CurrentPlayer { get; set; }
 
     private Transform _transform;
     private Vector3 _position;
-    private Quaternion _rotation;
     private Vector3 _finalPosition;
-    private static Vector3 _finalRotation;
 
     // Use this for initialization
     void Start()
@@ -22,18 +17,19 @@ public class RemotePlayer : MonoBehaviour
 
         _transform = gameObject.GetComponent<Transform>();
         _position = _transform.position;
-        _rotation = _transform.rotation;
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        if (Vector3.Distance(_position, _finalPosition) > 0.1f)
+            _position = Vector3.Lerp(_position, _finalPosition, 0.5f * Time.deltaTime);
+        else
+            _position = _finalPosition;
     }
-    
+
     void PlayerData(KingBuffer kingBuffer)
     {
         // TODO get from kingBuffer finalPosition = null;
-        // TODO get from kingBuffer finalRotation = null;
     }
 }
