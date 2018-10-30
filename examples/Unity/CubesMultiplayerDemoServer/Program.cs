@@ -55,7 +55,7 @@ namespace CubesMultiplayerDemoServer
         {
             try
             {
-                Dictionary<IClient, NetworkPlayer> sendPosDict = new Dictionary<IClient, NetworkPlayer>(_networkPlayersDictionary);
+                var sendPosDict = new Dictionary<IClient, NetworkPlayer>(_networkPlayersDictionary);
 
                 foreach (var sendToPlayer in sendPosDict)
                 {

@@ -1,3 +1,5 @@
+![Logo](https://github.com/Mun1z/KingNetwork/blob/master/resources/logo.png)
+
 # Using the KingServer
 ```C#
 // create and start the server
