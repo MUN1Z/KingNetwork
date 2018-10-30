@@ -17,9 +17,9 @@ namespace KingNetwork.Server
         #region private members 	
 
         /// <summary> 	
-        /// The network tcp listener instance. 	
+        /// The network listener instance. 	
         /// </summary> 	
-        private NetworkTcpListener _networkListener;
+        private INetworkListener _networkListener;
 
         /// <summary> 	
         /// The network dictionary list of server packet handlers. 	
@@ -207,11 +207,12 @@ namespace KingNetwork.Server
         /// Method responsible for start the async network listener.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token for the task execution.</param>
-        private async Task StartListenerAsync(CancellationToken cancellationToken)
+        /// <param name="listenerType">The listener type to creation of listener.</param>
+        private async Task StartListenerAsync(CancellationToken cancellationToken, NetworkListenerType listenerType)
         {
             try
             {
-                _networkListener = new NetworkTcpListener(_port, OnClientConnected);
+                _networkListener = NetworkListenerFactory.CreateForType(listenerType, _port, OnClientConnected);
 
                 if (OnServerStartedHandler != null)
                     OnServerStartedHandler();
@@ -290,13 +291,14 @@ namespace KingNetwork.Server
         /// <summary>
         /// Method responsible for start the server.
         /// </summary>
-        public void Start()
+        /// <param name="listenerType">The listener type to creation of listener.</param>
+        public void Start(NetworkListenerType listenerType = NetworkListenerType.TCP)
         {
             try
             {
                 var cancellationTokenSource = new CancellationTokenSource();
 
-                var listeningTask = StartListenerAsync(cancellationTokenSource.Token);
+                var listeningTask = StartListenerAsync(cancellationTokenSource.Token, listenerType);
 
                 listeningTask.Wait(cancellationTokenSource.Token);
             }

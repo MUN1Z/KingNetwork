@@ -7,7 +7,7 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for managing the network tcp listener.
     /// </summary>
-    public class NetworkTcpListener : TcpListener
+    public class TcpNetworkListener : NetworkListener
     {
         #region private members 	
 
@@ -16,34 +16,27 @@ namespace KingNetwork.Server
 		/// </summary>
         private readonly ClientConnectedHandler _clientConnectedHandler;
 
-        #endregion
-
-        #region delegates 
-
-        /// <summary> 	
-        /// The handler from callback of client connection. 	
-        /// </summary> 	
-        /// <param name="client">The tcp client from connected client.</param>
-        public delegate void ClientConnectedHandler(TcpClient client);
+        private TcpListener _tcpListener;
 
         #endregion
-
+        
         #region constructors
 
         /// <summary>
-        /// Creates a new instance of a <see cref="NetworkTcpListener"/>.
+        /// Creates a new instance of a <see cref="TcpNetworkListener"/>.
         /// </summary>
         /// <param name="port">The port of server.</param>
         /// <param name="clientConnectedHandler">The client connected handler callback implementation.</param>
-        public NetworkTcpListener(ushort port, ClientConnectedHandler clientConnectedHandler) : base(IPAddress.Any, port)
+        public TcpNetworkListener(ushort port, ClientConnectedHandler clientConnectedHandler) : base(port, clientConnectedHandler)
         {
             try
             {
                 _clientConnectedHandler = clientConnectedHandler;
+                _tcpListener = new TcpListener(IPAddress.Any, port);
 
-                Server.NoDelay = true;
-                Start();
-                BeginAcceptSocket(OnAccept, this);
+                _tcpListener.Server.NoDelay = true;
+                _tcpListener.Start();
+                _tcpListener.BeginAcceptSocket(OnAccept, this);
 
                 Console.WriteLine($"Starting the server network listener on port: {port}.");
             }
@@ -64,7 +57,11 @@ namespace KingNetwork.Server
         private void OnAccept(IAsyncResult asyncResult)
         {
             _clientConnectedHandler(((TcpListener)asyncResult.AsyncState).EndAcceptTcpClient(asyncResult));
-            BeginAcceptSocket(OnAccept, this);
+            _tcpListener.BeginAcceptSocket(OnAccept, this);
+        }
+        public override void Stop()
+        {
+            _tcpListener.Stop();
         }
 
         #endregion
