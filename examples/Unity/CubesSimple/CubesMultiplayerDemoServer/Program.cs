@@ -223,6 +223,8 @@ namespace CubesMultiplayerDemoServer
                     while (true)
                     {
                         SynchronizePlayersPositions();
+
+                        Thread.Sleep(15);
                     }
                 }).Start();
             }
