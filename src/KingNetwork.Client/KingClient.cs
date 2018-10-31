@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using KingNetwork.client;
 using KingNetwork.Shared;
 
 namespace KingNetwork.Client
@@ -18,9 +19,9 @@ namespace KingNetwork.Client
         private readonly Dictionary<byte, ClientPacketHandler> _clientPacketHandlers;
 
         /// <summary> 	
-        /// The network tcp listener instance. 	
+        /// The network listener instance. 	
         /// </summary> 	
-        private NetworkTcpListener _networkListener;
+        private NetworkListener _networkListener;
 
         /// <summary> 	
         /// The thread for start the network listener. 	
@@ -34,12 +35,12 @@ namespace KingNetwork.Client
         /// <summary>
         /// The flag of client connection.
         /// </summary>
-        public bool HasConnected => _networkListener.Connected;
+        public bool HasConnected => _networkListener.Connected();
 
         /// <summary>
         /// The callback of message received handler implementation.
         /// </summary>
-        public NetworkTcpListener.MessageReceivedHandler MessageReceivedHandler { get; set; }
+        public NetworkListener.MessageReceivedHandler MessageReceivedHandler { get; set; }
 
         #endregion
 
@@ -120,13 +121,14 @@ namespace KingNetwork.Client
         /// <param name="ip">The ip address from server.</param>
         /// <param name="port">The port number from server, the default value us 7171</param>
         /// <param name="maxMessageBuffer">The max length of message buffer, the default value is 4096.</param>
-        public void Connect(string ip, ushort port = 7171, ushort maxMessageBuffer = 4096)
+        /// <param name="listenerType">The listener type to creation of listener, the default value is NetworkListenerType.TCP.</param>
+        public void Connect(string ip, ushort port = 7171, ushort maxMessageBuffer = 4096, NetworkListenerType listenerType = NetworkListenerType.TCP)
         {
             try
             {
                 _clientThread = new Thread(() =>
                 {
-                    _networkListener = new NetworkTcpListener(OnMessageReceived, OnClientDisconnected);
+                    _networkListener = NetworkListenerFactory.CreateForType(listenerType, OnMessageReceived, OnClientDisconnected);
                     _networkListener.StartClient(ip, port, maxMessageBuffer);
                 });
 
@@ -146,8 +148,7 @@ namespace KingNetwork.Client
         {
             try
             {
-                _networkListener.Close();
-                _networkListener.Dispose();
+                _networkListener.Stop();
             }
             catch (Exception ex)
             {
@@ -201,7 +202,7 @@ namespace KingNetwork.Client
         {
             try
             {
-                //_networkListener.Dispose();
+                _networkListener.Stop();
             }
             catch (Exception ex)
             {

@@ -1,5 +1,6 @@
 using KingNetwork.Shared;
 using System;
+using System.Net;
 using System.Net.Sockets;
 
 namespace KingNetwork.Client
@@ -7,68 +8,17 @@ namespace KingNetwork.Client
     /// <summary>
     /// This class is responsible for managing the network tcp listener.
     /// </summary>
-    public class NetworkTcpListener : TcpClient
+    public class TcpNetworkListener : NetworkListener
     {
-        #region private members 	
-
-        /// <summary>
-        /// The callback of message received handler implementation.
-        /// </summary>
-        private readonly MessageReceivedHandler _messageReceivedHandler;
-
-        /// <summary>
-        /// The callback of client disconnected handler implementation.
-        /// </summary>
-        private readonly ClientDisconnectedHandler _clientDisconnectedHandler;
-        
-        /// <summary>
-        /// The buffer of client connection.
-        /// </summary>
-        private byte[] _buffer;
-
-
-        /// <summary>
-        /// The stream of tcp client.
-        /// </summary>
-        private NetworkStream _stream;
-
-
-        #endregion
-
-        #region delegates 
-
-        /// <summary>
-        /// The delegate of message received handler from server connection.
-        /// </summary>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        public delegate void MessageReceivedHandler(KingBuffer kingBuffer);
-        
-        /// <summary>
-		/// The delegate of client disconnected handler connection.
-		/// </summary>
-        public delegate void ClientDisconnectedHandler();
-
-        #endregion
-        
         #region constructors
 
         /// <summary>
-        /// Creates a new instance of a <see cref="NetworkTcpListener"/>.
+        /// Creates a new instance of a <see cref="TcpNetworkListener"/>.
         /// </summary>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
-        public NetworkTcpListener(MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler)
-        {
-            try
-            {
-                _messageReceivedHandler = messageReceivedHandler;
-                _clientDisconnectedHandler = clientDisconnectedHandler;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
-        }
+        public TcpNetworkListener(MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler)
+            : base (messageReceivedHandler, clientDisconnectedHandler) {  }
 
         #endregion
 
@@ -80,21 +30,22 @@ namespace KingNetwork.Client
         /// <param name="ip">The ip address of server.</param>
         /// <param name="port">The port of server.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer.</param>
-        public void StartClient(string ip, int port, ushort maxMessageBuffer)
+        public override void StartClient(string ip, int port, ushort maxMessageBuffer)
         {
             try
-
             {
-                Client.NoDelay = true;
-                Connect(ip, port);
-                
+                _remoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+
+                _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _listener.ReceiveBufferSize = maxMessageBuffer;
+                _listener.SendBufferSize = maxMessageBuffer;
+
+                _listener.Connect(_remoteEndPoint);
+
                 _buffer = new byte[maxMessageBuffer];
-                _stream = GetStream();
-
-                ReceiveBufferSize = maxMessageBuffer;
-                SendBufferSize = maxMessageBuffer;
-
-                _stream.BeginRead(_buffer, 0, ReceiveBufferSize, ReceiveDataCallback, null);
+                _stream = new NetworkStream(_listener);
+                
+                _stream.BeginRead(_buffer, 0, _listener.ReceiveBufferSize, ReceiveDataCallback, null);
             }
             catch (Exception ex)
             {
@@ -106,7 +57,7 @@ namespace KingNetwork.Client
         /// Method responsible for send message to connected server.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public void SendMessage(KingBuffer kingBuffer)
+        public override void SendMessage(KingBuffer kingBuffer)
         {
             try
             {
@@ -130,7 +81,7 @@ namespace KingNetwork.Client
         {
             try
             {
-                if (!(Client.Poll(1, SelectMode.SelectRead) && Client.Available == 0))
+                if (_listener.Connected)
                 {
                     var endRead = _stream.EndRead(asyncResult);
 
@@ -139,22 +90,20 @@ namespace KingNetwork.Client
                         var numArray = new byte[endRead];
                         Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
 
-                        _stream.BeginRead(_buffer, 0, ReceiveBufferSize, ReceiveDataCallback, null);
-
-                        //Console.WriteLine("Received message from server.");
-
+                        _stream.BeginRead(_buffer, 0, _listener.ReceiveBufferSize, ReceiveDataCallback, null);
+                        
                         _messageReceivedHandler(new KingBuffer(numArray));
 
                         return;
                     }
                 }
 
-                Close();
+                _stream.Close();
                 _clientDisconnectedHandler();
             }
             catch (Exception ex)
             {
-                Close();
+                _stream.Close();
                 _clientDisconnectedHandler();
                 Console.WriteLine($"Error: {ex.Message}.");
             }

@@ -1,5 +1,4 @@
-﻿using KingNetwork.Server.Interfaces;
-using System;
+﻿using System;
 using System.Net.Sockets;
 
 namespace KingNetwork.Server
@@ -7,7 +6,7 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for representation of abstract network listener.
     /// </summary>
-    public abstract class NetworkListener : INetworkListener, IDisposable
+    public abstract class NetworkListener : IDisposable
     {
         #region private members
 

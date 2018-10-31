@@ -15,11 +15,6 @@ namespace KingNetwork.Server
 		/// The endpoint value to received data.
 		/// </summary>
         private EndPoint _endPointFrom;
-
-        /// <summary>
-		/// The buffer data for udp connection.
-		/// </summary>
-        private byte[] _buffer;
         
         #endregion
 
@@ -32,15 +27,21 @@ namespace KingNetwork.Server
         /// <param name="clientConnectedHandler">The client connected handler callback implementation.</param>
         public UdpNetworkListener(ushort port, ClientConnectedHandler clientConnectedHandler) : base(port, clientConnectedHandler)
         {
-            _clientConnectedHandler = clientConnectedHandler;
-            _listener = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
-            _listener.Bind(new IPEndPoint(IPAddress.Any, port));
-            _endPointFrom = new IPEndPoint(IPAddress.Any, 0);
-            _buffer = new byte[4096];
+            try
+            {
+                _clientConnectedHandler = clientConnectedHandler;
+                _listener = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
+                _listener.Bind(new IPEndPoint(IPAddress.Any, port));
+                _endPointFrom = new IPEndPoint(IPAddress.Any, 0);
+                
+                _listener.BeginAccept(new AsyncCallback(OnAccept), null);
 
-            _listener.BeginReceiveFrom(_buffer, 0, _buffer.Length, SocketFlags.None, ref _endPointFrom, new AsyncCallback(OnAccept), _buffer);
-
-            Console.WriteLine($"Starting the server network listener on port: {port}.");
+                Console.WriteLine($"Starting the server network listener on port: {port}.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
         }
 
         #endregion

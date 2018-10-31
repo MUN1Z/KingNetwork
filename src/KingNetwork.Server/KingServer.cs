@@ -19,7 +19,7 @@ namespace KingNetwork.Server
         /// <summary> 	
         /// The network listener instance. 	
         /// </summary> 	
-        private INetworkListener _networkListener;
+        private NetworkListener _networkListener;
 
         /// <summary> 	
         /// The network dictionary list of server packet handlers. 	
@@ -201,14 +201,13 @@ namespace KingNetwork.Server
                 Console.WriteLine($"Error: {ex.Message}.");
             }
         }
-
-
+        
         /// <summary>
         /// Method responsible for start the async network listener.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token for the task execution.</param>
-        /// <param name="listenerType">The listener type to creation of listener.</param>
-        private async Task StartListenerAsync(CancellationToken cancellationToken, NetworkListenerType listenerType)
+        /// <param name="listenerType">The listener type to creation of listener, the default value is NetworkListenerType.TCP.</param>
+        private async Task StartListenerAsync(CancellationToken cancellationToken, NetworkListenerType listenerType = NetworkListenerType.TCP)
         {
             try
             {
