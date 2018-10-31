@@ -8,7 +8,7 @@ namespace KingNetwork.client
     {
         public static NetworkListener CreateForType(NetworkListenerType listenerType, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler)
         {
-            if (listenerType == NetworkListenerType.UDP)
+            if (listenerType == NetworkListenerType.TCP)
                 return new TcpNetworkListener(messageReceivedHandler, clientDisconnectedHandler);
 
             return new UdpNetworkListener(messageReceivedHandler, clientDisconnectedHandler);
