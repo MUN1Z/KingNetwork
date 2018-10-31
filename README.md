@@ -3,6 +3,16 @@
   <img src="https://github.com/Mun1z/KingNetwork/blob/master/resources/logo.png">
 </p>
 
+# Examples
+
+**Cubes Unity Example**<br/>
+
+<p align="center">
+  <img src="https://github.com/Mun1z/KingNetwork/blob/master/resources/CubesExample.gif">
+</p>
+
+<br/>
+
 # Using the KingServer
 ```C#
 // create and start the server
