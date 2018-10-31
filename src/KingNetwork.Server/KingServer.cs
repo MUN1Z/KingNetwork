@@ -157,14 +157,14 @@ namespace KingNetwork.Server
         /// <summary>
         /// Method responsible for execute the callback of client connected in server.
         /// </summary>
-        /// <param name="tcpClient">The tcp client object from connected client.</param>
-        private void OnClientConnected(TcpClient tcpClient)
+        /// <param name="socketClient">The socket client object from connected client.</param>
+        private void OnClientConnected(Socket socketClient)
         {
             try
             {
                 if (_clients.Count <= _maxClientConnections)
                 {
-                    var client = new Client(GetNewClientIdentifier(), tcpClient, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
+                    var client = new Client(GetNewClientIdentifier(), socketClient, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
                     _clients.Add(client.Id, client);
                     
                     if(OnClientConnectedHandler != null)
@@ -172,7 +172,7 @@ namespace KingNetwork.Server
                 }
                 else
                 {
-                    tcpClient.Dispose();
+                    socketClient.Dispose();
                     Console.WriteLine($"Max client connections {_maxClientConnections}.");
                 }
             }

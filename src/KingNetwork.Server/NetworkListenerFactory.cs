@@ -10,10 +10,6 @@ namespace KingNetwork.Server
         {
             if (listenerType == NetworkListenerType.TCP)
                 return new TcpNetworkListener(port, clientConnectedHandler);
-            else if (listenerType == NetworkListenerType.UDP)
-                return new UdpNetworkListener(port, clientConnectedHandler);
-            else if (listenerType == NetworkListenerType.WEBSOCKET)
-                return new WebSocketNetworkListener(port, clientConnectedHandler);
 
             return new TcpNetworkListener(port, clientConnectedHandler);
         }

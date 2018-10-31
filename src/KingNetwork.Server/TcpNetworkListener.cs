@@ -5,21 +5,10 @@ using System.Net.Sockets;
 namespace KingNetwork.Server
 {
     /// <summary>
-    /// This class is responsible for managing the network tcp listener.
+    /// This class is responsible for managing the tcp network tcp listener.
     /// </summary>
-    public class TcpNetworkListener : NetworkListener
+    public class TcpNetworkListener : NetworkListener, IDisposable
     {
-        #region private members 	
-
-        /// <summary>
-		/// The callback of client connected handler implementation.
-		/// </summary>
-        private readonly ClientConnectedHandler _clientConnectedHandler;
-
-        private TcpListener _tcpListener;
-
-        #endregion
-        
         #region constructors
 
         /// <summary>
@@ -32,11 +21,11 @@ namespace KingNetwork.Server
             try
             {
                 _clientConnectedHandler = clientConnectedHandler;
-                _tcpListener = new TcpListener(IPAddress.Any, port);
 
-                _tcpListener.Server.NoDelay = true;
-                _tcpListener.Start();
-                _tcpListener.BeginAcceptSocket(OnAccept, this);
+                _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _listener.Bind(new IPEndPoint(IPAddress.Any, port));
+                _listener.Listen(100);
+                _listener.BeginAccept(new AsyncCallback(OnAccept), null);
 
                 Console.WriteLine($"Starting the server network listener on port: {port}.");
             }
@@ -47,7 +36,7 @@ namespace KingNetwork.Server
         }
 
         #endregion
-
+        
         #region private methods imlementation
 
         /// <summary> 	
@@ -56,14 +45,21 @@ namespace KingNetwork.Server
         /// <param name="asyncResult">The async result from socket accepted in connection.</param>
         private void OnAccept(IAsyncResult asyncResult)
         {
-            _clientConnectedHandler(((TcpListener)asyncResult.AsyncState).EndAcceptTcpClient(asyncResult));
-            _tcpListener.BeginAcceptSocket(OnAccept, this);
-        }
-        public override void Stop()
-        {
-            _tcpListener.Stop();
+            try
+            {
+                _clientConnectedHandler(_listener.EndAccept(asyncResult));
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+            finally
+            {
+                _listener.BeginAccept(new AsyncCallback(OnAccept), null);
+            }
         }
 
         #endregion
+        
     }
 }

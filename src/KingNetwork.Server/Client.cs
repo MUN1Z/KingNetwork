@@ -1,7 +1,6 @@
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
 using System;
-using System.Linq;
 using System.Net.Sockets;
 
 namespace KingNetwork.Server
@@ -16,7 +15,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The tcp client instance from client.
         /// </summary>
-        private readonly TcpClient _tcpClient;
+        private readonly Socket _socketClient;
 
         /// <summary>
         /// The buffer of client connection.
@@ -55,7 +54,7 @@ namespace KingNetwork.Server
         /// <summary>
 		/// The flag of client connection.
 		/// </summary>
-		public bool IsConnected => _tcpClient.Connected;
+		public bool IsConnected => _socketClient.Connected;
 
         #endregion
 
@@ -82,27 +81,27 @@ namespace KingNetwork.Server
         /// Creates a new instance of a <see cref="Client"/>.
         /// </summary>
         /// <param name="id">The identifier number of connected client.</param>
-        /// <param name="tcpClient">The tcp client from connected client.</param>
+        /// <param name="socketClient">The tcp client from connected client.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer.</param>
-        public Client(ushort id, TcpClient tcpClient, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
+        public Client(ushort id, Socket socketClient, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
         {
             try
             {
-                _tcpClient = tcpClient;
+                _socketClient = socketClient;
                 _messageReceivedHandler = messageReceivedHandler;
                 _clientDisconnectedHandler = clientDisconnectedHandler;
 
-                _tcpClient.ReceiveBufferSize = maxMessageBuffer;
-                _tcpClient.SendBufferSize = maxMessageBuffer;
+                _socketClient.ReceiveBufferSize = maxMessageBuffer;
+                _socketClient.SendBufferSize = maxMessageBuffer;
                 _buffer = new byte[maxMessageBuffer];
-                _stream = _tcpClient.GetStream();
+                _stream = new NetworkStream(_socketClient);
 
                 Id = id;
-                IpAddress = _tcpClient.Client.RemoteEndPoint.ToString();
+                //IpAddress = _socketClient.Client.RemoteEndPoint.ToString();
 
-                _stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, ReceiveDataCallback, null);
+                _stream.BeginRead(_buffer, 0, _socketClient.ReceiveBufferSize, ReceiveDataCallback, null);
             }
             catch (Exception ex)
             {
@@ -146,7 +145,7 @@ namespace KingNetwork.Server
         {
             try
             {
-                if (!(_tcpClient.Client.Poll(1, SelectMode.SelectRead) && _tcpClient.Client.Available == 0))
+                if (_socketClient.Connected)
                 {
                     var endRead = _stream.EndRead(asyncResult);
 
@@ -155,7 +154,7 @@ namespace KingNetwork.Server
                     {
                         Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
 
-                        _stream.BeginRead(_buffer, 0, _tcpClient.ReceiveBufferSize, ReceiveDataCallback, null);
+                        _stream.BeginRead(_buffer, 0, _socketClient.ReceiveBufferSize, ReceiveDataCallback, null);
 
                         //Console.WriteLine($"Received message from client '{IpAddress}'.");
 
@@ -165,12 +164,12 @@ namespace KingNetwork.Server
                     }
                 }
 
-                _tcpClient.Close();
+                _socketClient.Close();
                 _clientDisconnectedHandler(this);
             }
             catch (Exception ex)
             {
-                _tcpClient.Close();
+                _socketClient.Close();
                 _clientDisconnectedHandler(this);
             }
             
