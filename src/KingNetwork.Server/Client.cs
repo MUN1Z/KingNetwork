@@ -65,7 +65,7 @@ namespace KingNetwork.Server
 		/// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public delegate void MessageReceivedHandler(IClient client, KingBuffer kingBuffer);
+        public delegate void MessageReceivedHandler(IClient client, IKingBuffer kingBuffer);
 
         /// <summary>
 		/// The delegate of client disconnected handler connection.
@@ -117,7 +117,7 @@ namespace KingNetwork.Server
         /// Method responsible for send message to client.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public void SendMessage(KingBuffer kingBuffer)
+        public void SendMessage(IKingBuffer kingBuffer)
         {
             try
             {
@@ -155,9 +155,7 @@ namespace KingNetwork.Server
                         Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
 
                         _stream.BeginRead(_buffer, 0, _socketClient.ReceiveBufferSize, ReceiveDataCallback, null);
-
-                        //Console.WriteLine($"Received message from client '{IpAddress}'.");
-
+                        
                         _messageReceivedHandler(this, new KingBuffer(numArray));
 
                         return;

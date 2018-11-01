@@ -74,7 +74,7 @@ public class Network : MonoBehaviour
         }
     }
 
-    public void OnMessageReceived(KingBuffer kingBuffer)
+    public void OnMessageReceived(IKingBuffer kingBuffer)
     {
         switch (kingBuffer.ReadMessagePacket<MyPackets>())
         {

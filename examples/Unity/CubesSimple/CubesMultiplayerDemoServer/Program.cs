@@ -62,7 +62,7 @@ namespace CubesMultiplayerDemoServer
                     if (sendToPlayer.Value == null)
                         continue;
 
-                    using (var kingBuffer = new KingBuffer())
+                    using (var kingBuffer = new KingBufferBase())
                     {
                         kingBuffer.WriteMessagePacket(MyPackets.PlayerPositionsArray);
                         kingBuffer.WriteInteger(sendPosDict.Count(c => c.Key.Id != sendToPlayer.Key.Id && c.Value.Moved));
@@ -124,7 +124,7 @@ namespace CubesMultiplayerDemoServer
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer from received message.</param>
-        private void OnMessageReceived(IClient client, KingBuffer kingBuffer)
+        private void OnMessageReceived(IClient client, IKingBuffer kingBuffer)
         {
             try
             {
@@ -162,7 +162,7 @@ namespace CubesMultiplayerDemoServer
             {
                 Console.WriteLine($"OnClientConnected: {client.Id}");
 
-                using (var kingBuffer = new KingBuffer())
+                using (var kingBuffer = new KingBufferBase())
                 {
                     kingBuffer.WriteMessagePacket(MyPackets.PlayerPositionsArray);
                     kingBuffer.WriteInteger(_networkPlayersDictionary.Count);

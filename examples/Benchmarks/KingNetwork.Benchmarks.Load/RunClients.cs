@@ -45,7 +45,7 @@ namespace KingNetwork.Benchmarks.Load
         /// <param name="clientConnections">The number of client connections.</param>
         public static void StartClients(string ip, int clientConnections)
         {
-            var kingBuffer = new KingBuffer();
+            var kingBuffer = new KingBufferBase();
             kingBuffer.WriteString("Sometimes we just need a good networking library");
 
             _stopwatch = Stopwatch.StartNew();
@@ -117,15 +117,13 @@ namespace KingNetwork.Benchmarks.Load
         /// Method responsible for execute the callback of message received from server in client.
         /// </summary>
         /// <param name="kingBuffer">The king buffer from received message.</param>
-        private static void OnMessageReceived(KingBuffer kingBuffer)
+        private static void OnMessageReceived(IKingBuffer kingBuffer)
         {
             try
             {
                 _messagesReceived++;
                 _dataReceived += kingBuffer.Length();
                 _bufferLength = kingBuffer.Length();
-
-                //Console.WriteLine($"Client: {kingBuffer.ReadString()}");
             }
             catch (Exception ex)
             {

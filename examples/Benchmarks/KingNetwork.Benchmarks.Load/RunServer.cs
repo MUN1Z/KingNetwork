@@ -73,7 +73,7 @@ namespace KingNetwork.Benchmarks.Load
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer from received message.</param>
-        private static void OnMessageReceived(IClient client, KingBuffer kingBuffer)
+        private static void OnMessageReceived(IClient client, IKingBuffer kingBuffer)
         {
             try
             {
@@ -81,9 +81,6 @@ namespace KingNetwork.Benchmarks.Load
 
                 _messagesReceived++;
                 _dataReceived += kingBuffer.Length();
-
-
-                //Console.WriteLine($"Server: {kingBuffer.ReadString()}");
             }
             catch (Exception ex)
             {

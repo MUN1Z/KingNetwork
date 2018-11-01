@@ -11,6 +11,6 @@ namespace KingNetwork.Client.Interfaces
         /// This method is responsible for receive the message from client packet handler.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        void HandleMessageData(KingBuffer kingBuffer);
+        void HandleMessageData(IKingBuffer kingBuffer);
     }
 }

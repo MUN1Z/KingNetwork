@@ -36,7 +36,7 @@ namespace KingNetwork.SimpleExample.Server
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer from received message.</param>
-        private static void OnMessageReceived(IClient client, KingBuffer kingBuffer)
+        private static void OnMessageReceived(IClient client, IKingBuffer kingBuffer)
         {
             try
             {

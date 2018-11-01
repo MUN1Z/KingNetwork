@@ -51,6 +51,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CubesMultiplayerDemoServer"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CubesMultiplayerDemoShared", "examples\Unity\CubesSimple\CubesMultiplayerDemoShared\CubesMultiplayerDemoShared.csproj", "{AD4FB810-C6E7-43A5-8AE1-A7D2F13EA718}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "chat", "chat", "{44932F62-16D4-4B12-B935-0A5E00EE5B98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatMultiplayerDemoShared", "examples\Unity\Chat\ChatMultiplayerDemoShared\ChatMultiplayerDemoShared.csproj", "{6F90CE82-4A89-457F-B5F7-CCC5841A98D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatMultiplayerDemoServer", "examples\Unity\Chat\ChatMultiplayerDemoServer\ChatMultiplayerDemoServer.csproj", "{9336B9F6-1D0E-452E-89CF-9F7339F452DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +123,14 @@ Global
 		{AD4FB810-C6E7-43A5-8AE1-A7D2F13EA718}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD4FB810-C6E7-43A5-8AE1-A7D2F13EA718}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD4FB810-C6E7-43A5-8AE1-A7D2F13EA718}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F90CE82-4A89-457F-B5F7-CCC5841A98D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F90CE82-4A89-457F-B5F7-CCC5841A98D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F90CE82-4A89-457F-B5F7-CCC5841A98D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F90CE82-4A89-457F-B5F7-CCC5841A98D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9336B9F6-1D0E-452E-89CF-9F7339F452DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9336B9F6-1D0E-452E-89CF-9F7339F452DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9336B9F6-1D0E-452E-89CF-9F7339F452DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9336B9F6-1D0E-452E-89CF-9F7339F452DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -143,6 +157,9 @@ Global
 		{F512DEC5-A651-4D89-B16A-0E51D6D417E5} = {C6CD38B5-81D6-4689-934D-FBE15CE09662}
 		{160291E7-5203-4232-B4F4-4F3E37B37F47} = {F512DEC5-A651-4D89-B16A-0E51D6D417E5}
 		{AD4FB810-C6E7-43A5-8AE1-A7D2F13EA718} = {F512DEC5-A651-4D89-B16A-0E51D6D417E5}
+		{44932F62-16D4-4B12-B935-0A5E00EE5B98} = {C6CD38B5-81D6-4689-934D-FBE15CE09662}
+		{6F90CE82-4A89-457F-B5F7-CCC5841A98D1} = {44932F62-16D4-4B12-B935-0A5E00EE5B98}
+		{9336B9F6-1D0E-452E-89CF-9F7339F452DE} = {44932F62-16D4-4B12-B935-0A5E00EE5B98}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {986F3036-4ACE-45D9-8F51-C560EFCB1F42}

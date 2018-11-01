@@ -7,53 +7,53 @@ namespace KingNetwork.Shared
     /// <summary>
     /// This class is responsible for represents the buffer of application.
     /// </summary>
-    public class KingBuffer : IDisposable
+    public class KingBufferBase : IKingBuffer, IDisposable
     {
         #region private members 	
 
         /// <summary>
         /// The list of bytes from buffer.
         /// </summary>
-        private readonly List<byte> _buffer;
+        protected readonly List<byte> _buffer;
 
         /// <summary>
         /// The array of bytes from read buffer.
         /// </summary>
-        private byte[] _readBuffer;
+        protected byte[] _readBuffer;
 
         /// <summary>
         /// The read position of buffer.
         /// </summary>
-        private int _readPos;
+        protected int _readPos;
 
         /// <summary>
         /// The buffer updated flag.
         /// </summary>
-        private bool _bufferUpdated;
+        protected bool _bufferUpdated;
 
         /// <summary>
         /// The buffer disposed flag.
         /// </summary>
-        private bool _disposedValue;
+        protected bool _disposedValue;
 
         #endregion
 
         #region constructors   
 
         /// <summary>
-        /// Creates a new instance of a <see cref="KingBuffer"/>.
+        /// Creates a new instance of a <see cref="KingBufferBase"/>.
         /// </summary>
-        public KingBuffer()
+        public KingBufferBase()
         {
             _buffer = new List<byte>();
             _readPos = 0;
         }
 
         /// <summary>
-        /// Creates a new instance of a <see cref="KingBuffer"/>.
+        /// Creates a new instance of a <see cref="KingBufferBase"/>.
         /// </summary>
         /// <param name="data">The byte array from data received in message.</param>
-        public KingBuffer(IEnumerable<byte> data)
+        public KingBufferBase(IEnumerable<byte> data)
         {
             _buffer = new List<byte>(data);
             _readPos = 0;

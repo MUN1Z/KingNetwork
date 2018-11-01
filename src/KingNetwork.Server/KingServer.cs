@@ -84,8 +84,8 @@ namespace KingNetwork.Server
         /// The server packet handler delegate. 	
         /// </summary> 	
         /// <param name="client">The connected client.</param>
-        /// <param name="buffer">The king buffer received from message.</param>
-        public delegate void ServerPacketHandler(IClient client, KingBuffer buffer);
+        /// <param name="kingBuffer">The king buffer received from message.</param>
+        public delegate void ServerPacketHandler(IClient client, IKingBuffer kingBuffer);
 
         /// <summary> 	
         /// The handler from callback of client connection. 	
@@ -138,7 +138,7 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="client">The connected client.</param>
         /// <param name="kingBuffer">The king buffer received from message.</param>
-        private void OnMessageReceived(IClient client, KingBuffer kingBuffer)
+        private void OnMessageReceived(IClient client, IKingBuffer kingBuffer)
         {
             try
             {
@@ -327,7 +327,7 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public void SendMessage(IClient client, KingBuffer kingBuffer)
+        public void SendMessage(IClient client, IKingBuffer kingBuffer)
         {
             try
             {
@@ -343,7 +343,7 @@ namespace KingNetwork.Server
         /// Method responsible for send message to all connected client.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public void SendMessageToAll(KingBuffer kingBuffer)
+        public void SendMessageToAll(IKingBuffer kingBuffer)
         {
             try
             {
@@ -361,7 +361,7 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public void SendMessageToAllMinus(IClient client, KingBuffer kingBuffer)
+        public void SendMessageToAllMinus(IClient client, IKingBuffer kingBuffer)
         {
             try
             {

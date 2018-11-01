@@ -55,7 +55,7 @@ namespace KingNetwork.Client
         /// The delegate of message received handler from server connection.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public delegate void MessageReceivedHandler(KingBuffer kingBuffer);
+        public delegate void MessageReceivedHandler(IKingBuffer kingBuffer);
 
         /// <summary>
         /// The delegate of client disconnected handler connection.
@@ -100,7 +100,7 @@ namespace KingNetwork.Client
         /// Method responsible for send message to connected server.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public virtual void SendMessage(KingBuffer kingBuffer) { }
+        public virtual void SendMessage(IKingBuffer kingBuffer) { }
 
         /// <summary>
         /// This method is responsible for call the dispose implementation method.

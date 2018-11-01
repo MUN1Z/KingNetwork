@@ -34,7 +34,7 @@ namespace KingNetwork.SimpleExample.Client
         /// Method responsible for execute the callback of message received from server in client.
         /// </summary>
         /// <param name="kingBuffer">The king buffer from received message.</param>
-        private static void OnMessageReceived(KingBuffer kingBuffer)
+        private static void OnMessageReceived(IKingBuffer kingBuffer)
         {
             try
             {

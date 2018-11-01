@@ -57,7 +57,7 @@ namespace KingNetwork.Client
         /// Method responsible for send message to connected server.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public override void SendMessage(KingBuffer kingBuffer)
+        public override void SendMessage(IKingBuffer kingBuffer)
         {
             try
             {

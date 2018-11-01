@@ -50,7 +50,7 @@ namespace KingNetwork.Client
         /// The client packet handler delegate. 	
         /// </summary> 	
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public delegate void ClientPacketHandler(KingBuffer kingBuffer);
+        public delegate void ClientPacketHandler(IKingBuffer kingBuffer);
 
         #endregion
 
@@ -160,7 +160,7 @@ namespace KingNetwork.Client
         /// Method responsible for send message to connected server.
         /// </summary>
         /// <param name="kingBuffer">The king buffer to send message.</param>
-        public void SendMessage(KingBuffer kingBuffer)
+        public void SendMessage(IKingBuffer kingBuffer)
         {
             try
             {
@@ -180,7 +180,7 @@ namespace KingNetwork.Client
         /// Method responsible for execute the callback of message received from client in server.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        private void OnMessageReceived(KingBuffer kingBuffer)
+        private void OnMessageReceived(IKingBuffer kingBuffer)
         {
             try
             {
