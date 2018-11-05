@@ -13,6 +13,17 @@
 
 <br/>
 
+# Nuget Packages
+
+**King Server**<br/>
+<a href="https://www.nuget.org/packages/KingNetwork.Server/">https://www.nuget.org/packages/KingNetwork.Server/</a><br/>
+
+**King Client**<br/>
+<a href="https://www.nuget.org/packages/KingNetwork.Client/">https://www.nuget.org/packages/KingNetwork.Client/</a><br/>
+
+**King Shared**<br/>
+<a href="https://www.nuget.org/packages/KingNetwork.Shared/">https://www.nuget.org/packages/KingNetwork.Shared/</a><br/><br/>
+
 # Using the KingServer
 ```C#
 // create and start the server
