@@ -2,6 +2,7 @@ using KingNetwork.Client;
 using KingNetwork.Shared;
 using KingNetwork.SimpleExample.Shared;
 using System;
+using System.Threading;
 
 namespace KingNetwork.SimpleExample.Client
 {
@@ -20,7 +21,25 @@ namespace KingNetwork.SimpleExample.Client
             {
                 var client = new KingClient();
                 client.MessageReceivedHandler = OnMessageReceived;
-                client.Connect("127.0.0.1");
+                client.Connect("127.0.0.1", 7172);
+
+                new Thread(() =>
+                {
+                    Thread.Sleep(3000);
+
+                    using (var buffer = new KingBuffer())
+                    {
+                        //buffer.WriteBytes(new byte[] { 0, 0, 0, 0 });
+
+                        //buffer.WriteMessagePacket(0);
+
+                        buffer.WriteString("AA");
+
+                        client.SendMessage(buffer);
+                    }
+                }).Start();
+
+               
 
                 Console.ReadLine();
             }
