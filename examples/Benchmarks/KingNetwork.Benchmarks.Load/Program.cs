@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KingNetwork.Shared;
+using System;
 using System.Threading;
 
 namespace KingNetwork.Benchmarks.Load
@@ -14,15 +15,17 @@ namespace KingNetwork.Benchmarks.Load
         /// <param name="args">The string args received by parameters.</param>
         public static void Main(string[] args)
         {
+            var type = NetworkListenerType.UDP;
+
             Thread serverThread = new Thread(() =>
             {
-                RunServer.StartServer();
+                RunServer.StartServer(type);
             });
 
             serverThread.IsBackground = false;
             serverThread.Start();
             
-            RunClients.StartClients("127.0.0.1", 1000);
+            RunClients.StartClients("127.0.0.1", 1, type);
 
             Console.ReadLine();
         }

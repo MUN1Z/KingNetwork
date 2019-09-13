@@ -1,3 +1,4 @@
+using KingNetwork.Shared;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -25,7 +26,13 @@ namespace KingNetwork.Server
                 _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _listener.Bind(new IPEndPoint(IPAddress.Any, port));
                 _listener.Listen(100);
-                _listener.BeginAccept(new AsyncCallback(OnAccept), null);
+                _listener.NoDelay = true;
+                
+                var socketAsyncEventArgs = KingPoolManager.GetInstance().SocketAsyncEventArgs;
+                socketAsyncEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(OnAccept);
+
+                if (!_listener.AcceptAsync(socketAsyncEventArgs))
+                    OnAccept(this, socketAsyncEventArgs);
 
                 Console.WriteLine($"Starting the server network listener on port: {port}.");
             }
@@ -36,30 +43,37 @@ namespace KingNetwork.Server
         }
 
         #endregion
-        
-        #region private methods imlementation
 
+        #region private methods imlementation
+        
         /// <summary> 	
         /// The callback from accept client connection. 	
         /// </summary> 	
-        /// <param name="asyncResult">The async result from socket accepted in connection.</param>
-        private void OnAccept(IAsyncResult asyncResult)
+        /// <param name="sender">The object sender result from socket accepted in connection.</param>
+        /// <param name="e">The SocketAsyncEventArgs result from socket accepted in connection.</param>
+        private void OnAccept(object sender, SocketAsyncEventArgs e)
         {
-            try
+            if (e.SocketError != 0)
             {
-                _clientConnectedHandler(_listener.EndAccept(asyncResult));
+                e.Completed -= new EventHandler<SocketAsyncEventArgs>(OnAccept);
+                KingPoolManager.GetInstance().DisposeSocketAsyncEventArgs(e);
             }
-            catch(Exception ex)
+            else
             {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
-            finally
-            {
-                _listener.BeginAccept(new AsyncCallback(OnAccept), null);
+                try
+                {
+                    _clientConnectedHandler(e.AcceptSocket);
+                }
+                finally
+                {
+                    e.AcceptSocket = null;
+
+                    if (!_listener.AcceptAsync(e))
+                        OnAccept(this, e);
+                }
             }
         }
 
         #endregion
-        
     }
 }

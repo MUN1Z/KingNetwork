@@ -8,4 +8,10 @@
         TCP,
         UDP
     }
+
+    public enum IPVersion
+    {
+        IPv4,
+        IPv6
+    }
 }

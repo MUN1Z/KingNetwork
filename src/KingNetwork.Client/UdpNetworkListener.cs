@@ -35,18 +35,24 @@ namespace KingNetwork.Client
             try
             {
                 _remoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+                var local = new IPEndPoint(IPAddress.Parse(ip), 7272);
 
-                _listener = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
+                var ipVersion = IPVersion.IPv4;
+                AddressFamily family = (AddressFamily)((ipVersion == IPVersion.IPv6) ? 23 : 2);
+
+                _listener = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
                 _listener.ReceiveBufferSize = maxMessageBuffer;
                 _listener.SendBufferSize = maxMessageBuffer;
 
-                _listener.Bind(new IPEndPoint(_remoteEndPoint.Address, 0));
+               _listener.Bind(local);
+                //_listener.Bind(new IPEndPoint(_remoteEndPoint.Address, 0));
                 _listener.Connect(_remoteEndPoint);
 
                 _buffer = new byte[maxMessageBuffer];
-                _stream = new NetworkStream(_listener);
+                //_stream = new NetworkStream(_listener);
                 
-                _stream.BeginRead(_buffer, 0, _listener.ReceiveBufferSize, ReceiveDataCallback, null);
+                //_stream.BeginRead(_buffer, 0, _listener.ReceiveBufferSize, ReceiveDataCallback, null);
+                _listener.BeginReceiveFrom(_buffer, 0, _listener.ReceiveBufferSize, SocketFlags.None, ref _remoteEndPoint, new AsyncCallback(ReceiveDataCallback), null);
             }
             catch (Exception ex)
             {
@@ -62,7 +68,8 @@ namespace KingNetwork.Client
         {
             try
             {
-                _stream.BeginWrite(kingBuffer.ToArray(), 0, kingBuffer.Length(), null, null);
+                _listener.SendTo(kingBuffer.ToArray(), SocketFlags.None, _remoteEndPoint);
+                //_stream.BeginWrite(kingBuffer.ToArray(), 0, kingBuffer.Length(), null, null);
             }
             catch (Exception ex)
             {
@@ -91,7 +98,8 @@ namespace KingNetwork.Client
                         var numArray = new byte[endRead];
                         Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
 
-                        _stream.BeginRead(_buffer, 0, _listener.ReceiveBufferSize, ReceiveDataCallback, null);
+                        //_stream.BeginRead(_buffer, 0, _listener.ReceiveBufferSize, ReceiveDataCallback, null);
+                        _listener.BeginReceiveFrom(_buffer, 0, _listener.ReceiveBufferSize, SocketFlags.None, ref _remoteEndPoint, new AsyncCallback(ReceiveDataCallback), null);
                         
                         _messageReceivedHandler(new KingBufferBase(numArray));
 
@@ -99,12 +107,12 @@ namespace KingNetwork.Client
                     }
                 }
 
-                _stream.Close();
+                //_stream.Close();
                 _clientDisconnectedHandler();
             }
             catch (Exception ex)
             {
-                _stream.Close();
+                //_stream.Close();
                 _clientDisconnectedHandler();
                 Console.WriteLine($"Error: {ex.Message}.");
             }

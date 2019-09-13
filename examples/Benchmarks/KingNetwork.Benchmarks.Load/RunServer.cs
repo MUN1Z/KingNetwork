@@ -40,7 +40,7 @@ namespace KingNetwork.Benchmarks.Load
         /// <summary>
         /// Method responsible for start the server.
         /// </summary>
-        public static void StartServer()
+        public static void StartServer(NetworkListenerType type = NetworkListenerType.TCP)
         {
             _server = new KingServer();
             _server.OnMessageReceivedHandler = OnMessageReceived;
@@ -65,7 +65,7 @@ namespace KingNetwork.Benchmarks.Load
                
             }).Start();
 
-            _server.Start();
+            _server.Start(type);
         }
 
         /// <summary>

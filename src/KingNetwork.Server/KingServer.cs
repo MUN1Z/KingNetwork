@@ -193,8 +193,7 @@ namespace KingNetwork.Server
                 if (_clients.ContainsKey(client.Id))
                     _clients.Remove(client.Id);
 
-                if (OnClientDisconnectedHandler != null)
-                    OnClientDisconnectedHandler(client);
+                OnClientDisconnectedHandler?.Invoke(client);
             }
             catch (Exception ex)
             {
@@ -213,8 +212,7 @@ namespace KingNetwork.Server
             {
                 _networkListener = NetworkListenerFactory.CreateForType(listenerType, _port, OnClientConnected);
 
-                if (OnServerStartedHandler != null)
-                    OnServerStartedHandler();
+                OnServerStartedHandler?.Invoke();
 
                 while (!cancellationToken.IsCancellationRequested)
                     await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);

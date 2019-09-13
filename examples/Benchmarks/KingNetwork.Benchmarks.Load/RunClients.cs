@@ -43,7 +43,7 @@ namespace KingNetwork.Benchmarks.Load
         /// </summary>
         /// <param name="ip">The ip address from the server.</param>
         /// <param name="clientConnections">The number of client connections.</param>
-        public static void StartClients(string ip, int clientConnections)
+        public static void StartClients(string ip, int clientConnections, NetworkListenerType type = NetworkListenerType.TCP)
         {
             var kingBuffer = new KingBufferBase();
             kingBuffer.WriteString("Sometimes we just need a good networking library");
@@ -60,7 +60,7 @@ namespace KingNetwork.Benchmarks.Load
 
                 client.MessageReceivedHandler = OnMessageReceived;
 
-                client.Connect(ip);
+                client.Connect(ip, 7171, 4096, type);
                 clients.Add(client);
 
                 Thread.Sleep(15);
