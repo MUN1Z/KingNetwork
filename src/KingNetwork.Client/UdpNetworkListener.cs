@@ -40,7 +40,7 @@ namespace KingNetwork.Client
                 _listener.ReceiveBufferSize = maxMessageBuffer;
                 _listener.SendBufferSize = maxMessageBuffer;
 
-                _listener.Bind(new IPEndPoint(_remoteEndPoint.Address, 0));
+                _listener.Bind(_remoteEndPoint);
                 _listener.Connect(_remoteEndPoint);
 
                 _buffer = new byte[maxMessageBuffer];
