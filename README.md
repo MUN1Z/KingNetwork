@@ -96,7 +96,7 @@ using(var kingBuffer = KingBufferWriter.Create())
 server.Stop();
 ```
 
-# Using the TCP connection on KingClient
+# Using the WebSocket connection on KingClient
 ```C#
 // create and connect the client
 var client = new KingClient();
