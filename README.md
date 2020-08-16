@@ -24,7 +24,7 @@
 **King Shared**<br/>
 <a href="https://www.nuget.org/packages/KingNetwork.Shared/">https://www.nuget.org/packages/KingNetwork.Shared/</a><br/><br/>
 
-# Using the KingServer
+# Using the TCP connection on KingServer
 ```C#
 // create and start the server
 var server = new KingServer(port: 7171);
@@ -32,15 +32,15 @@ server.MessageReceivedHandler = OnMessageReceived;
 server.Start();
 
 // implements the callback for MessageReceivedHandler
-private void OnMessageReceived(IClient client, KingBuffer kingBuffer)
+private void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
 {
     Console.WriteLine($"Received data from client {client.Id}, data length {kingBuffer.Length()}");
 }
 
 // send a message to all clients
-using(var kingBuffer = new KingBuffer())
+using(var kingBuffer = KingBufferWriter.Create())
 {
-    kingBuffer.WriteString("Test message!");
+    kingBuffer.Write("Test message!");
     server.SendMessageToAll(kingBuffer);
 }
 
@@ -48,7 +48,7 @@ using(var kingBuffer = new KingBuffer())
 server.Stop();
 ```
 
-# Using the KingClient
+# Using the TCP connection on KingClient
 ```C#
 // create and connect the client
 var client = new KingClient();
@@ -56,15 +56,15 @@ client.MessageReceivedHandler = OnMessageReceived;
 client.Connect("127.0.0.1", 7171);
 
 // implements the callback for MessageReceivedHandler
-private void OnMessageReceived(KingBuffer kingBuffer)
+private void OnMessageReceived(KingBufferReader kingBuffer)
 {
     Console.WriteLine($"Received data from server, data length {kingBuffer.Length()}");
 }
 
 /// send a message to server
-using(var kingBuffer = new KingBuffer())
+using(var kingBuffer = KingBufferWriter.Create()
 {
-    kingBuffer.WriteString("Test message!");
+    kingBuffer.Write("Test message!");
     client.SendMessage(kingBuffer);
 }
 
@@ -72,7 +72,55 @@ using(var kingBuffer = new KingBuffer())
 client.Disconnect();
 ```
 
-# Benchmarks
+# Using the WebSocket connection on KingServer
+```C#
+// create and start the server
+var server = new KingServer(port: 7171);
+server.MessageReceivedHandler = OnMessageReceived;
+server.Start(NetworkListenerType.WSText); // Or NetworkListenerType.WSBinary
+
+// implements the callback for MessageReceivedHandler
+private void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
+{
+    Console.WriteLine($"Received data from client {client.Id}, data length {kingBuffer.Length()}");
+}
+
+// send a message to all clients
+using(var kingBuffer = KingBufferWriter.Create())
+{
+    kingBuffer.Write("Test message!");
+    server.SendMessageToAll(kingBuffer);
+}
+
+// stop the server when you don't need it anymore
+server.Stop();
+```
+
+# Using the TCP connection on KingClient
+```C#
+// create and connect the client
+var client = new KingClient();
+client.MessageReceivedHandler = OnMessageReceived;
+client.Connect("127.0.0.1", 7171, NetworkListenerType.WSText); // Or NetworkListenerType.WSBinary
+
+// implements the callback for MessageReceivedHandler
+private void OnMessageReceived(KingBufferReader kingBuffer)
+{
+    Console.WriteLine($"Received data from server, data length {kingBuffer.Length()}");
+}
+
+/// send a message to server
+using(var kingBuffer = KingBufferWriter.Create()
+{
+    kingBuffer.Write("Test message!");
+    client.SendMessage(kingBuffer);
+}
+
+// disconnect from the server when we are done
+client.Disconnect();
+```
+
+# TCP Benchmarks
 
 **Connections Test**<br/>
 We also test only the raw KingNetwork library by spawing 1 server and 1000 clients, each client sending 100 bytes 14 times per second and the server echoing the same message back to each client.

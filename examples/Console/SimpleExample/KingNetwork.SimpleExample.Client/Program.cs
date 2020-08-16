@@ -2,7 +2,6 @@ using KingNetwork.Client;
 using KingNetwork.Shared;
 using KingNetwork.SimpleExample.Shared;
 using System;
-using System.Text;
 using System.Threading;
 
 namespace KingNetwork.SimpleExample.Client
@@ -22,7 +21,7 @@ namespace KingNetwork.SimpleExample.Client
         {
             try
             {
-                _networkListenerType = NetworkListenerType.WSText;
+                _networkListenerType = NetworkListenerType.WSBinary;
 
                 var client = new KingClient();
                 client.MessageReceivedHandler = OnMessageReceived;
@@ -34,13 +33,9 @@ namespace KingNetwork.SimpleExample.Client
 
                     using (var buffer = KingBufferWriter.Create())
                     {
-                        //buffer.WriteBytes(new byte[] { 0, 0, 0, 0 });
+                        if (_networkListenerType != NetworkListenerType.WSText)
+                            buffer.Write(MyPackets.PacketOne);
 
-                        //buffer.Write((byte)1);
-
-                        //var bytes = Encoding.GetEncoding("UTF-8").GetBytes("Testinho");
-
-                        //buffer.Write(bytes);
                         buffer.Write("Testinho");
 
                         client.SendMessage(buffer);
@@ -64,22 +59,14 @@ namespace KingNetwork.SimpleExample.Client
             try
             {
                 if (_networkListenerType == NetworkListenerType.WSText)
-                {
-                    Console.WriteLine($"OnMessageReceived: ");
-
-                    //var text = kingBuffer.ReadAllText();
-                    var text = kingBuffer.ReadString();
-                    Console.WriteLine(text);
-                }
+                    Console.WriteLine($"OnMessageReceived: {kingBuffer.ReadString()}");
                 else
-                {
                     switch (kingBuffer.ReadMessagePacket<MyPackets>())
                     {
                         case MyPackets.PacketOne:
                             Console.WriteLine("OnMessageReceived for PacketOne");
                             break;
                     }
-                }
             }
             catch (Exception ex)
             {

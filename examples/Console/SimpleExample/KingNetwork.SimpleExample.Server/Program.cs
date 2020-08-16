@@ -3,7 +3,6 @@ using System;
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
 using KingNetwork.SimpleExample.Shared;
-using System.Text;
 
 namespace KingNetwork.SimpleExample.Server
 {
@@ -22,7 +21,7 @@ namespace KingNetwork.SimpleExample.Server
         {
             try
             {
-                _networkListenerType = NetworkListenerType.WSText;
+                _networkListenerType = NetworkListenerType.WSBinary;
 
                 var server = new KingServer();
                 server.OnMessageReceivedHandler = OnMessageReceived;
@@ -49,13 +48,11 @@ namespace KingNetwork.SimpleExample.Server
                 {
                     Console.WriteLine($"OnMessageReceived from {client.Id}");
                     
-                    //string text = kingBuffer.ReadAllText();
                     string text = kingBuffer.ReadString();
                     Console.WriteLine(text);
 
                     var writer = KingBufferWriter.Create();
 
-                    //writer.Write((byte)1);
                     writer.Write("Testinho2");
 
                     client.SendMessage(writer);
@@ -66,6 +63,14 @@ namespace KingNetwork.SimpleExample.Server
                     {
                         case MyPackets.PacketOne:
                             Console.WriteLine($"OnMessageReceived PacketOne from {client.Id}");
+
+                            var writer = KingBufferWriter.Create();
+
+                            writer.Write(MyPackets.PacketOne);
+                            writer.Write("Testinho2");
+
+                            client.SendMessage(writer);
+
                             break;
                     }
                 }
