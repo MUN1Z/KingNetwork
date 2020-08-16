@@ -3,10 +3,26 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>7.3</LangVersion>
+    <Version>1.0.1</Version>
+    <PackageTags>socket, tcp, udp, king, network, kingnetwork, mun1z</PackageTags>
+    <RepositoryType>github</RepositoryType>
+    <RepositoryUrl>https://github.com/Mun1z/KingNetwork/</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Mun1z/KingNetwork/</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <Copyright>Felipe Muniz (Mun1z)</Copyright>
+    <Description>KingNetwork is an open source library to facilitate the creation and communication of clients and servers through TCP, UDP and Web sockets.</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\KingNetwork.Shared\KingNetwork.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
