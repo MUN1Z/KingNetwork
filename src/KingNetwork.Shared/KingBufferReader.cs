@@ -65,9 +65,9 @@ namespace KingNetwork.Shared
         /// <param name="bytes">The byte array value.</param>
         /// <param name="dataOffset">The dataOffset of byte array data.</param>
         /// <param name="dataLength">The dataLength of byte array data.</param>
-        internal static KingBufferReader Create(byte[] bytes, int dataOffset, int dataLength)
+        public static KingBufferReader Create(byte[] bytes, int dataOffset, int dataLength)
         {
-            var reader = new KingBufferReader(); ;
+            var reader = new KingBufferReader();
             reader.Initialize(bytes, dataOffset, dataLength);
             return reader;
         }
@@ -639,7 +639,7 @@ namespace KingNetwork.Shared
 
             Position = 0;
             Length = 0;
-            Encoding = Encoding.Unicode;
+            Encoding = Encoding.UTF8;
         }
 
         /// <summary>
@@ -680,7 +680,7 @@ namespace KingNetwork.Shared
         /// <param name="dataLength">The dataLength of byte array data.</param>
         private void Initialize(byte[] bytes, int dataOffset, int dataLength)
         {
-            Encoding = Encoding.Unicode;
+            Encoding = Encoding.UTF8;
             this.bytes = bytes;
             this.dataOffset = dataOffset;
             Length = dataLength;

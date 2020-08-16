@@ -58,7 +58,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The callback of message received handler implementation.
         /// </summary>
-        public Client.MessageReceivedHandler OnMessageReceivedHandler { get; set; }
+        public BaseClient.MessageReceivedHandler OnMessageReceivedHandler { get; set; }
 
         /// <summary>
         /// The callback of client connnected handler implementation.
@@ -68,7 +68,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The callback of client disconnected handler implementation.
         /// </summary>
-        public Client.ClientDisconnectedHandler OnClientDisconnectedHandler { get; set; }
+        public BaseClient.ClientDisconnectedHandler OnClientDisconnectedHandler { get; set; }
 
         /// <summary>
         /// The callback of started server handler implementation.
@@ -85,7 +85,7 @@ namespace KingNetwork.Server
         /// </summary> 	
         /// <param name="client">The connected client.</param>
         /// <param name="kingBuffer">The king buffer received from message.</param>
-        public delegate void ServerPacketHandler(IClient client, IKingBuffer kingBuffer);
+        public delegate void ServerPacketHandler(IClient client, KingBufferReader kingBuffer);
 
         /// <summary> 	
         /// The handler from callback of client connection. 	
@@ -138,15 +138,14 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="client">The connected client.</param>
         /// <param name="kingBuffer">The king buffer received from message.</param>
-        private void OnMessageReceived(IClient client, IKingBuffer kingBuffer)
+        private void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
         {
             try
             {
-                if (_serverPacketHandlers.TryGetValue(kingBuffer.ReadMessagePacket(), out var serverHandler))
+                if (kingBuffer.Length > 0 && _serverPacketHandlers.TryGetValue(kingBuffer.ReadByte(), out var serverHandler))
                     serverHandler(client, kingBuffer);
                 else
-                    if(OnMessageReceivedHandler != null)
-                        OnMessageReceivedHandler(client, kingBuffer);
+                    OnMessageReceivedHandler?.Invoke(client, kingBuffer);
             }
             catch (Exception ex)
             {
@@ -158,21 +157,25 @@ namespace KingNetwork.Server
         /// Method responsible for execute the callback of client connected in server.
         /// </summary>
         /// <param name="socketClient">The socket client object from connected client.</param>
-        private void OnClientConnected(Socket socketClient)
+        private void OnClientConnected(BaseClient socketClient)
         {
             try
             {
                 if (_clients.Count <= _maxClientConnections)
                 {
-                    var client = new Client(GetNewClientIdentifier(), socketClient, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
-                    _clients.Add(client.Id, client);
-                    
-                    if(OnClientConnectedHandler != null)
-                        OnClientConnectedHandler(client);
+                    //var client = new TcpClient(GetNewClientIdentifier(), socketClient, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
+                    //_clients.Add(client.Id, client);
+
+                    socketClient.Id = GetNewClientIdentifier();
+                    _clients.Add(socketClient.Id, socketClient);
+
+                    OnClientConnectedHandler?.Invoke(socketClient);
                 }
                 else
                 {
-                    socketClient.Dispose();
+                    //Implements Dispose
+                    //socketClient.Dispose();
+
                     Console.WriteLine($"Max client connections {_maxClientConnections}.");
                 }
             }
@@ -193,8 +196,7 @@ namespace KingNetwork.Server
                 if (_clients.ContainsKey(client.Id))
                     _clients.Remove(client.Id);
 
-                if (OnClientDisconnectedHandler != null)
-                    OnClientDisconnectedHandler(client);
+                OnClientDisconnectedHandler?.Invoke(client);
             }
             catch (Exception ex)
             {
@@ -211,10 +213,9 @@ namespace KingNetwork.Server
         {
             try
             {
-                _networkListener = NetworkListenerFactory.CreateForType(listenerType, _port, OnClientConnected);
-
-                if (OnServerStartedHandler != null)
-                    OnServerStartedHandler();
+                _networkListener = NetworkListenerFactory.CreateForType(listenerType, _port, OnClientConnected, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
+                
+                OnServerStartedHandler?.Invoke();
 
                 while (!cancellationToken.IsCancellationRequested)
                     await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
@@ -327,7 +328,7 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public void SendMessage(IClient client, IKingBuffer kingBuffer)
+        public void SendMessage(IClient client, KingBufferWriter kingBuffer)
         {
             try
             {
@@ -343,7 +344,7 @@ namespace KingNetwork.Server
         /// Method responsible for send message to all connected client.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public void SendMessageToAll(IKingBuffer kingBuffer)
+        public void SendMessageToAll(KingBufferWriter kingBuffer)
         {
             try
             {
@@ -361,7 +362,7 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public void SendMessageToAllMinus(IClient client, IKingBuffer kingBuffer)
+        public void SendMessageToAllMinus(IClient client, KingBufferWriter kingBuffer)
         {
             try
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using static KingNetwork.Server.BaseClient;
 
 namespace KingNetwork.Server
 {
@@ -14,6 +15,11 @@ namespace KingNetwork.Server
         /// The callback of client connected handler implementation.
         /// </summary>
         protected ClientConnectedHandler _clientConnectedHandler;
+
+        protected MessageReceivedHandler _messageReceivedHandler;
+        protected ClientDisconnectedHandler _clientDisconnectedHandler;
+
+        protected ushort _maxMessageBuffer;
 
         /// <summary>
 		/// The listener for tcp connection.
@@ -33,7 +39,7 @@ namespace KingNetwork.Server
         /// The handler from callback of client connection. 	
         /// </summary> 	
         /// <param name="socketClient">The socket client from connected client.</param>
-        public delegate void ClientConnectedHandler(Socket socketClient);
+        public delegate void ClientConnectedHandler(BaseClient socketClient);
 
         #endregion
 
@@ -44,7 +50,19 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="port">The port of server.</param>
         /// <param name="clientConnectedHandler">The client connected handler callback implementation.</param>
-        public NetworkListener(ushort port, ClientConnectedHandler clientConnectedHandler) {}
+        /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
+        /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
+        /// <param name="maxMessageBuffer">The number max of connected clients, the default value is 1000.</param>
+        public NetworkListener(ushort port, ClientConnectedHandler clientConnectedHandler, 
+            MessageReceivedHandler messageReceivedHandler,
+            ClientDisconnectedHandler clientDisconnectedHandler,
+            ushort maxMessageBuffer)
+        {
+            _clientConnectedHandler = clientConnectedHandler;
+            _messageReceivedHandler = messageReceivedHandler;
+            _clientDisconnectedHandler = clientDisconnectedHandler;
+            _maxMessageBuffer = maxMessageBuffer;
+        }
 
         #endregion
 

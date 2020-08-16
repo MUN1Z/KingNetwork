@@ -57,11 +57,11 @@ namespace KingNetwork.Client
         /// Method responsible for send message to connected server.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public override void SendMessage(IKingBuffer kingBuffer)
+        public override void SendMessage(KingBufferWriter kingBuffer)
         {
             try
             {
-                _stream.BeginWrite(kingBuffer.ToArray(), 0, kingBuffer.Length(), null, null);
+                _stream.BeginWrite(kingBuffer.BufferData, 0, kingBuffer.Length, null, null);
             }
             catch (Exception ex)
             {
@@ -91,8 +91,10 @@ namespace KingNetwork.Client
                         Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
 
                         _stream.BeginRead(_buffer, 0, _listener.ReceiveBufferSize, ReceiveDataCallback, null);
-                        
-                        _messageReceivedHandler(new KingBuffer(numArray));
+
+                        var buffer = KingBufferReader.Create(numArray, 0, numArray.Length);
+
+                        _messageReceivedHandler(buffer);
 
                         return;
                     }

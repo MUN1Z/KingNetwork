@@ -6,6 +6,8 @@
     public enum NetworkListenerType
     {
         TCP,
-        UDP
+        UDP,
+        WSBinary,
+        WSText
     }
 }

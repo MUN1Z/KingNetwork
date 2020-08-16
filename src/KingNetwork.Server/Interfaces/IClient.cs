@@ -26,6 +26,6 @@ namespace KingNetwork.Server.Interfaces
         /// Method responsible for send message to specific connected client.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        void SendMessage(IKingBuffer kingBuffer);
+        void SendMessage(KingBufferWriter kingBuffer);
     }
 }

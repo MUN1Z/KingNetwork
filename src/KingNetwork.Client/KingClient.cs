@@ -50,7 +50,7 @@ namespace KingNetwork.Client
         /// The client packet handler delegate. 	
         /// </summary> 	
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public delegate void ClientPacketHandler(IKingBuffer kingBuffer);
+        public delegate void ClientPacketHandler(KingBufferReader kingBuffer);
 
         #endregion
 
@@ -120,9 +120,9 @@ namespace KingNetwork.Client
         /// </summary>
         /// <param name="ip">The ip address from server.</param>
         /// <param name="port">The port number from server, the default value us 7171</param>
-        /// <param name="maxMessageBuffer">The max length of message buffer, the default value is 4096.</param>
         /// <param name="listenerType">The listener type to creation of listener, the default value is NetworkListenerType.TCP.</param>
-        public void Connect(string ip, ushort port = 7171, ushort maxMessageBuffer = 4096, NetworkListenerType listenerType = NetworkListenerType.TCP)
+        /// <param name="maxMessageBuffer">The max length of message buffer, the default value is 4096.</param>
+        public void Connect(string ip, ushort port = 7171, NetworkListenerType listenerType = NetworkListenerType.TCP, ushort maxMessageBuffer = 4096)
         {
             try
             {
@@ -160,7 +160,7 @@ namespace KingNetwork.Client
         /// Method responsible for send message to connected server.
         /// </summary>
         /// <param name="kingBuffer">The king buffer to send message.</param>
-        public void SendMessage(IKingBuffer kingBuffer)
+        public void SendMessage(KingBufferWriter kingBuffer)
         {
             try
             {
@@ -180,11 +180,11 @@ namespace KingNetwork.Client
         /// Method responsible for execute the callback of message received from client in server.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        private void OnMessageReceived(IKingBuffer kingBuffer)
+        private void OnMessageReceived(KingBufferReader kingBuffer)
         {
             try
             {
-                if (_clientPacketHandlers.TryGetValue(kingBuffer.ReadMessagePacket(), out var clientPacketHandler))
+                if (kingBuffer.Length > 0 && _clientPacketHandlers.TryGetValue(kingBuffer.ReadByte(), out var clientPacketHandler))
                     clientPacketHandler(kingBuffer);
                 else
                     MessageReceivedHandler(kingBuffer);

@@ -57,7 +57,7 @@ namespace ChatMultiplayerDemoServer
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer from received message.</param>
-        private void OnMessageReceived(IClient client, IKingBuffer kingBuffer)
+        private void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
         {
             try
             {
@@ -65,7 +65,7 @@ namespace ChatMultiplayerDemoServer
                 {
                     case MyPackets.Message:
                         Console.WriteLine($"Received message: {kingBuffer.ReadString()}.");
-                        _server.SendMessageToAllMinus(client, kingBuffer);
+                        _server.SendMessageToAllMinus(client, KingBufferWriter.Create());
                         break;
                 }
             }

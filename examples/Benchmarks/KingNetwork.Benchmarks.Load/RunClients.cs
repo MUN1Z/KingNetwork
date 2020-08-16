@@ -3,6 +3,7 @@ using KingNetwork.Shared;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Threading;
 using System.Timers;
 
@@ -13,6 +14,8 @@ namespace KingNetwork.Benchmarks.Load
     /// </summary>
     public class RunClients
     {
+        private static NetworkListenerType _networkListenerType;
+
         /// <summary>
         /// The value of messages sent to server
         /// </summary>
@@ -45,8 +48,11 @@ namespace KingNetwork.Benchmarks.Load
         /// <param name="clientConnections">The number of client connections.</param>
         public static void StartClients(string ip, int clientConnections)
         {
-            var kingBuffer = new KingBufferBase();
-            kingBuffer.WriteString("Sometimes we just need a good networking library");
+            _networkListenerType = NetworkListenerType.WSBinary;
+
+            var kingBuffer = KingBufferWriter.Create();
+            //kingBuffer.Write((byte)0);
+            kingBuffer.Write("Sometimes we just need a good networking library");
 
             _stopwatch = Stopwatch.StartNew();
 
@@ -60,7 +66,7 @@ namespace KingNetwork.Benchmarks.Load
 
                 client.MessageReceivedHandler = OnMessageReceived;
 
-                client.Connect(ip);
+                client.Connect(ip, 7171, _networkListenerType);
                 clients.Add(client);
 
                 Thread.Sleep(15);
@@ -68,41 +74,77 @@ namespace KingNetwork.Benchmarks.Load
 
             Console.WriteLine("started all clients");
 
+            new Thread(() =>
+            {
+                Thread.Sleep(10000);
+
+                foreach (var client in clients)
+                {
+                    //if (client.HasConnected)
+                    //{
+                        // send 2 messages each time
+
+                        var bytes = Encoding.GetEncoding("UTF-8").GetBytes("Testinho");
+
+                        kingBuffer.Reset();
+
+                        kingBuffer.Write(bytes);
+
+                        client.SendMessage(kingBuffer);
+                        //client.SendMessage(kingBuffer);
+
+                        _messagesSent += 1;
+                    //}
+                }
+            }).Start();
+
+            //foreach (var client in clients)
+            //{
+            //    if (client.HasConnected)
+            //    {
+            //        // send 2 messages each time
+            //        client.SendMessage(kingBuffer);
+            //        //client.SendMessage(kingBuffer);
+
+            //        _messagesSent += 1;
+            //    }
+            //}
+
             var timer = new System.Timers.Timer(1000.0 / clientFrequency);
 
             timer.Elapsed += (object sender, ElapsedEventArgs e) =>
             {
 
-                foreach (var client in clients)
-                {
-                    if (client.HasConnected)
-                    {
-                        // send 2 messages each time
-                        client.SendMessage(kingBuffer);
-                        client.SendMessage(kingBuffer);
+                //foreach (var client in clients)
+                //{
+                //    if (client.HasConnected)
+                //    {
+                //        // send 2 messages each time
+                //        client.SendMessage(kingBuffer);
+                //        //client.SendMessage(kingBuffer);
 
-                        _messagesSent += 1;
-                    }
-                }
+                //        _messagesSent += 1;
+                //    }
+                //}
                 
-                // report every 10 seconds
-                if (_stopwatch.ElapsedMilliseconds > 1000 * 10)
-                {
-                    long bandwithIn = _dataReceived * 1000 / (_stopwatch.ElapsedMilliseconds * 1024);
-                    long bandwithOut = _messagesSent * _bufferLength * 1000 / (_stopwatch.ElapsedMilliseconds * 1024);
+                //// report every 10 seconds
+                //if (_stopwatch.ElapsedMilliseconds > 1000 * 10)
+                //{
+                //    long bandwithIn = _dataReceived * 1000 / (_stopwatch.ElapsedMilliseconds * 1024);
+                //    long bandwithOut = _messagesSent * _bufferLength * 1000 / (_stopwatch.ElapsedMilliseconds * 1024);
 
-                    Console.WriteLine(string.Format("Client in={0} ({1} KB/s)  out={2} ({3} KB/s) bufferL={4}",
-                                             _messagesReceived,
-                                             bandwithIn,
-                                             _messagesSent,
-                                             bandwithOut,
-                                             _bufferLength));
-                    _stopwatch.Stop();
-                    _stopwatch = Stopwatch.StartNew();
-                    _messagesSent = 0;
-                    _dataReceived = 0;
-                    _messagesReceived = 0;
-                }
+                //    Console.WriteLine(string.Format("Client in={0} ({1} KB/s)  out={2} ({3} KB/s) bufferL={4}",
+                //                             _messagesReceived,
+                //                             bandwithIn,
+                //                             _messagesSent,
+                //                             bandwithOut,
+                //                             _bufferLength));
+                //    _stopwatch.Stop();
+                //    _stopwatch = Stopwatch.StartNew();
+                //    _messagesSent = 0;
+                //    _dataReceived = 0;
+                //    _messagesReceived = 0;
+                //}
             };
 
             timer.AutoReset = true;
@@ -117,13 +159,29 @@ namespace KingNetwork.Benchmarks.Load
         /// Method responsible for execute the callback of message received from server in client.
         /// </summary>
         /// <param name="kingBuffer">The king buffer from received message.</param>
-        private static void OnMessageReceived(IKingBuffer kingBuffer)
+        private static void OnMessageReceived(KingBufferReader kingBuffer)
         {
             try
             {
                 _messagesReceived++;
-                _dataReceived += kingBuffer.Length();
-                _bufferLength = kingBuffer.Length();
+                _dataReceived += kingBuffer.Length;
+                _bufferLength = kingBuffer.Length;
+
+                //if (_networkListenerType == NetworkListenerType.WS)
+                //{
+                //    Console.WriteLine($"OnMessageReceived: ");
+
+                //    var bytes = kingBuffer.ReadAllBytes();
+
+                //    string text = Encoding.UTF8.GetString(bytes);
+                //    Console.WriteLine(text);
+                //}
+                //else
+                //{
+                //    _messagesReceived++;
+                //    _dataReceived += kingBuffer.Length;
+                //    _bufferLength = kingBuffer.Length;
+                //}
             }
             catch (Exception ex)
             {

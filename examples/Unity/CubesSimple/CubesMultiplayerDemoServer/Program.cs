@@ -62,10 +62,10 @@ namespace CubesMultiplayerDemoServer
                     if (sendToPlayer.Value == null)
                         continue;
 
-                    using (var kingBuffer = new KingBufferBase())
+                    using (var kingBuffer = KingBufferWriter.Create())
                     {
-                        kingBuffer.WriteMessagePacket(MyPackets.PlayerPositionsArray);
-                        kingBuffer.WriteInteger(sendPosDict.Count(c => c.Key.Id != sendToPlayer.Key.Id && c.Value.Moved));
+                        kingBuffer.Write(MyPackets.PlayerPositionsArray);
+                        kingBuffer.Write(sendPosDict.Count(c => c.Key.Id != sendToPlayer.Key.Id && c.Value.Moved));
 
                         int amountPlayersMoved = 0;
 
@@ -77,11 +77,11 @@ namespace CubesMultiplayerDemoServer
                             if (!posPlayers.Value.Moved)
                                 continue;
 
-                            kingBuffer.WriteInteger(posPlayers.Key.Id);
+                            kingBuffer.Write(posPlayers.Key.Id);
 
-                            kingBuffer.WriteFloat(posPlayers.Value.X);
-                            kingBuffer.WriteFloat(posPlayers.Value.Y);
-                            kingBuffer.WriteFloat(posPlayers.Value.Z);
+                            kingBuffer.Write(posPlayers.Value.X);
+                            kingBuffer.Write(posPlayers.Value.Y);
+                            kingBuffer.Write(posPlayers.Value.Z);
 
                             amountPlayersMoved++;
                         }
@@ -124,7 +124,7 @@ namespace CubesMultiplayerDemoServer
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer from received message.</param>
-        private void OnMessageReceived(IClient client, IKingBuffer kingBuffer)
+        private void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
         {
             try
             {
@@ -132,9 +132,9 @@ namespace CubesMultiplayerDemoServer
                 {
                     case MyPackets.PlayerPosition:
 
-                        float x = kingBuffer.ReadFloat();
-                        float y = kingBuffer.ReadFloat();
-                        float z = kingBuffer.ReadFloat();
+                        float x = kingBuffer.ReadInt64();
+                        float y = kingBuffer.ReadInt64();
+                        float z = kingBuffer.ReadInt64();
 
                         Console.WriteLine($"Got position packet : {x} | {y} | {z}");
 
@@ -162,18 +162,18 @@ namespace CubesMultiplayerDemoServer
             {
                 Console.WriteLine($"OnClientConnected: {client.Id}");
 
-                using (var kingBuffer = new KingBufferBase())
+                using (var kingBuffer = KingBufferWriter.Create())
                 {
-                    kingBuffer.WriteMessagePacket(MyPackets.PlayerPositionsArray);
-                    kingBuffer.WriteInteger(_networkPlayersDictionary.Count);
+                    kingBuffer.Write(MyPackets.PlayerPositionsArray);
+                    kingBuffer.Write(_networkPlayersDictionary.Count);
 
                     foreach (var player in _networkPlayersDictionary)
                     {
-                        kingBuffer.WriteInteger(player.Key.Id);
+                        kingBuffer.Write(player.Key.Id);
 
-                        kingBuffer.WriteFloat(player.Value.X);
-                        kingBuffer.WriteFloat(player.Value.Y);
-                        kingBuffer.WriteFloat(player.Value.Z);
+                        kingBuffer.Write(player.Value.X);
+                        kingBuffer.Write(player.Value.Y);
+                        kingBuffer.Write(player.Value.Z);
                     }
 
                     _server.SendMessage(client, kingBuffer);

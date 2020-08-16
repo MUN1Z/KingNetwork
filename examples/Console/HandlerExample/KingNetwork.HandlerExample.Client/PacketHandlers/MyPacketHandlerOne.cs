@@ -13,7 +13,7 @@ namespace KingNetwork.HandlerExample.Client.PacketHandlers
         /// This method is responsible for receive the message from client packet handler.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public override void HandleMessageData(IKingBuffer kingBuffer)
+        public override void HandleMessageData(KingBufferReader kingBuffer)
         {
             Console.WriteLine("Received message in MyPacketHandlerOne");
         }

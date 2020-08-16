@@ -10,6 +10,8 @@ namespace KingNetwork.client
         {
             if (listenerType == NetworkListenerType.TCP)
                 return new TcpNetworkListener(messageReceivedHandler, clientDisconnectedHandler);
+            else if (listenerType == NetworkListenerType.WSBinary || listenerType == NetworkListenerType.WSText)
+                return new WSNetworkListener(listenerType, messageReceivedHandler, clientDisconnectedHandler);
 
             return new UdpNetworkListener(messageReceivedHandler, clientDisconnectedHandler);
         }

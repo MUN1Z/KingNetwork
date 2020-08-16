@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using static KingNetwork.Server.BaseClient;
 
 namespace KingNetwork.Server
 {
@@ -16,12 +17,16 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="port">The port of server.</param>
         /// <param name="clientConnectedHandler">The client connected handler callback implementation.</param>
-        public TcpNetworkListener(ushort port, ClientConnectedHandler clientConnectedHandler) : base(port, clientConnectedHandler)
+        /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
+        /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
+        /// <param name="maxMessageBuffer">The number max of connected clients, the default value is 1000.</param>
+        public TcpNetworkListener(ushort port, ClientConnectedHandler clientConnectedHandler, 
+            MessageReceivedHandler messageReceivedHandler,
+            ClientDisconnectedHandler clientDisconnectedHandler,
+            ushort maxMessageBuffer) : base(port, clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer)
         {
             try
             {
-                _clientConnectedHandler = clientConnectedHandler;
-
                 _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _listener.Bind(new IPEndPoint(IPAddress.Any, port));
                 _listener.Listen(100);
@@ -47,7 +52,9 @@ namespace KingNetwork.Server
         {
             try
             {
-                _clientConnectedHandler(_listener.EndAccept(asyncResult));
+                //_clientConnectedHandler(_listener.EndAccept(asyncResult));
+                var client = new TcpClient(0, _listener.EndAccept(asyncResult), _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+                _clientConnectedHandler(client);
             }
             catch(Exception ex)
             {
@@ -60,6 +67,5 @@ namespace KingNetwork.Server
         }
 
         #endregion
-        
     }
 }

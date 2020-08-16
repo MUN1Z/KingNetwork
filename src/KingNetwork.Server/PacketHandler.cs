@@ -13,6 +13,6 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="client">The connected client.</param>
         /// <param name="kingBuffer">The king buffer received from message.</param>
-        public abstract void HandleMessageData(IClient client, IKingBuffer kingBuffer);
+        public abstract void HandleMessageData(IClient client, KingBufferReader kingBuffer);
     }
 }

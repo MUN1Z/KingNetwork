@@ -28,7 +28,7 @@ namespace KingNetwork.Shared
         /// <summary>
         /// The byte array buffer.
         /// </summary>
-        internal byte[] BufferData => _buffer;
+        public byte[] BufferData => _buffer;
 
         /// <summary>
         /// The length value of buffer.
@@ -59,7 +59,7 @@ namespace KingNetwork.Shared
         /// <param name="capacity">The initial capacity value of buffer.</param>
         public static KingBufferWriter Create()
         {
-            return Create(16, Encoding.Unicode);
+            return Create(16, Encoding.UTF8);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace KingNetwork.Shared
         /// <param name="capacity">The initial capacity value of buffer.</param>
         public static KingBufferWriter Create(int initialCapacity)
         {
-            return Create(initialCapacity, Encoding.Unicode);
+            return Create(initialCapacity, Encoding.UTF8);
         }
 
         /// <summary>
@@ -559,7 +559,7 @@ namespace KingNetwork.Shared
             _buffer = new byte[16];
 
             Length = 0;
-            Encoding = Encoding.Unicode;
+            Encoding = Encoding.UTF8;
         }
 
         /// <summary>

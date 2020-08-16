@@ -15,7 +15,7 @@ namespace KingNetwork.HandlerExample.Server.PacketHandlers
         /// </summary>
         /// <param name="client">The connected client.</param>
         /// <param name="kingBuffer">The king buffer received from message.</param>
-        public override void HandleMessageData(IClient client, IKingBuffer kingBuffer)
+        public override void HandleMessageData(IClient client, KingBufferReader kingBuffer)
         {
             Console.WriteLine($"OnMessageReceived PacketOne from {client.Id}");
         }

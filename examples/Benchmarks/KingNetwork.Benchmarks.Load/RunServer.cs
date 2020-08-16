@@ -3,6 +3,7 @@ using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
 using System;
 using System.Diagnostics;
+using System.Text;
 using System.Threading;
 
 namespace KingNetwork.Benchmarks.Load
@@ -12,6 +13,8 @@ namespace KingNetwork.Benchmarks.Load
     /// </summary>
     public class RunServer
     {
+        private static NetworkListenerType _networkListenerType;
+
         /// <summary>
         /// The value of server frequency
         /// </summary>
@@ -42,6 +45,7 @@ namespace KingNetwork.Benchmarks.Load
         /// </summary>
         public static void StartServer()
         {
+            _networkListenerType = NetworkListenerType.WS;
             _server = new KingServer();
             _server.OnMessageReceivedHandler = OnMessageReceived;
             
@@ -65,7 +69,7 @@ namespace KingNetwork.Benchmarks.Load
                
             }).Start();
 
-            _server.Start();
+            _server.Start(_networkListenerType);
         }
 
         /// <summary>
@@ -73,14 +77,29 @@ namespace KingNetwork.Benchmarks.Load
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer from received message.</param>
-        private static void OnMessageReceived(IClient client, IKingBuffer kingBuffer)
+        private static void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
         {
             try
             {
-                _server.SendMessage(client, kingBuffer);
+                if (_networkListenerType == NetworkListenerType.WS)
+                {
+                    Console.WriteLine($"OnMessageReceived: ");
 
-                _messagesReceived++;
-                _dataReceived += kingBuffer.Length();
+                    var bytes = kingBuffer.ReadAllBytes();
+
+                    string text = Encoding.UTF8.GetString(bytes);
+                    Console.WriteLine(text);
+                }
+                else
+                {
+                    var buffer = KingBufferWriter.Create();
+                    buffer.Write(kingBuffer.ReadString());
+
+                    _server.SendMessage(client, buffer);
+
+                    _messagesReceived++;
+                    _dataReceived += kingBuffer.Length;
+                }
             }
             catch (Exception ex)
             {

@@ -12,6 +12,6 @@ namespace KingNetwork.Server.Interfaces
         /// </summary>
         /// <param name="client">The connected client.</param>
         /// <param name="kingBuffer">The king buffer received from message.</param>
-        void HandleMessageData(IClient client, IKingBuffer kingBuffer);
+        void HandleMessageData(IClient client, KingBufferReader kingBuffer);
     }
 }
