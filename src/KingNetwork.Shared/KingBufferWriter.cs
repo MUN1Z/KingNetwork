@@ -87,7 +87,7 @@ namespace KingNetwork.Shared
         /// <param name="encoding">The encoding value to write char array in the buffer.</param>
         public static KingBufferWriter Create(int initialCapacity, Encoding encoding)
         {
-            var writer = new KingBufferWriter();
+            var writer = KingPoolManager.GetInstance().KingBufferWriter;
 
             if (writer._buffer == null || writer.Capacity != initialCapacity)
                 writer._buffer = new byte[initialCapacity];
@@ -567,6 +567,7 @@ namespace KingNetwork.Shared
         /// </summary>
         public void Dispose()
         {
+            KingPoolManager.GetInstance().DisposeKingBufferWriter(this);
             Dispose(true);
             GC.SuppressFinalize(this);
         }

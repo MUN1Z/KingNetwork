@@ -45,7 +45,7 @@ namespace KingNetwork.Client
         /// <summary>
 		/// The value for remote end point.
 		/// </summary>
-        public IPEndPoint _remoteEndPoint;
+        public EndPoint _remoteEndPoint;
 
         #endregion
 

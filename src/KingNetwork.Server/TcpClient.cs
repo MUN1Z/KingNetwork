@@ -65,7 +65,7 @@ namespace KingNetwork.Server
                 Console.WriteLine($"Error: {ex.Message}.");
             }
         }
-
+        
         #endregion
 
         #region private methods implementation
@@ -83,6 +83,7 @@ namespace KingNetwork.Server
                     var endRead = _stream.EndRead(asyncResult);
 
                     var numArray = new byte[endRead];
+
                     if (endRead != 0)
                     {
                         Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
