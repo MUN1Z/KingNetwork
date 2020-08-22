@@ -1,5 +1,5 @@
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
-[![Discord](https://img.shields.io/discord/507641974421979145?label=Discord)](https://discord.gg/9zUqgT)
+[![Discord](https://img.shields.io/discord/507641974421979145?label=Discord)](https://discord.gg/N8gyF7)
 [![GitHub stars](https://img.shields.io/github/stars/mun1z/kingnetwork?label=stargazers&logoColor=yellow&style=social)](https://github.com/mun1z/kingnetwork/stargazers)
 
 <p align="center">
