@@ -21,7 +21,7 @@ namespace KingNetwork.SimpleExample.Server
         {
             try
             {
-                _networkListenerType = NetworkListenerType.UDP;
+                _networkListenerType = NetworkListenerType.WSText;
 
                 var server = new KingServer();
                 server.OnMessageReceivedHandler = OnMessageReceived;
@@ -49,7 +49,7 @@ namespace KingNetwork.SimpleExample.Server
                     Console.WriteLine($"OnMessageReceived from {client.Id}");
                     
                     string text = kingBuffer.ReadString();
-                    Console.WriteLine(text);
+                    Console.WriteLine($"Message: {text}");
 
                     var writer = KingBufferWriter.Create();
 

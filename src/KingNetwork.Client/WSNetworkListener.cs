@@ -127,7 +127,6 @@ namespace KingNetwork.Client
                         var data = _buff.Take(ret.Count).ToArray();
 
                         var writter = KingBufferWriter.Create();
-                        writter.Write((byte)0);
                         writter.Write(data);
 
                         var buffer = KingBufferReader.Create(writter.BufferData, 0, writter.Length);
@@ -136,7 +135,6 @@ namespace KingNetwork.Client
                     }
                     else if (ret.MessageType == WebSocketMessageType.Binary)
                     {
-
                         var kingBuffer = KingBufferReader.Create(_buff.Take(ret.Count).ToArray(), 0, ret.Count);
                         _messageReceivedHandler(kingBuffer);
                     }

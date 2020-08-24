@@ -123,7 +123,6 @@ namespace KingNetwork.Server
                             var data = _buff.Take(ret.Count).ToArray();
 
                             var writter = KingBufferWriter.Create();
-                            writter.Write((byte)0);
                             writter.Write(data);
 
                             var buffer = KingBufferReader.Create(writter.BufferData, 0, writter.Length);
