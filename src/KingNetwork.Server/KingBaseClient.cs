@@ -7,7 +7,7 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for represents the client connection.
     /// </summary>
-    public abstract class BaseClient : IClient
+    public abstract class KingBaseClient : IClient
     {
         #region private members
 
@@ -53,7 +53,7 @@ namespace KingNetwork.Server
         /// <summary>
 		/// The flag of client connection.
 		/// </summary>
-		public bool IsConnected => _socketClient.Connected;
+		public abstract bool IsConnected { get; }
 
         #endregion
 

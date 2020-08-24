@@ -18,7 +18,7 @@ namespace KingNetwork.Client
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         public UdpNetworkListener(MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler)
-            : base (messageReceivedHandler, clientDisconnectedHandler) {  }
+            : base(messageReceivedHandler, clientDisconnectedHandler) { }
 
         #endregion
 
@@ -36,17 +36,32 @@ namespace KingNetwork.Client
             {
                 _remoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
 
-                _listener = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
+                _listener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
                 _listener.ReceiveBufferSize = maxMessageBuffer;
                 _listener.SendBufferSize = maxMessageBuffer;
 
-                _listener.Bind(_remoteEndPoint);
+                _buffer = new byte[maxMessageBuffer];
+
+                _listener.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0));
                 _listener.Connect(_remoteEndPoint);
 
-                _buffer = new byte[maxMessageBuffer];
-                _stream = new NetworkStream(_listener);
-                
-                _stream.BeginRead(_buffer, 0, _listener.ReceiveBufferSize, ReceiveDataCallback, null);
+                byte[] array = new byte[9];
+
+                _listener.Send(array);
+
+                 array = new byte[16];
+
+                _listener.ReceiveTimeout = 5000;
+                _listener.Receive(array);
+                _listener.ReceiveTimeout = 0;
+
+                if (array[0] != 1)
+                {
+                    throw new SocketException(10053);
+                }
+
+                _listener.BeginReceiveFrom(_buffer, 0, _listener.ReceiveBufferSize, SocketFlags.None, ref _remoteEndPoint, new AsyncCallback(ReceiveDataCallback), _buffer);
             }
             catch (Exception ex)
             {
@@ -62,7 +77,7 @@ namespace KingNetwork.Client
         {
             try
             {
-                _stream.BeginWrite(kingBuffer.BufferData, 0, kingBuffer.Length, null, null);
+                _listener.SendTo(kingBuffer.BufferData, _remoteEndPoint);
             }
             catch (Exception ex)
             {
@@ -83,30 +98,25 @@ namespace KingNetwork.Client
             try
             {
                 if (_listener.Connected)
-                {
-                    var endRead = _stream.EndRead(asyncResult);
+                { 
+                    int bytesRead = _listener.EndReceive(asyncResult);
 
-                    if (endRead != 0)
+                    if (bytesRead > 0)
                     {
-                        var numArray = new byte[endRead];
-                        Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
+                        var kingBufferReader = KingBufferReader.Create((byte[])asyncResult.AsyncState, 0, bytesRead);
 
-                        _stream.BeginRead(_buffer, 0, _listener.ReceiveBufferSize, ReceiveDataCallback, null);
+                        _messageReceivedHandler.Invoke(kingBufferReader);
 
-                        var buffer = KingBufferReader.Create(numArray, 0, numArray.Length);
-
-                        _messageReceivedHandler(buffer);
-
-                        return;
+                        _listener.BeginReceiveFrom(_buffer, 0, _buffer.Length, SocketFlags.None, ref _remoteEndPoint, new AsyncCallback(this.ReceiveDataCallback), (byte[])asyncResult.AsyncState);
                     }
                 }
-
-                _stream.Close();
-                _clientDisconnectedHandler();
+                else
+                {
+                    _clientDisconnectedHandler();
+                }
             }
             catch (Exception ex)
             {
-                _stream.Close();
                 _clientDisconnectedHandler();
                 Console.WriteLine($"Error: {ex.Message}.");
             }

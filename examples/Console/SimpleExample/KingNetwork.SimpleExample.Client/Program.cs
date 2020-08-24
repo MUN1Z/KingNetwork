@@ -21,7 +21,7 @@ namespace KingNetwork.SimpleExample.Client
         {
             try
             {
-                _networkListenerType = NetworkListenerType.WSBinary;
+                _networkListenerType = NetworkListenerType.UDP;
 
                 var client = new KingClient();
                 client.MessageReceivedHandler = OnMessageReceived;
@@ -29,14 +29,14 @@ namespace KingNetwork.SimpleExample.Client
 
                 new Thread(() =>
                 {
-                    Thread.Sleep(3000);
+                    Thread.Sleep(5000);
 
                     using (var buffer = KingBufferWriter.Create())
                     {
                         if (_networkListenerType != NetworkListenerType.WSText)
                             buffer.Write(MyPackets.PacketOne);
 
-                        buffer.Write("Testinho");
+                        buffer.Write("oi");
 
                         client.SendMessage(buffer);
                     }

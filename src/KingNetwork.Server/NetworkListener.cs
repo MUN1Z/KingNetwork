@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
-using static KingNetwork.Server.BaseClient;
+using static KingNetwork.Server.KingBaseClient;
 
 namespace KingNetwork.Server
 {
@@ -39,7 +39,7 @@ namespace KingNetwork.Server
         /// The handler from callback of client connection. 	
         /// </summary> 	
         /// <param name="socketClient">The socket client from connected client.</param>
-        public delegate void ClientConnectedHandler(BaseClient socketClient);
+        public delegate void ClientConnectedHandler(KingBaseClient socketClient);
 
         #endregion
 

@@ -3,14 +3,14 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using static KingNetwork.Server.BaseClient;
+using static KingNetwork.Server.KingBaseClient;
 
 namespace KingNetwork.Server
 {
     /// <summary>
     /// This class is responsible for managing the tcp network tcp listener.
     /// </summary>
-    public class WSNetworkListener : NetworkListener, IDisposable
+    public class WebSocketNetworkListener : NetworkListener, IDisposable
     {
         #region private members
 
@@ -29,7 +29,7 @@ namespace KingNetwork.Server
         #region constructors
 
         /// <summary>
-        /// Creates a new instance of a <see cref="WSNetworkListener"/>.
+        /// Creates a new instance of a <see cref="WebSocketNetworkListener"/>.
         /// </summary>
         /// <param name="port">The port of server.</param>
         /// <param name="listenerType">The listener type of client connection.</param>
@@ -37,7 +37,7 @@ namespace KingNetwork.Server
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The number max of connected clients, the default value is 1000.</param>
-        public WSNetworkListener(NetworkListenerType listenerType, ushort port, ClientConnectedHandler clientConnectedHandler,
+        public WebSocketNetworkListener(NetworkListenerType listenerType, ushort port, ClientConnectedHandler clientConnectedHandler,
             MessageReceivedHandler messageReceivedHandler,
             ClientDisconnectedHandler clientDisconnectedHandler,
             ushort maxMessageBuffer) : base(port, clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer)
@@ -80,7 +80,7 @@ namespace KingNetwork.Server
                 {
                     var webSocket = (await listenerContext.AcceptWebSocketAsync(null)).WebSocket;
 
-                    var client = new WSClient(_listenerType, webSocket, listenerContext, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+                    var client = new KingWebSocketClient(_listenerType, webSocket, listenerContext, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
                     _clientConnectedHandler(client);
                 }
                 else

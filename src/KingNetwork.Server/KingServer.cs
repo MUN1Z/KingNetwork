@@ -58,7 +58,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The callback of message received handler implementation.
         /// </summary>
-        public BaseClient.MessageReceivedHandler OnMessageReceivedHandler { get; set; }
+        public KingBaseClient.MessageReceivedHandler OnMessageReceivedHandler { get; set; }
 
         /// <summary>
         /// The callback of client connnected handler implementation.
@@ -68,7 +68,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The callback of client disconnected handler implementation.
         /// </summary>
-        public BaseClient.ClientDisconnectedHandler OnClientDisconnectedHandler { get; set; }
+        public KingBaseClient.ClientDisconnectedHandler OnClientDisconnectedHandler { get; set; }
 
         /// <summary>
         /// The callback of started server handler implementation.
@@ -142,7 +142,7 @@ namespace KingNetwork.Server
         {
             try
             {
-                if (kingBuffer.Length > 0 && _serverPacketHandlers.TryGetValue(kingBuffer.ReadByte(), out var serverHandler))
+                if (kingBuffer.Length > 0 && _serverPacketHandlers.Count > 0 && _serverPacketHandlers.TryGetValue(kingBuffer.ReadByte(), out var serverHandler))
                     serverHandler(client, kingBuffer);
                 else
                     OnMessageReceivedHandler?.Invoke(client, kingBuffer);
@@ -157,7 +157,7 @@ namespace KingNetwork.Server
         /// Method responsible for execute the callback of client connected in server.
         /// </summary>
         /// <param name="socketClient">The socket client object from connected client.</param>
-        private void OnClientConnected(BaseClient socketClient)
+        private void OnClientConnected(KingBaseClient socketClient)
         {
             try
             {

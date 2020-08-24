@@ -1,7 +1,10 @@
-﻿using System;
+﻿using KingNetwork.Shared;
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using static KingNetwork.Server.BaseClient;
+using System.Threading;
+using static KingNetwork.Server.KingBaseClient;
 
 namespace KingNetwork.Server
 {
@@ -10,12 +13,21 @@ namespace KingNetwork.Server
     /// </summary>
     public class UdpNetworkListener : NetworkListener
     {
+        #region properties
+
+        /// <summary>
+        /// The socket connection listener;
+        /// </summary>
+        public Socket Socket => _listener;
+
+        #endregion
+
         #region private members
 
         /// <summary>
-        /// The endpoint value to received data.
+        /// The kingUdpClients list.
         /// </summary>
-        private EndPoint _endPointFrom;
+        private Dictionary<EndPoint, KingUdpClient> _kingUdpClients;
 
         #endregion
 
@@ -36,11 +48,14 @@ namespace KingNetwork.Server
         {
             try
             {
-                _listener = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
-                _listener.Bind(new IPEndPoint(IPAddress.Any, port));
-                _endPointFrom = new IPEndPoint(IPAddress.Any, 0);
+                _kingUdpClients = new Dictionary<EndPoint, KingUdpClient>();
+                _listener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                _listener.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
 
-                _listener.BeginAccept(new AsyncCallback(OnAccept), null);
+                EndPoint endPointFrom = new IPEndPoint(IPAddress.Any, 0);
+
+                byte[] array = new byte[_maxMessageBuffer];
+                _listener.BeginReceiveFrom(array, 0, _maxMessageBuffer, SocketFlags.None, ref endPointFrom, new AsyncCallback(ReceiveDataCallback), array);
 
                 Console.WriteLine($"Starting the server network listener on port: {port}.");
             }
@@ -55,27 +70,61 @@ namespace KingNetwork.Server
         #region private methods implementation
 
         /// <summary> 	
-        /// The callback from accept client connection. 	
+        /// The callback from received message from connected server. 	
         /// </summary> 	
-        /// <param name="asyncResult">The async result from socket accepted in connection.</param>
-        private void OnAccept(IAsyncResult asyncResult)
+        /// <param name="asyncResult">The async result from a received message from connected server.</param>
+        private void ReceiveDataCallback(IAsyncResult asyncResult)
         {
+            EndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
+
+            int num;
+
             try
             {
-                //_clientConnectedHandler(_listener.EndAccept(asyncResult));
-
-                //Use UDPCLIENT
-
-                var client = new TcpClient(0, _listener.EndAccept(asyncResult), _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
-                _clientConnectedHandler(client);
+                num = _listener.EndReceiveFrom(asyncResult, ref endPoint);
             }
-            catch (Exception ex)
+            catch (SocketException)
             {
-                Console.WriteLine($"Error: {ex.Message}.");
+                _listener.BeginReceiveFrom((byte[])asyncResult.AsyncState, 0, _maxMessageBuffer, SocketFlags.None, ref endPoint, new AsyncCallback(this.ReceiveDataCallback), (byte[])asyncResult.AsyncState);
+                return;
+            }
+
+            byte[] array = new byte[num];
+            Buffer.BlockCopy((byte[])asyncResult.AsyncState, 0, array, 0, num);
+
+            _listener.BeginReceiveFrom((byte[])asyncResult.AsyncState, 0, _maxMessageBuffer, SocketFlags.None, ref endPoint, new AsyncCallback(this.ReceiveDataCallback), (byte[])asyncResult.AsyncState);
+
+            var kingUdpClientsObj = _kingUdpClients;
+
+            Monitor.Enter(kingUdpClientsObj);
+
+            bool hasClientConnection = false;
+            KingUdpClient kingUdpClient = null;
+
+            try
+            {
+                hasClientConnection = _kingUdpClients.TryGetValue(endPoint, out kingUdpClient);
             }
             finally
             {
-                _listener.BeginAccept(new AsyncCallback(OnAccept), null);
+                Monitor.Exit(kingUdpClientsObj);
+            }
+
+            if (hasClientConnection)
+            {
+                kingUdpClient.ReceiveDataCallback(array);
+            }
+            else if (array.Length == 9)
+            {
+                var client = new KingUdpClient(0, this, endPoint, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+                
+                _clientConnectedHandler(client);
+                _kingUdpClients.Add(endPoint, client);
+
+                var writter = KingBufferWriter.Create();
+                writter.Write((byte)1);
+
+                client.SendMessage(writter);
             }
         }
 

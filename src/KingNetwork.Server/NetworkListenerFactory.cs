@@ -1,5 +1,5 @@
 ﻿using KingNetwork.Shared;
-using static KingNetwork.Server.BaseClient;
+using static KingNetwork.Server.KingBaseClient;
 using static KingNetwork.Server.NetworkListener;
 
 namespace KingNetwork.Server
@@ -14,7 +14,7 @@ namespace KingNetwork.Server
             if (listenerType == NetworkListenerType.TCP)
                 return new TcpNetworkListener(port, clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer);
             else if (listenerType == NetworkListenerType.WSBinary || listenerType == NetworkListenerType.WSText)
-                return new WSNetworkListener(listenerType, port, clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer);
+                return new WebSocketNetworkListener(listenerType, port, clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer);
 
             return new UdpNetworkListener(port, clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer);
         }

@@ -184,7 +184,7 @@ namespace KingNetwork.Client
         {
             try
             {
-                if (kingBuffer.Length > 0 && _clientPacketHandlers.TryGetValue(kingBuffer.ReadByte(), out var clientPacketHandler))
+                if (kingBuffer.Length > 0 && _clientPacketHandlers.Count > 0 && _clientPacketHandlers.TryGetValue(kingBuffer.ReadByte(), out var clientPacketHandler))
                     clientPacketHandler(kingBuffer);
                 else
                     MessageReceivedHandler(kingBuffer);
