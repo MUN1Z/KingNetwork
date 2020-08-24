@@ -54,7 +54,7 @@ namespace KingNetwork.Server
                 //_httpListener.Prefixes.Add($"http://{hostIp}:{port}/");
                 _httpListener.Start();
 
-                Console.WriteLine($"Starting the websocket network listener on port: {port}.");
+                Console.WriteLine($"Starting the WebSocket network listener on port: {port}.");
 
                 WaitForConnections();
             }

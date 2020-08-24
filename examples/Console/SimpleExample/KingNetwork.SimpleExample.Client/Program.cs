@@ -21,7 +21,7 @@ namespace KingNetwork.SimpleExample.Client
         {
             try
             {
-                _networkListenerType = NetworkListenerType.WSText;
+                _networkListenerType = NetworkListenerType.UDP;
 
                 var client = new KingClient();
                 client.MessageReceivedHandler = OnMessageReceived;

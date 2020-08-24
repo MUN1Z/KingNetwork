@@ -57,7 +57,7 @@ namespace KingNetwork.Server
                 byte[] array = new byte[_maxMessageBuffer];
                 _listener.BeginReceiveFrom(array, 0, _maxMessageBuffer, SocketFlags.None, ref endPointFrom, new AsyncCallback(ReceiveDataCallback), array);
 
-                Console.WriteLine($"Starting the server network listener on port: {port}.");
+                Console.WriteLine($"Starting the UDP network listener on port: {port}.");
             }
             catch (Exception ex)
             {

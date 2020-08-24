@@ -32,7 +32,7 @@ namespace KingNetwork.Server
                 _listener.Listen(100);
                 _listener.BeginAccept(new AsyncCallback(OnAccept), null);
 
-                Console.WriteLine($"Starting the server network listener on port: {port}.");
+                Console.WriteLine($"Starting the TCP network listener on port: {port}.");
             }
             catch (Exception ex)
             {

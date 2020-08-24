@@ -75,6 +75,54 @@ using(var kingBuffer = KingBufferWriter.Create()
 client.Disconnect();
 ```
 
+# Using the UDP connection on KingServer
+```C#
+// create and start the server
+var server = new KingServer(port: 7171);
+server.MessageReceivedHandler = OnMessageReceived;
+server.Start(NetworkListenerType.UDP);
+
+// implements the callback for MessageReceivedHandler
+private void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
+{
+    Console.WriteLine($"Received data from client {client.Id}, data length {kingBuffer.Length()}");
+}
+
+// send a message to all clients
+using(var kingBuffer = KingBufferWriter.Create())
+{
+    kingBuffer.Write("Test message!");
+    server.SendMessageToAll(kingBuffer);
+}
+
+// stop the server when you don't need it anymore
+server.Stop();
+```
+
+# Using the UDP connection on KingClient
+```C#
+// create and connect the client
+var client = new KingClient();
+client.MessageReceivedHandler = OnMessageReceived;
+client.Connect("127.0.0.1", 7171, NetworkListenerType.UDP);
+
+// implements the callback for MessageReceivedHandler
+private void OnMessageReceived(KingBufferReader kingBuffer)
+{
+    Console.WriteLine($"Received data from server, data length {kingBuffer.Length()}");
+}
+
+/// send a message to server
+using(var kingBuffer = KingBufferWriter.Create()
+{
+    kingBuffer.Write("Test message!");
+    client.SendMessage(kingBuffer);
+}
+
+// disconnect from the server when we are done
+client.Disconnect();
+```
+
 # Using the WebSocket connection on KingServer
 ```C#
 // create and start the server
