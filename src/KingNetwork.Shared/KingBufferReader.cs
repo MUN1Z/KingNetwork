@@ -67,7 +67,7 @@ namespace KingNetwork.Shared
         /// <param name="dataLength">The dataLength of byte array data.</param>
         public static KingBufferReader Create(byte[] bytes, int dataOffset, int dataLength)
         {
-            var reader = new KingBufferReader();
+            var reader = KingPoolManager.KingBufferReader;
             reader.Initialize(bytes, dataOffset, dataLength);
             return reader;
         }
@@ -647,6 +647,7 @@ namespace KingNetwork.Shared
         /// </summary>
         public void Dispose()
         {
+            KingPoolManager.DisposeKingBufferReader(this);
             Dispose(true);
             GC.SuppressFinalize(this);
         }
