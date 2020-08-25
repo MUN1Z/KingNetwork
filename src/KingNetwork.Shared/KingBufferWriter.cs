@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KingNetwork.Shared.Interfaces;
+using System;
 using System.Text;
 
 namespace KingNetwork.Shared
@@ -20,24 +21,20 @@ namespace KingNetwork.Shared
         /// </summary>
         private byte[] _buffer;
 
-        /// <summary>
-        /// The encoding value to strings.
-        /// </summary>
-        public Encoding Encoding { get; set; }
+        #endregion
 
-        /// <summary>
-        /// The byte array buffer.
-        /// </summary>
+        #region properties
+        
+        /// <inheritdoc/>
         public byte[] BufferData => _buffer;
 
-        /// <summary>
-        /// The length value of buffer.
-        /// </summary>
-        public int Length { get; set; }
+        /// <inheritdoc/>
+        public Encoding Encoding { get; private set; }
 
-        /// <summary>
-        /// The capacity value of buffer.
-        /// </summary>
+        /// <inheritdoc/>
+        public int Length { get; private set; }
+
+        /// <inheritdoc/>
         public int Capacity => _buffer.Length;
 
         #endregion
@@ -102,36 +99,24 @@ namespace KingNetwork.Shared
 
         #region public methods implementation   
 
-        /// <summary>
-        /// Method responsible for write a byte value in the buffer.
-        /// </summary>
-        /// <param name="value">The byte value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(byte value)
         {
             EnsureCapacity(1);
             _buffer[Length++] = value;
         }
 
-        /// <summary>
-        /// Method responsible for write a char value in the buffer.
-        /// </summary>
-        /// <param name="value">The char value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(char value) => Write(new char[1] { value });
 
-        /// <summary>
-        /// Method responsible for write a bool value in the buffer.
-        /// </summary>
-        /// <param name="value">The bool value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(bool value)
         {
             EnsureCapacity(1);
             Write((byte)(value ? 1 : 0));
         }
 
-        /// <summary>
-        /// Method responsible for write a double value in the buffer.
-        /// </summary>
-        /// <param name="value">The double value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(double value)
         {
             byte[] bytes = BitConverter.GetBytes(value);
@@ -144,10 +129,7 @@ namespace KingNetwork.Shared
             Length += 8;
         }
 
-        /// <summary>
-        /// Method responsible for write a short value in the buffer.
-        /// </summary>
-        /// <param name="value">The short value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(short value)
         {
             EnsureCapacity(2);
@@ -155,10 +137,7 @@ namespace KingNetwork.Shared
             Length += 2;
         }
 
-        /// <summary>
-        /// Method responsible for write a int value in the buffer.
-        /// </summary>
-        /// <param name="value">The int value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(int value)
         {
             EnsureCapacity(4);
@@ -166,10 +145,7 @@ namespace KingNetwork.Shared
             Length += 4;
         }
 
-        /// <summary>
-        /// Method responsible for write a long value in the buffer.
-        /// </summary>
-        /// <param name="value">The long value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(long value)
         {
             EnsureCapacity(8);
@@ -177,19 +153,13 @@ namespace KingNetwork.Shared
             Length += 8;
         }
 
-        /// <summary>
-        /// Method responsible for write a sbyte value in the buffer.
-        /// </summary>
-        /// <param name="value">The sbyte value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(sbyte value)
         {
             Write((byte)value);
         }
 
-        /// <summary>
-        /// Method responsible for write a float value in the buffer.
-        /// </summary>
-        /// <param name="value">The float value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(float value)
         {
             byte[] bytes = BitConverter.GetBytes(value);
@@ -202,10 +172,7 @@ namespace KingNetwork.Shared
             Length += 4;
         }
 
-        /// <summary>
-        /// Method responsible for write a ushort value in the buffer.
-        /// </summary>
-        /// <param name="value">The ushort value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(ushort value)
         {
             EnsureCapacity(2);
@@ -213,10 +180,7 @@ namespace KingNetwork.Shared
             Length += 2;
         }
 
-        /// <summary>
-        /// Method responsible for write a uint value in the buffer.
-        /// </summary>
-        /// <param name="value">The uint value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(uint value)
         {
             EnsureCapacity(4);
@@ -224,10 +188,7 @@ namespace KingNetwork.Shared
             Length += 4;
         }
 
-        /// <summary>
-        /// Method responsible for write a ulong value in the buffer.
-        /// </summary>
-        /// <param name="value">The ulong value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(ulong value)
         {
             EnsureCapacity(8);
@@ -235,33 +196,20 @@ namespace KingNetwork.Shared
             Length += 8;
         }
 
-        /// <summary>
-        /// Method responsible for write a string value in the buffer.
-        /// </summary>
-        /// <param name="value">The string value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(string value) => Write(value, Encoding);
 
-        /// <summary>
-        /// Method responsible for write a byte value in the buffer.
-        /// </summary>
-        /// <param name="value">The byte value to write in the buffer.</param>
-        /// <param name="encoding">The encoding value to write char array in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(string value, Encoding encoding) => Write(encoding.GetBytes(value));
 
-        /// <summary>
-        /// Method responsible for write a generic packet value in the buffer.
-        /// </summary>
-        /// <param name="packet">The generic packet value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write<TPacket>(TPacket packet) where TPacket : IConvertible
         {
             if (Enum.IsDefined(typeof(TPacket), packet))
                 Write((byte)(IConvertible)packet);
         }
 
-        /// <summary>
-        /// Method responsible for write a byte array values in the buffer.
-        /// </summary>
-        /// <param name="value">The byte array values to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(byte[] value)
         {
             EnsureCapacity(4 + value.Length);
@@ -272,23 +220,13 @@ namespace KingNetwork.Shared
             Length += 4 + value.Length;
         }
 
-        /// <summary>
-        /// Method responsible for write a char array values in the buffer.
-        /// </summary>
-        /// <param name="value">The char array values to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(char[] value) => Write(value, Encoding);
 
-        /// <summary>
-        /// Method responsible for write a char array values in the buffer.
-        /// </summary>
-        /// <param name="value">The char array values to write in the buffer.</param>
-        /// <param name="encoding">The encoding value to write char array in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(char[] value, Encoding encoding) => Write(encoding.GetBytes(value));
 
-        /// <summary>
-        /// Method responsible for write a bool array values in the buffer.
-        /// </summary>
-        /// <param name="value">The bool array values to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(bool[] value)
         {
             int num = (int)Math.Ceiling((double)value.Length / 8.0);
@@ -317,10 +255,7 @@ namespace KingNetwork.Shared
             Length += 4 + num;
         }
 
-        /// <summary>
-        /// Method responsible for write a double array values in the buffer.
-        /// </summary>
-        /// <param name="value">The double array values to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(double[] value)
         {
             EnsureCapacity(4 + value.Length * 8);
@@ -345,10 +280,7 @@ namespace KingNetwork.Shared
             Length += 4 + value.Length * 8;
         }
 
-        /// <summary>
-        /// Method responsible for write a short array values in the buffer.
-        /// </summary>
-        /// <param name="value">The short array values to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(short[] value)
         {
             EnsureCapacity(4 + value.Length * 2);
@@ -367,10 +299,7 @@ namespace KingNetwork.Shared
             Length += 4 + value.Length * 2;
         }
 
-        /// <summary>
-        /// Method responsible for write a int array values in the buffer.
-        /// </summary>
-        /// <param name="value">The int array values to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(int[] value)
         {
             EnsureCapacity(4 + value.Length * 4);
@@ -390,10 +319,7 @@ namespace KingNetwork.Shared
             Length += 4 + value.Length * 4;
         }
 
-        /// <summary>
-        /// Method responsible for write a long array values in the buffer.
-        /// </summary>
-        /// <param name="value">The long array values to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(long[] value)
         {
             EnsureCapacity(4 + value.Length * 8);
@@ -413,10 +339,7 @@ namespace KingNetwork.Shared
             Length += 4 + value.Length * 8;
         }
 
-        /// <summary>
-        /// Method responsible for write a sbyte array values in the buffer.
-        /// </summary>
-        /// <param name="value">The sbyte array values to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(sbyte[] value)
         {
             EnsureCapacity(4 + value.Length);
@@ -427,10 +350,7 @@ namespace KingNetwork.Shared
             Length += 4 + value.Length;
         }
 
-        /// <summary>
-        /// Method responsible for write a float array values in the buffer.
-        /// </summary>
-        /// <param name="value">The float array value to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(float[] value)
         {
             EnsureCapacity(4 + value.Length * 4);
@@ -455,10 +375,7 @@ namespace KingNetwork.Shared
             Length += 4 + value.Length * 4;
         }
 
-        /// <summary>
-        /// Method responsible for write a string array values in the buffer.
-        /// </summary>
-        /// <param name="value">The string array values to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(string[] value)
         {
             EnsureCapacity(4);
@@ -470,10 +387,7 @@ namespace KingNetwork.Shared
                 Write(value2);
         }
 
-        /// <summary>
-        /// Method responsible for write a ushort array values in the buffer.
-        /// </summary>
-        /// <param name="value">The ushort array values to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(ushort[] value)
         {
             EnsureCapacity(4 + value.Length * 2);
@@ -493,10 +407,7 @@ namespace KingNetwork.Shared
             Length += 4 + value.Length * 2;
         }
 
-        /// <summary>
-        /// Method responsible for write a uint array value in the buffer.
-        /// </summary>
-        /// <param name="value">The uint array values to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(uint[] value)
         {
             EnsureCapacity(4 + value.Length * 4);
@@ -516,10 +427,7 @@ namespace KingNetwork.Shared
             Length += 4 + value.Length * 4;
         }
 
-        /// <summary>
-        /// Method responsible for write a ulong array values in the buffer.
-        /// </summary>
-        /// <param name="value">The ulong array values to write in the buffer.</param>
+        /// <inheritdoc/>
         public void Write(ulong[] value)
         {
             EnsureCapacity(4 + value.Length * 8);
@@ -538,12 +446,7 @@ namespace KingNetwork.Shared
             Length += 4 + value.Length * 8;
         }
 
-        /// <summary>
-        /// Method responsible for write a byte array raw values in the buffer.
-        /// </summary>
-        /// <param name="value">The byte array raw values to write in the buffer.</param>
-        /// <param name="offset">The offset value to write raw in the buffer.</param>
-        /// <param name="length">The length value to write raw in the buffer.</param>
+        /// <inheritdoc/>
         public void WriteRaw(byte[] bytes, int offset, int length)
         {
             EnsureCapacity(length);
@@ -551,9 +454,7 @@ namespace KingNetwork.Shared
             Length += length;
         }
 
-        /// <summary>
-        /// Method responsible for reset the buffer.
-        /// </summary>
+        /// <inheritdoc/>
         public void Reset()
         {
             _buffer = new byte[16];
@@ -562,9 +463,7 @@ namespace KingNetwork.Shared
             Encoding = Encoding.UTF8;
         }
 
-        /// <summary>
-        /// Method responsible for dispose the instance.
-        /// </summary>
+        /// <inheritdoc/>
         public void Dispose()
         {
             KingPoolManager.DisposeKingBufferWriter(this);

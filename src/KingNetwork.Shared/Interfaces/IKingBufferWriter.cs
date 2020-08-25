@@ -1,13 +1,37 @@
 ﻿using System;
 using System.Text;
 
-namespace KingNetwork.Shared
+namespace KingNetwork.Shared.Interfaces
 {
     /// <summary>
     /// This interface is responsible for represents the king buffer writer interface of application.
     /// </summary>
     public interface IKingBufferWriter
     {
+        #region properties
+
+        /// <summary>
+        /// The encoding value to strings.
+        /// </summary>
+        Encoding Encoding { get; }
+
+        /// <summary>
+        /// The byte array buffer.
+        /// </summary>
+        byte[] BufferData { get; }
+
+        /// <summary>
+        /// The length value of buffer.
+        /// </summary>
+        int Length { get; }
+
+        /// <summary>
+        /// The capacity value of buffer.
+        /// </summary>
+        int Capacity { get; }
+
+        #endregion
+
         #region methods declaration
 
         /// <summary>
@@ -198,6 +222,11 @@ namespace KingNetwork.Shared
         /// Method responsible for reset the buffer.
         /// </summary>
         void Reset();
+
+        /// <summary>
+        /// Method responsible for dispose the instance.
+        /// </summary>
+        void Dispose();
 
         #endregion
     }

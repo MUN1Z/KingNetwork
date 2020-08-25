@@ -1,10 +1,11 @@
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using System;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 
-namespace KingNetwork.Client
+namespace KingNetwork.Client.Listeners
 {
     /// <summary>
     /// This class is responsible for managing the network websocket listener.
@@ -53,12 +54,7 @@ namespace KingNetwork.Client
 
         #region public methods implementation
 
-        /// <summary>
-        /// Method responsible for start the client network websocket listener.
-        /// </summary>
-        /// <param name="ip">The ip address of server.</param>
-        /// <param name="port">The port of server.</param>
-        /// <param name="maxMessageBuffer">The max length of message buffer.</param>
+        /// <inheritdoc/>
         public override void StartClient(string ip, int port, ushort maxMessageBuffer)
         {
             try
@@ -75,11 +71,8 @@ namespace KingNetwork.Client
             }
         }
 
-        /// <summary>
-        /// Method responsible for send message to connected server.
-        /// </summary>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        public override void SendMessage(KingBufferWriter kingBuffer)
+        /// <inheritdoc/>
+        public override void SendMessage(IKingBufferWriter writer)
         {
             try
             {
@@ -87,12 +80,12 @@ namespace KingNetwork.Client
                 {
                     if (_listenerType == NetworkListenerType.WSText)
                     {
-                        var data = new ArraySegment<byte>(kingBuffer.BufferData, 4, kingBuffer.BufferData.Length - 4);
+                        var data = new ArraySegment<byte>(writer.BufferData, 4, writer.BufferData.Length - 4);
                         _clientWebSocket.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None);
                     }
                     else if (_listenerType == NetworkListenerType.WSBinary)
                     {
-                        var data = new ArraySegment<byte>(kingBuffer.BufferData);
+                        var data = new ArraySegment<byte>(writer.BufferData);
                         _clientWebSocket.SendAsync(data, WebSocketMessageType.Binary, true, CancellationToken.None);
                     }
                 }
@@ -126,17 +119,17 @@ namespace KingNetwork.Client
                     {
                         var data = _buff.Take(ret.Count).ToArray();
 
-                        var writter = KingBufferWriter.Create();
-                        writter.Write(data);
+                        var writer = KingBufferWriter.Create();
+                        writer.Write(data);
 
-                        var buffer = KingBufferReader.Create(writter.BufferData, 0, writter.Length);
+                        var reader = KingBufferReader.Create(writer.BufferData, 0, writer.Length);
 
-                        _messageReceivedHandler(buffer);
+                        _messageReceivedHandler(reader);
                     }
                     else if (ret.MessageType == WebSocketMessageType.Binary)
                     {
-                        var kingBuffer = KingBufferReader.Create(_buff.Take(ret.Count).ToArray(), 0, ret.Count);
-                        _messageReceivedHandler(kingBuffer);
+                        var reader = KingBufferReader.Create(_buff.Take(ret.Count).ToArray(), 0, ret.Count);
+                        _messageReceivedHandler(reader);
                     }
                 }
             }

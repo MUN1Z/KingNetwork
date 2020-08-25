@@ -3,6 +3,7 @@ using System;
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
 using KingNetwork.SimpleExample.Shared;
+using KingNetwork.Shared.Interfaces;
 
 namespace KingNetwork.SimpleExample.Server
 {
@@ -39,8 +40,8 @@ namespace KingNetwork.SimpleExample.Server
         /// Method responsible for execute the callback of message received from client in server.
         /// </summary>
         /// <param name="client">The client instance.</param>
-        /// <param name="kingBuffer">The king buffer from received message.</param>
-        private static void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
+        /// <param name="reader">The king buffer reader from received message.</param>
+        private static void OnMessageReceived(IClient client, IKingBufferReader reader)
         {
             try
             {
@@ -48,7 +49,7 @@ namespace KingNetwork.SimpleExample.Server
                 {
                     Console.WriteLine($"OnMessageReceived from {client.Id}");
                     
-                    string text = kingBuffer.ReadString();
+                    string text = reader.ReadString();
                     Console.WriteLine($"Message: {text}");
 
                     var writer = KingBufferWriter.Create();
@@ -59,11 +60,11 @@ namespace KingNetwork.SimpleExample.Server
                 }
                 else
                 {
-                    switch (kingBuffer.ReadMessagePacket<MyPackets>())
+                    switch (reader.ReadMessagePacket<MyPackets>())
                     {
                         case MyPackets.PacketOne:
                             Console.WriteLine($"OnMessageReceived PacketOne from {client.Id}");
-                            Console.WriteLine($"Message: {kingBuffer.ReadString()}");
+                            Console.WriteLine($"Message: {reader.ReadString()}");
 
                             var writer = KingBufferWriter.Create();
 

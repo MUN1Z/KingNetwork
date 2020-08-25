@@ -1,9 +1,10 @@
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using System;
 using System.Net;
 using System.Net.Sockets;
 
-namespace KingNetwork.Client
+namespace KingNetwork.Client.Listeners
 {
     /// <summary>
     /// This class is responsible for managing the network tcp listener.
@@ -24,12 +25,7 @@ namespace KingNetwork.Client
 
         #region public methods implementation
 
-        /// <summary>
-        /// Method responsible for start the client network tcp listener.
-        /// </summary>
-        /// <param name="ip">The ip address of server.</param>
-        /// <param name="port">The port of server.</param>
-        /// <param name="maxMessageBuffer">The max length of message buffer.</param>
+        /// <inheritdoc/>
         public override void StartClient(string ip, int port, ushort maxMessageBuffer)
         {
             try
@@ -53,15 +49,12 @@ namespace KingNetwork.Client
             }
         }
 
-        /// <summary>
-        /// Method responsible for send message to connected server.
-        /// </summary>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        public override void SendMessage(KingBufferWriter kingBuffer)
+        /// <inheritdoc/>
+        public override void SendMessage(IKingBufferWriter writer)
         {
             try
             {
-                _stream.BeginWrite(kingBuffer.BufferData, 0, kingBuffer.Length, null, null);
+                _stream.BeginWrite(writer.BufferData, 0, writer.Length, null, null);
             }
             catch (Exception ex)
             {

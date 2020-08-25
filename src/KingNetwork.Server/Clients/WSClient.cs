@@ -1,4 +1,5 @@
 ﻿using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using System;
 using System.Linq;
 using System.Net;
@@ -10,7 +11,7 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for represents the websocket client connection.
     /// </summary>
-    public class KingWebSocketClient : KingBaseClient
+    public class WSClient : Client
     {
         #region private members
 
@@ -38,6 +39,7 @@ namespace KingNetwork.Server
 
         #region properties
 
+        /// <inheritdoc/>
         public override bool IsConnected => _webSocket != null;
 
         #endregion
@@ -45,15 +47,16 @@ namespace KingNetwork.Server
         #region constructors
 
         /// <summary>
-        /// Creates a new instance of a <see cref="KingWebSocketClient"/>.
+        /// Creates a new instance of a <see cref="WSClient"/>.
         /// </summary>
+        /// <param name="id">The identifier number of connected client.</param>
         /// <param name="listenerType">The listener type of client connection.</param>
         /// <param name="ws">The websocket connection.</param>
         /// <param name="listenerContext">The websocket http listener context.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer.</param>
-        public KingWebSocketClient(NetworkListenerType listenerType, WebSocket ws, HttpListenerContext listenerContext, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
+        public WSClient(ushort id, NetworkListenerType listenerType, WebSocket ws, HttpListenerContext listenerContext, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
         {
             try
             {
@@ -65,6 +68,8 @@ namespace KingNetwork.Server
 
                 _messageReceivedHandler = messageReceivedHandler;
                 _clientDisconnectedHandler = clientDisconnectedHandler;
+
+                Id = id;
 
                 WaitConnection();
             }
@@ -78,22 +83,19 @@ namespace KingNetwork.Server
 
         #region public methods implementation
 
-        /// <summary>
-        /// Method responsible for send message to client.
-        /// </summary>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        public override void SendMessage(KingBufferWriter kingBuffer)
+        /// <inheritdoc/>
+        public override void SendMessage(IKingBufferWriter writer)
         {
             try
             {
                 if (_listenerType == NetworkListenerType.WSText)
                 {
-                    var data = new ArraySegment<byte>(kingBuffer.BufferData, 4, kingBuffer.BufferData.Length - 4);
+                    var data = new ArraySegment<byte>(writer.BufferData, 4, writer.BufferData.Length - 4);
                     _webSocket.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None);
                 }
                 else if (_listenerType == NetworkListenerType.WSBinary)
                 {
-                    var data = new ArraySegment<byte>(kingBuffer.BufferData);
+                    var data = new ArraySegment<byte>(writer.BufferData);
                     _webSocket.SendAsync(data, WebSocketMessageType.Binary, true, CancellationToken.None);
                 }
             }
@@ -107,8 +109,10 @@ namespace KingNetwork.Server
 
         #region private methods implementations
 
-
-        public async void WaitConnection()
+        /// <summary>
+        /// This method is reponsible for wait for connections.
+        /// </summary>
+        private async void WaitConnection()
         {
             while (_webSocket.State == WebSocketState.Open)
             {
@@ -122,20 +126,20 @@ namespace KingNetwork.Server
                         {
                             var data = _buff.Take(ret.Count).ToArray();
 
-                            var writter = KingBufferWriter.Create();
-                            writter.Write(data);
+                            var writer = KingBufferWriter.Create();
+                            writer.Write(data);
 
-                            var buffer = KingBufferReader.Create(writter.BufferData, 0, writter.Length);
+                            var reader = KingBufferReader.Create(writer.BufferData, 0, writer.Length);
 
-                            _messageReceivedHandler(this, buffer);
+                            _messageReceivedHandler(this, reader);
                         }
                     }
                     else if (ret.MessageType == WebSocketMessageType.Binary)
                     {
                         if (_listenerContext.Request.RemoteEndPoint != null)
                         {
-                            KingBufferReader buffer = KingBufferReader.Create(_buff.Take(ret.Count).ToArray(), 0, ret.Count);
-                            _messageReceivedHandler(this, buffer);
+                            var reader = KingBufferReader.Create(_buff.Take(ret.Count).ToArray(), 0, ret.Count);
+                            _messageReceivedHandler(this, reader);
                         }
                     }
                     else if (ret.MessageType == WebSocketMessageType.Close) 

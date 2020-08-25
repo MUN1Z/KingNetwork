@@ -1,4 +1,5 @@
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -6,15 +7,13 @@ using System.Net.Sockets;
 namespace KingNetwork.Server
 {
     /// <summary>
-    /// This class is responsible for represents the tcp client connection.
+    /// This class is responsible for represents the udp client connection.
     /// </summary>
-    public class KingUdpClient : KingBaseClient
+    public class UDPClient : Client
     {
         #region properties
 
-        /// <summary>
-        /// The is connected flag.;
-        /// </summary>
+        /// <inheritdoc/>
         public override bool IsConnected => _udpListener.Socket.Connected;
 
         #endregion
@@ -36,14 +35,14 @@ namespace KingNetwork.Server
         #region constructor
 
         /// <summary>
-        /// Creates a new instance of a <see cref="KingTcpClient"/>.
+        /// Creates a new instance of a <see cref="TcpClient"/>.
         /// </summary>
         /// <param name="id">The identifier number of connected client.</param>
         /// <param name="socketClient">The tcp client from connected client.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer.</param>
-        public KingUdpClient(ushort id, UdpNetworkListener socketClient, EndPoint remoteEndPoint, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
+        public UDPClient(ushort id, UdpNetworkListener socketClient, EndPoint remoteEndPoint, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
         {
             try
             {
@@ -52,8 +51,6 @@ namespace KingNetwork.Server
 
                 _messageReceivedHandler = messageReceivedHandler;
                 _clientDisconnectedHandler = clientDisconnectedHandler;
-
-                _buffer = new byte[maxMessageBuffer];
 
                 Id = id;
             }
@@ -67,16 +64,13 @@ namespace KingNetwork.Server
 
         #region public methods implementation
 
-        /// <summary>
-        /// Method responsible for send message to client.
-        /// </summary>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        public override void SendMessage(KingBufferWriter kingBuffer)
+        /// <inheritdoc/>
+        public override void SendMessage(IKingBufferWriter writer)
         {
             try
             {
                 if (_udpListener.Socket != null)
-                    _udpListener.Socket.BeginSendTo(kingBuffer.BufferData, 0, kingBuffer.BufferData.Length, SocketFlags.None, _remoteEndPoint, UdpSendCompleted, new Action<SocketError>(UdpSendCompleted));
+                    _udpListener.Socket.BeginSendTo(writer.BufferData, 0, writer.BufferData.Length, SocketFlags.None, _remoteEndPoint, UdpSendCompleted, new Action<SocketError>(UdpSendCompleted));
             }
             catch (Exception ex)
             {

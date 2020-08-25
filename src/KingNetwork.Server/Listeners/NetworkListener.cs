@@ -1,13 +1,15 @@
-﻿using System;
+﻿using KingNetwork.Server.Interfaces;
+using System;
 using System.Net.Sockets;
-using static KingNetwork.Server.KingBaseClient;
+using System.Threading;
+using static KingNetwork.Server.Client;
 
 namespace KingNetwork.Server
 {
     /// <summary>
     /// This class is responsible for representation of abstract network listener.
     /// </summary>
-    public abstract class NetworkListener : IDisposable
+    public abstract class NetworkListener : INetworkListener, IDisposable
     {
         #region private members
 
@@ -16,9 +18,19 @@ namespace KingNetwork.Server
         /// </summary>
         protected ClientConnectedHandler _clientConnectedHandler;
 
+        /// <summary>
+        /// The callback of message received handler implementation.
+        /// </summary>
         protected MessageReceivedHandler _messageReceivedHandler;
+
+        /// <summary>
+        /// The callback of client disconnected handler implementation.
+        /// </summary>
         protected ClientDisconnectedHandler _clientDisconnectedHandler;
 
+        // <summary>
+        /// The max length of message buffer.
+        /// </summary>
         protected ushort _maxMessageBuffer;
 
         /// <summary>
@@ -31,6 +43,11 @@ namespace KingNetwork.Server
 		/// </summary>
         private bool _disposedValue;
 
+        /// <summary> 	
+        /// The counter for generation of client id. 	
+        /// </summary> 	
+        private int _counter = 0;
+
         #endregion
 
         #region delegates 
@@ -39,7 +56,7 @@ namespace KingNetwork.Server
         /// The handler from callback of client connection. 	
         /// </summary> 	
         /// <param name="socketClient">The socket client from connected client.</param>
-        public delegate void ClientConnectedHandler(KingBaseClient socketClient);
+        public delegate void ClientConnectedHandler(Client socketClient);
 
         #endregion
 
@@ -68,14 +85,10 @@ namespace KingNetwork.Server
 
         #region public methods implementation
 
-        /// <summary>
-        /// This method is responsible for call the dispose implementation method.
-        /// </summary>
+        /// <inheritdoc/>
         public void Dispose() => Dispose(true);
 
-        /// <summary>
-        /// Method responsible for stop the tcp network listener.
-        /// </summary>
+        /// <inheritdoc/>
         public void Stop()
         {
             try
@@ -106,6 +119,11 @@ namespace KingNetwork.Server
                 _disposedValue = true;
             }
         }
+
+        /// <summary> 	
+        /// Method responsible for generation of identifier to new connected client. 	
+        /// </summary> 	
+        protected ushort GetNewClientIdentifier() => (ushort)Interlocked.Increment(ref _counter);
 
         #endregion
     }

@@ -1,5 +1,6 @@
 using KingNetwork.Client;
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using KingNetwork.SimpleExample.Shared;
 using System;
 using System.Threading;
@@ -53,15 +54,15 @@ namespace KingNetwork.SimpleExample.Client
         /// <summary>
         /// Method responsible for execute the callback of message received from server in client.
         /// </summary>
-        /// <param name="kingBuffer">The king buffer from received message.</param>
-        private static void OnMessageReceived(KingBufferReader kingBuffer)
+        /// <param name="reader">The king buffer reader from received message.</param>
+        private static void OnMessageReceived(IKingBufferReader reader)
         {
             try
             {
                 if (_networkListenerType == NetworkListenerType.WSText)
-                    Console.WriteLine($"OnMessageReceived: {kingBuffer.ReadString()}");
+                    Console.WriteLine($"OnMessageReceived: {reader.ReadString()}");
                 else
-                    switch (kingBuffer.ReadMessagePacket<MyPackets>())
+                    switch (reader.ReadMessagePacket<MyPackets>())
                     {
                         case MyPackets.PacketOne:
                             Console.WriteLine("OnMessageReceived for PacketOne");

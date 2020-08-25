@@ -1,5 +1,6 @@
 ﻿using KingNetwork.Client;
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -158,14 +159,14 @@ namespace KingNetwork.Benchmarks.Load
         /// <summary>
         /// Method responsible for execute the callback of message received from server in client.
         /// </summary>
-        /// <param name="kingBuffer">The king buffer from received message.</param>
-        private static void OnMessageReceived(KingBufferReader kingBuffer)
+        /// <param name="reader">The king buffer reader from received message.</param>
+        private static void OnMessageReceived(IKingBufferReader reader)
         {
             try
             {
                 _messagesReceived++;
-                _dataReceived += kingBuffer.Length;
-                _bufferLength = kingBuffer.Length;
+                _dataReceived += reader.Length;
+                _bufferLength = reader.Length;
 
                 //if (_networkListenerType == NetworkListenerType.WS)
                 //{

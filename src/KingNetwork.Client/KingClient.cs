@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using KingNetwork.client;
+using KingNetwork.Client.Interfaces;
+using KingNetwork.Client.Listeners;
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 
 namespace KingNetwork.Client
 {
@@ -21,7 +23,7 @@ namespace KingNetwork.Client
         /// <summary> 	
         /// The network listener instance. 	
         /// </summary> 	
-        private NetworkListener _networkListener;
+        private INetworkListener _networkListener;
 
         /// <summary> 	
         /// The thread for start the network listener. 	
@@ -49,8 +51,8 @@ namespace KingNetwork.Client
         /// <summary> 	
         /// The client packet handler delegate. 	
         /// </summary> 	
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        public delegate void ClientPacketHandler(KingBufferReader kingBuffer);
+        /// <param name="reader">The king buffer reader of received message.</param>
+        public delegate void ClientPacketHandler(IKingBufferReader reader);
 
         #endregion
 
@@ -128,7 +130,13 @@ namespace KingNetwork.Client
             {
                 _clientThread = new Thread(() =>
                 {
-                    _networkListener = NetworkListenerFactory.CreateForType(listenerType, OnMessageReceived, OnClientDisconnected);
+                    if (listenerType == NetworkListenerType.TCP)
+                        _networkListener = new TcpNetworkListener(OnMessageReceived, OnClientDisconnected);
+                    else if (listenerType == NetworkListenerType.UDP)
+                        _networkListener = new UdpNetworkListener(OnMessageReceived, OnClientDisconnected);
+                    else if (listenerType == NetworkListenerType.WSBinary || listenerType == NetworkListenerType.WSText)
+                        _networkListener =  new WSNetworkListener(listenerType, OnMessageReceived, OnClientDisconnected);
+
                     _networkListener.StartClient(ip, port, maxMessageBuffer);
                 });
 
@@ -159,12 +167,12 @@ namespace KingNetwork.Client
         /// <summary>
         /// Method responsible for send message to connected server.
         /// </summary>
-        /// <param name="kingBuffer">The king buffer to send message.</param>
-        public void SendMessage(KingBufferWriter kingBuffer)
+        /// <param name="writer">The king buffer writer to send message.</param>
+        public void SendMessage(IKingBufferWriter writer)
         {
             try
             {
-                _networkListener.SendMessage(kingBuffer);
+                _networkListener.SendMessage(writer);
             }
             catch (Exception ex)
             {
@@ -179,15 +187,15 @@ namespace KingNetwork.Client
         /// <summary>
         /// Method responsible for execute the callback of message received from client in server.
         /// </summary>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        private void OnMessageReceived(KingBufferReader kingBuffer)
+        /// <param name="reader">The king buffer reader of received message.</param>
+        private void OnMessageReceived(IKingBufferReader reader)
         {
             try
             {
-                if (kingBuffer.Length > 0 && _clientPacketHandlers.Count > 0 && _clientPacketHandlers.TryGetValue(kingBuffer.ReadByte(), out var clientPacketHandler))
-                    clientPacketHandler(kingBuffer);
+                if (reader.Length > 0 && _clientPacketHandlers.Count > 0 && _clientPacketHandlers.TryGetValue(reader.ReadByte(), out var clientPacketHandler))
+                    clientPacketHandler(reader);
                 else
-                    MessageReceivedHandler(kingBuffer);
+                    MessageReceivedHandler(reader);
             }
             catch (Exception ex)
             {

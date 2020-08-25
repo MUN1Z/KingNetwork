@@ -2,10 +2,10 @@ using KingNetwork.Server.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 
 namespace KingNetwork.Server
 {
@@ -19,7 +19,7 @@ namespace KingNetwork.Server
         /// <summary> 	
         /// The network listener instance. 	
         /// </summary> 	
-        private NetworkListener _networkListener;
+        private INetworkListener _networkListener;
 
         /// <summary> 	
         /// The network dictionary list of server packet handlers. 	
@@ -46,11 +46,6 @@ namespace KingNetwork.Server
         /// </summary>
         private readonly ushort _maxClientConnections;
 
-        /// <summary> 	
-        /// The counter for generation of client id. 	
-        /// </summary> 	
-        private int _counter = 0;
-
         #endregion
 
         #region properties
@@ -58,7 +53,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The callback of message received handler implementation.
         /// </summary>
-        public KingBaseClient.MessageReceivedHandler OnMessageReceivedHandler { get; set; }
+        public Client.MessageReceivedHandler OnMessageReceivedHandler { get; set; }
 
         /// <summary>
         /// The callback of client connnected handler implementation.
@@ -68,7 +63,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The callback of client disconnected handler implementation.
         /// </summary>
-        public KingBaseClient.ClientDisconnectedHandler OnClientDisconnectedHandler { get; set; }
+        public Client.ClientDisconnectedHandler OnClientDisconnectedHandler { get; set; }
 
         /// <summary>
         /// The callback of started server handler implementation.
@@ -84,8 +79,8 @@ namespace KingNetwork.Server
         /// The server packet handler delegate. 	
         /// </summary> 	
         /// <param name="client">The connected client.</param>
-        /// <param name="kingBuffer">The king buffer received from message.</param>
-        public delegate void ServerPacketHandler(IClient client, KingBufferReader kingBuffer);
+        /// <param name="reader">The king buffer reader from received message.</param>
+        public delegate void ServerPacketHandler(IClient client, IKingBufferReader reader);
 
         /// <summary> 	
         /// The handler from callback of client connection. 	
@@ -128,24 +123,19 @@ namespace KingNetwork.Server
 
         #region private methods implementation
 
-        /// <summary> 	
-        /// Method responsible for generation of identifier to new connected client. 	
-        /// </summary> 	
-        private ushort GetNewClientIdentifier() => (ushort)Interlocked.Increment(ref _counter);
-
         /// <summary>
         /// Method responsible for execute the callback of message received from client in server.
         /// </summary>
         /// <param name="client">The connected client.</param>
         /// <param name="kingBuffer">The king buffer received from message.</param>
-        private void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
+        private void OnMessageReceived(IClient client, IKingBufferReader reader)
         {
             try
             {
-                if (kingBuffer.Length > 0 && _serverPacketHandlers.Count > 0 && _serverPacketHandlers.TryGetValue(kingBuffer.ReadByte(), out var serverHandler))
-                    serverHandler(client, kingBuffer);
+                if (reader.Length > 0 && _serverPacketHandlers.Count > 0 && _serverPacketHandlers.TryGetValue(reader.ReadByte(), out var serverHandler))
+                    serverHandler(client, reader);
                 else
-                    OnMessageReceivedHandler?.Invoke(client, kingBuffer);
+                    OnMessageReceivedHandler?.Invoke(client, reader);
             }
             catch (Exception ex)
             {
@@ -156,25 +146,20 @@ namespace KingNetwork.Server
         /// <summary>
         /// Method responsible for execute the callback of client connected in server.
         /// </summary>
-        /// <param name="socketClient">The socket client object from connected client.</param>
-        private void OnClientConnected(KingBaseClient socketClient)
+        /// <param name="client">The socket client object from connected client.</param>
+        private void OnClientConnected(IClient client)
         {
             try
             {
                 if (_clients.Count <= _maxClientConnections)
                 {
-                    //var client = new TcpClient(GetNewClientIdentifier(), socketClient, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
-                    //_clients.Add(client.Id, client);
-
-                    socketClient.Id = GetNewClientIdentifier();
-                    _clients.Add(socketClient.Id, socketClient);
-
-                    OnClientConnectedHandler?.Invoke(socketClient);
+                    _clients.Add(client.Id, client);
+                    OnClientConnectedHandler?.Invoke(client);
                 }
                 else
                 {
                     //Implements Dispose
-                    //socketClient.Dispose();
+                    //client.Dispose();
 
                     Console.WriteLine($"Max client connections {_maxClientConnections}.");
                 }
@@ -213,7 +198,12 @@ namespace KingNetwork.Server
         {
             try
             {
-                _networkListener = NetworkListenerFactory.CreateForType(listenerType, _port, OnClientConnected, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
+                if (listenerType == NetworkListenerType.TCP)
+                    _networkListener = new TcpNetworkListener(_port, OnClientConnected, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
+                else if (listenerType == NetworkListenerType.UDP)
+                    _networkListener = new UdpNetworkListener(_port, OnClientConnected, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
+                else if (listenerType == NetworkListenerType.WSBinary || listenerType == NetworkListenerType.WSText)
+                    _networkListener = new WebSocketNetworkListener(listenerType, _port, OnClientConnected, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
                 
                 OnServerStartedHandler?.Invoke();
 

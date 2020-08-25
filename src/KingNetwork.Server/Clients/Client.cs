@@ -1,5 +1,6 @@
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using System.Net.Sockets;
 
 namespace KingNetwork.Server
@@ -7,24 +8,9 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for represents the client connection.
     /// </summary>
-    public abstract class KingBaseClient : IClient
+    public abstract class Client : IClient
     {
         #region private members
-
-        /// <summary>
-        /// The tcp client instance from client.
-        /// </summary>
-        protected Socket _socketClient;
-
-        /// <summary>
-        /// The buffer of client connection.
-        /// </summary>
-        protected byte[] _buffer;
-
-        /// <summary>
-        /// The stream of tcp client.
-        /// </summary>
-        protected NetworkStream _stream;
 
         /// <summary>
         /// The callback of message received handler implementation.
@@ -40,19 +26,13 @@ namespace KingNetwork.Server
 
         #region properties
 
-        /// <summary>
-        /// The identifier number of client.
-        /// </summary>
+        /// <inheritdoc/>
         public ushort Id { get; set; }
 
-        /// <summary>
-        /// The ip address of connected client.
-        /// </summary>
+        /// <inheritdoc/>
         public string IpAddress { get; }
 
-        /// <summary>
-		/// The flag of client connection.
-		/// </summary>
+        /// <inheritdoc/>
 		public abstract bool IsConnected { get; }
 
         #endregion
@@ -63,8 +43,8 @@ namespace KingNetwork.Server
         /// The delegate of message received handler from client connection.
         /// </summary>
         /// <param name="client">The client instance.</param>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        public delegate void MessageReceivedHandler(IClient client, KingBufferReader kingBuffer);
+        /// <param name="reader">The king buffer reader of received message.</param>
+        public delegate void MessageReceivedHandler(IClient client, IKingBufferReader reader);
 
         /// <summary>
 		/// The delegate of client disconnected handler connection.
@@ -74,10 +54,7 @@ namespace KingNetwork.Server
 
         #endregion
 
-        /// <summary>
-        /// Method responsible for send message to connected server.
-        /// </summary>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        public abstract void SendMessage(KingBufferWriter kingBuffer);
+        /// <inheritdoc/>
+        public abstract void SendMessage(IKingBufferWriter writer);
     }
 }

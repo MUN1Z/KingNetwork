@@ -1,4 +1,5 @@
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 
 namespace KingNetwork.Server.Interfaces
 {
@@ -25,7 +26,8 @@ namespace KingNetwork.Server.Interfaces
         /// <summary>
         /// Method responsible for send message to specific connected client.
         /// </summary>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        void SendMessage(KingBufferWriter kingBuffer);
+        /// <param name="writer">The king bufferwriter  of received message.</param>
+        void SendMessage(IKingBufferWriter writer);
+
     }
 }

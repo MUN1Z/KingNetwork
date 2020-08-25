@@ -1,14 +1,16 @@
-﻿using KingNetwork.Shared;
+﻿using KingNetwork.Client.Interfaces;
+using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using System;
 using System.Net;
 using System.Net.Sockets;
 
-namespace KingNetwork.Client
+namespace KingNetwork.Client.Listeners
 {
     /// <summary>
     /// This class is responsible for representation of abstract network listener.
     /// </summary>
-    public abstract class NetworkListener : IDisposable
+    public abstract class NetworkListener : INetworkListener, IDisposable
     {
         #region private members 	
 
@@ -45,7 +47,7 @@ namespace KingNetwork.Client
         /// <summary>
 		/// The value for remote end point.
 		/// </summary>
-        public EndPoint _remoteEndPoint;
+        protected EndPoint _remoteEndPoint;
 
         #endregion
 
@@ -54,8 +56,8 @@ namespace KingNetwork.Client
         /// <summary>
         /// The delegate of message received handler from server connection.
         /// </summary>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        public delegate void MessageReceivedHandler(KingBufferReader kingBuffer);
+        /// <param name="reader">The king buffer reader of received message.</param>
+        public delegate void MessageReceivedHandler(IKingBufferReader reader);
 
         /// <summary>
         /// The delegate of client disconnected handler connection.
@@ -88,33 +90,19 @@ namespace KingNetwork.Client
 
         #region public methods implementation
 
-        /// <summary>
-        /// Method responsible for start the client network tcp listener.
-        /// </summary>
-        /// <param name="ip">The ip address of server.</param>
-        /// <param name="port">The port of server.</param>
-        /// <param name="maxMessageBuffer">The max length of message buffer.</param>
+        /// <inheritdoc/>
         public virtual void StartClient(string ip, int port, ushort maxMessageBuffer) { }
 
-        /// <summary>
-        /// Method responsible for send message to connected server.
-        /// </summary>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        public virtual void SendMessage(KingBufferWriter kingBuffer) { }
+        /// <inheritdoc/>
+        public virtual void SendMessage(IKingBufferWriter writer) { }
 
-        /// <summary>
-        /// This method is responsible for call the dispose implementation method.
-        /// </summary>
+        /// <inheritdoc/>
         public void Dispose() => Dispose(true);
 
-        /// <summary>
-        /// This method is responsible for verify if listener has connected.
-        /// </summary>
+        /// <inheritdoc/>
         public bool Connected() => _listener.Connected;
 
-        /// <summary>
-        /// Method responsible for stop the tcp network listener.
-        /// </summary>
+        /// <inheritdoc/>
         public void Stop()
         {
             try

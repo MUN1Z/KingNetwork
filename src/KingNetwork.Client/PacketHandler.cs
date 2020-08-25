@@ -1,17 +1,12 @@
 using KingNetwork.Client.Interfaces;
-using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 
 namespace KingNetwork.Client
 {
-    /// <summary>
-    /// This class is responsible for representation of abstract client packet handler.
-    /// </summary>
+    /// <inheritdoc/>
     public abstract class PacketHandler : IPacketHandler
     {
-        /// <summary>
-        /// This method is responsible for receive the message from client packet handler.
-        /// </summary>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        public abstract void HandleMessageData(KingBufferReader kingBuffer);
+        /// <inheritdoc/>
+        public abstract void HandleMessageData(IKingBufferReader reader);
     }
 }

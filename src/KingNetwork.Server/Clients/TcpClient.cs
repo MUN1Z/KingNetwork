@@ -1,4 +1,5 @@
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using System;
 using System.Net.Sockets;
 
@@ -7,10 +8,30 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for represents the tcp client connection.
     /// </summary>
-    public class KingTcpClient : KingBaseClient
+    public class TcpClient : Client
     {
+        #region private members
+
+        /// <summary>
+        /// The tcp client instance from client.
+        /// </summary>
+        protected Socket _socketClient;
+
+        /// <summary>
+        /// The stream of tcp client.
+        /// </summary>
+        protected NetworkStream _stream;
+
+        /// <summary>
+        /// The buffer of client connection.
+        /// </summary>
+        protected byte[] _buffer;
+
+        #endregion
+
         #region properties
 
+        /// <inheritdoc/>
         public override bool IsConnected => _socketClient.Connected;
 
         #endregion
@@ -18,14 +39,14 @@ namespace KingNetwork.Server
         #region constructors
 
         /// <summary>
-        /// Creates a new instance of a <see cref="KingTcpClient"/>.
+        /// Creates a new instance of a <see cref="TcpClient"/>.
         /// </summary>
         /// <param name="id">The identifier number of connected client.</param>
         /// <param name="socketClient">The tcp client from connected client.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer.</param>
-        public KingTcpClient(ushort id, Socket socketClient, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
+        public TcpClient(ushort id, Socket socketClient, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
         {
             try
             {
@@ -52,17 +73,14 @@ namespace KingNetwork.Server
 
         #region public methods implementation
 
-        /// <summary>
-        /// Method responsible for send message to client.
-        /// </summary>
-        /// <param name="kingBuffer">The king buffer of received message.</param>
-        public override void SendMessage(KingBufferWriter kingBuffer)
+        /// <inheritdoc/>
+        public override void SendMessage(IKingBufferWriter writer)
         {
             try
             {
                 if (IsConnected)
                 {
-                    _stream.Write(kingBuffer.BufferData, 0, kingBuffer.Length);
+                    _stream.Write(writer.BufferData, 0, writer.Length);
                     _stream.Flush();
                 }
             }

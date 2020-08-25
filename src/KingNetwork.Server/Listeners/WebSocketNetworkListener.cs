@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using static KingNetwork.Server.KingBaseClient;
+using static KingNetwork.Server.Client;
 
 namespace KingNetwork.Server
 {
@@ -80,7 +80,8 @@ namespace KingNetwork.Server
                 {
                     var webSocket = (await listenerContext.AcceptWebSocketAsync(null)).WebSocket;
 
-                    var client = new KingWebSocketClient(_listenerType, webSocket, listenerContext, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+                    var clientId = GetNewClientIdentifier();
+                    var client = new WSClient(clientId, _listenerType, webSocket, listenerContext, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
                     _clientConnectedHandler(client);
                 }
                 else
