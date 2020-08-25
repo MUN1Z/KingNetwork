@@ -1,7 +1,7 @@
 using System;
 using KingNetwork.Server;
 using KingNetwork.Server.Interfaces;
-using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 
 namespace KingNetwork.HandlerExample.Server.PacketHandlers
 {
@@ -10,12 +10,8 @@ namespace KingNetwork.HandlerExample.Server.PacketHandlers
     /// </summary>
     public class MyPacketHandlerOne : PacketHandler
     {
-        /// <summary>
-        /// This method is responsible for receive the message from server packet handler.
-        /// </summary>
-        /// <param name="client">The connected client.</param>
-        /// <param name="kingBuffer">The king buffer received from message.</param>
-        public override void HandleMessageData(IClient client, KingBufferReader kingBuffer)
+        /// <inheritdoc/>
+        public override void HandleMessageData(IClient client, IKingBufferReader reader)
         {
             Console.WriteLine($"OnMessageReceived PacketOne from {client.Id}");
         }

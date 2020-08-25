@@ -35,16 +35,16 @@ server.MessageReceivedHandler = OnMessageReceived;
 server.Start();
 
 // implements the callback for MessageReceivedHandler
-private void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
+private void OnMessageReceived(IClient client, IKingBufferReader reader)
 {
-    Console.WriteLine($"Received data from client {client.Id}, data length {kingBuffer.Length()}");
+    Console.WriteLine($"Received data from client {client.Id}, data length {reader.Length()}");
 }
 
 // send a message to all clients
-using(var kingBuffer = KingBufferWriter.Create())
+using(var writer = KingBufferWriter.Create())
 {
-    kingBuffer.Write("Test message!");
-    server.SendMessageToAll(kingBuffer);
+    writer.Write("Test message!");
+    server.SendMessageToAll(writer);
 }
 
 // stop the server when you don't need it anymore
@@ -59,16 +59,16 @@ client.MessageReceivedHandler = OnMessageReceived;
 client.Connect("127.0.0.1", 7171);
 
 // implements the callback for MessageReceivedHandler
-private void OnMessageReceived(KingBufferReader kingBuffer)
+private void OnMessageReceived(IKingBufferReader reader)
 {
-    Console.WriteLine($"Received data from server, data length {kingBuffer.Length()}");
+    Console.WriteLine($"Received data from server, data length {reader.Length()}");
 }
 
 /// send a message to server
-using(var kingBuffer = KingBufferWriter.Create()
+using(var writer = KingBufferWriter.Create()
 {
-    kingBuffer.Write("Test message!");
-    client.SendMessage(kingBuffer);
+    writer.Write("Test message!");
+    client.SendMessage(writer);
 }
 
 // disconnect from the server when we are done
@@ -83,16 +83,16 @@ server.MessageReceivedHandler = OnMessageReceived;
 server.Start(NetworkListenerType.UDP);
 
 // implements the callback for MessageReceivedHandler
-private void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
+private void OnMessageReceived(IClient client, IKingBufferReader reader)
 {
-    Console.WriteLine($"Received data from client {client.Id}, data length {kingBuffer.Length()}");
+    Console.WriteLine($"Received data from client {client.Id}, data length {reader.Length()}");
 }
 
 // send a message to all clients
-using(var kingBuffer = KingBufferWriter.Create())
+using(var writer = KingBufferWriter.Create())
 {
-    kingBuffer.Write("Test message!");
-    server.SendMessageToAll(kingBuffer);
+    writer.Write("Test message!");
+    server.SendMessageToAll(writer);
 }
 
 // stop the server when you don't need it anymore
@@ -107,16 +107,16 @@ client.MessageReceivedHandler = OnMessageReceived;
 client.Connect("127.0.0.1", 7171, NetworkListenerType.UDP);
 
 // implements the callback for MessageReceivedHandler
-private void OnMessageReceived(KingBufferReader kingBuffer)
+private void OnMessageReceived(IKingBufferReader reader)
 {
-    Console.WriteLine($"Received data from server, data length {kingBuffer.Length()}");
+    Console.WriteLine($"Received data from server, data length {reader.Length()}");
 }
 
 /// send a message to server
-using(var kingBuffer = KingBufferWriter.Create()
+using(var writer = KingBufferWriter.Create()
 {
-    kingBuffer.Write("Test message!");
-    client.SendMessage(kingBuffer);
+    writer.Write("Test message!");
+    client.SendMessage(writer);
 }
 
 // disconnect from the server when we are done
@@ -131,16 +131,16 @@ server.MessageReceivedHandler = OnMessageReceived;
 server.Start(NetworkListenerType.WSText); // Or NetworkListenerType.WSBinary
 
 // implements the callback for MessageReceivedHandler
-private void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
+private void OnMessageReceived(IClient client, IKingBufferReader reader)
 {
-    Console.WriteLine($"Received data from client {client.Id}, data length {kingBuffer.Length()}");
+    Console.WriteLine($"Received data from client {client.Id}, data length {reader.Length()}");
 }
 
 // send a message to all clients
-using(var kingBuffer = KingBufferWriter.Create())
+using(var writer = KingBufferWriter.Create())
 {
-    kingBuffer.Write("Test message!");
-    server.SendMessageToAll(kingBuffer);
+    writer.Write("Test message!");
+    server.SendMessageToAll(writer);
 }
 
 // stop the server when you don't need it anymore
@@ -155,16 +155,16 @@ client.MessageReceivedHandler = OnMessageReceived;
 client.Connect("127.0.0.1", 7171, NetworkListenerType.WSText); // Or NetworkListenerType.WSBinary
 
 // implements the callback for MessageReceivedHandler
-private void OnMessageReceived(KingBufferReader kingBuffer)
+private void OnMessageReceived(IKingBufferReader reader)
 {
-    Console.WriteLine($"Received data from server, data length {kingBuffer.Length()}");
+    Console.WriteLine($"Received data from server, data length {reader.Length()}");
 }
 
 /// send a message to server
-using(var kingBuffer = KingBufferWriter.Create()
+using(var writer = KingBufferWriter.Create()
 {
-    kingBuffer.Write("Test message!");
-    client.SendMessage(kingBuffer);
+    writer.Write("Test message!");
+    client.SendMessage(writer);
 }
 
 // disconnect from the server when we are done

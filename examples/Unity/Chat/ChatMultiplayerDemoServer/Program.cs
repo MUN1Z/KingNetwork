@@ -2,6 +2,7 @@
 using KingNetwork.Server;
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using System;
 
 namespace ChatMultiplayerDemoServer
@@ -56,15 +57,15 @@ namespace ChatMultiplayerDemoServer
         /// Method responsible for execute the callback of on message received handler.
         /// </summary>
         /// <param name="client">The client instance.</param>
-        /// <param name="kingBuffer">The king buffer from received message.</param>
-        private void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
+        /// <param name="reader">The king buffer reader from received message.</param>
+        private void OnMessageReceived(IClient client, IKingBufferReader reader)
         {
             try
             {
-                switch (kingBuffer.ReadMessagePacket<MyPackets>())
+                switch (reader.ReadMessagePacket<MyPackets>())
                 {
                     case MyPackets.Message:
-                        Console.WriteLine($"Received message: {kingBuffer.ReadString()}.");
+                        Console.WriteLine($"Received message: {reader.ReadString()}.");
                         _server.SendMessageToAllMinus(client, KingBufferWriter.Create());
                         break;
                 }

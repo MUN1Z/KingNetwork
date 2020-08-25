@@ -1,6 +1,7 @@
 ﻿using KingNetwork.Server;
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using System;
 using System.Diagnostics;
 using System.Text;
@@ -45,7 +46,7 @@ namespace KingNetwork.Benchmarks.Load
         /// </summary>
         public static void StartServer()
         {
-            _networkListenerType = NetworkListenerType.WS;
+            _networkListenerType = NetworkListenerType.WSText;
             _server = new KingServer();
             _server.OnMessageReceivedHandler = OnMessageReceived;
             
@@ -77,28 +78,23 @@ namespace KingNetwork.Benchmarks.Load
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer from received message.</param>
-        private static void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
+        private static void OnMessageReceived(IClient client, IKingBufferReader reader)
         {
             try
             {
-                if (_networkListenerType == NetworkListenerType.WS)
+                if (_networkListenerType == NetworkListenerType.WSText)
                 {
-                    Console.WriteLine($"OnMessageReceived: ");
-
-                    var bytes = kingBuffer.ReadAllBytes();
-
-                    string text = Encoding.UTF8.GetString(bytes);
-                    Console.WriteLine(text);
+                    Console.WriteLine($"OnMessageReceived: {reader.ReadString()}");
                 }
                 else
                 {
                     var buffer = KingBufferWriter.Create();
-                    buffer.Write(kingBuffer.ReadString());
+                    buffer.Write(reader.ReadString());
 
                     _server.SendMessage(client, buffer);
 
                     _messagesReceived++;
-                    _dataReceived += kingBuffer.Length;
+                    _dataReceived += reader.Length;
                 }
             }
             catch (Exception ex)

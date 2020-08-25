@@ -2,6 +2,7 @@
 using KingNetwork.Server;
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -123,18 +124,18 @@ namespace CubesMultiplayerDemoServer
         /// Method responsible for execute the callback of on message received handler.
         /// </summary>
         /// <param name="client">The client instance.</param>
-        /// <param name="kingBuffer">The king buffer from received message.</param>
-        private void OnMessageReceived(IClient client, KingBufferReader kingBuffer)
+        /// <param name="reader">The king buffer reader from received message.</param>
+        private void OnMessageReceived(IClient client, IKingBufferReader reader)
         {
             try
             {
-                switch (kingBuffer.ReadMessagePacket<MyPackets>())
+                switch (reader.ReadMessagePacket<MyPackets>())
                 {
                     case MyPackets.PlayerPosition:
 
-                        float x = kingBuffer.ReadInt64();
-                        float y = kingBuffer.ReadInt64();
-                        float z = kingBuffer.ReadInt64();
+                        float x = reader.ReadInt64();
+                        float y = reader.ReadInt64();
+                        float z = reader.ReadInt64();
 
                         Console.WriteLine($"Got position packet : {x} | {y} | {z}");
 
