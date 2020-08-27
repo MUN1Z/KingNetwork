@@ -51,6 +51,13 @@ namespace KingNetwork.Client.Listeners
 
         #endregion
 
+        #region Properties
+
+        /// <inheritdoc/>
+		public abstract bool IsConnected { get; }
+
+        #endregion
+
         #region delegates 
 
         /// <summary>
@@ -98,9 +105,6 @@ namespace KingNetwork.Client.Listeners
 
         /// <inheritdoc/>
         public void Dispose() => Dispose(true);
-
-        /// <inheritdoc/>
-        public bool Connected() => _listener.Connected;
 
         /// <inheritdoc/>
         public void Stop()

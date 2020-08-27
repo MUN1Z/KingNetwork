@@ -22,7 +22,7 @@ namespace KingNetwork.SimpleExample.Server
         {
             try
             {
-                _networkListenerType = NetworkListenerType.UDP;
+                _networkListenerType = NetworkListenerType.TCP;
 
                 var server = new KingServer();
                 server.OnMessageReceivedHandler = OnMessageReceived;

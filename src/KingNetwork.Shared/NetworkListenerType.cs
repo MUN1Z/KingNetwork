@@ -10,10 +10,4 @@
         WSBinary,
         WSText
     }
-
-    public enum IPVersion
-    {
-        IPv4,
-        IPv6
-    }
 }

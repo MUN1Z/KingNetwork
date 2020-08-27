@@ -22,11 +22,16 @@ namespace KingNetwork.SimpleExample.Client
         {
             try
             {
-                _networkListenerType = NetworkListenerType.UDP;
+                _networkListenerType = NetworkListenerType.TCP;
 
                 var client = new KingClient();
                 client.MessageReceivedHandler = OnMessageReceived;
                 client.Connect("127.0.0.1", 7171, _networkListenerType);
+
+                if (client.HasConnected)
+                {
+                    Console.WriteLine("client.HasConnected");
+                }
 
                 new Thread(() =>
                 {

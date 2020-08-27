@@ -133,9 +133,9 @@ namespace CubesMultiplayerDemoServer
                 {
                     case MyPackets.PlayerPosition:
 
-                        float x = reader.ReadInt64();
-                        float y = reader.ReadInt64();
-                        float z = reader.ReadInt64();
+                        float x = reader.ReadSingle();
+                        float y = reader.ReadSingle();
+                        float z = reader.ReadSingle();
 
                         Console.WriteLine($"Got position packet : {x} | {y} | {z}");
 

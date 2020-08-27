@@ -37,7 +37,7 @@ namespace KingNetwork.Client
         /// <summary>
         /// The flag of client connection.
         /// </summary>
-        public bool HasConnected => _networkListener.Connected();
+        public bool HasConnected => _networkListener.IsConnected;
 
         /// <summary>
         /// The callback of message received handler implementation.
@@ -128,15 +128,15 @@ namespace KingNetwork.Client
         {
             try
             {
+                if (listenerType == NetworkListenerType.TCP)
+                    _networkListener = new TcpNetworkListener(OnMessageReceived, OnClientDisconnected);
+                else if (listenerType == NetworkListenerType.UDP)
+                    _networkListener = new UdpNetworkListener(OnMessageReceived, OnClientDisconnected);
+                else if (listenerType == NetworkListenerType.WSBinary || listenerType == NetworkListenerType.WSText)
+                    _networkListener = new WSNetworkListener(listenerType, OnMessageReceived, OnClientDisconnected);
+
                 _clientThread = new Thread(() =>
                 {
-                    if (listenerType == NetworkListenerType.TCP)
-                        _networkListener = new TcpNetworkListener(OnMessageReceived, OnClientDisconnected);
-                    else if (listenerType == NetworkListenerType.UDP)
-                        _networkListener = new UdpNetworkListener(OnMessageReceived, OnClientDisconnected);
-                    else if (listenerType == NetworkListenerType.WSBinary || listenerType == NetworkListenerType.WSText)
-                        _networkListener =  new WSNetworkListener(listenerType, OnMessageReceived, OnClientDisconnected);
-
                     _networkListener.StartClient(ip, port, maxMessageBuffer);
                 });
 

@@ -36,6 +36,13 @@ namespace KingNetwork.Client.Listeners
 
         #endregion
 
+        #region properties
+
+        /// <inheritdoc/>
+        public override bool IsConnected => _clientWebSocket != null ? _clientWebSocket.State == WebSocketState.Open : false;
+
+        #endregion
+
         #region constructors
 
         /// <summary>
@@ -76,7 +83,7 @@ namespace KingNetwork.Client.Listeners
         {
             try
             {
-                if (_clientWebSocket != null && _clientWebSocket.State == WebSocketState.Open)
+                if (IsConnected)
                 {
                     if (_listenerType == NetworkListenerType.WSText)
                     {
@@ -111,7 +118,7 @@ namespace KingNetwork.Client.Listeners
                 if (_clientWebSocket.State == WebSocketState.Open) return;
                 await _clientWebSocket.ConnectAsync(uri, CancellationToken.None);
 
-                while (_clientWebSocket.State == WebSocketState.Open)
+                while (IsConnected)
                 {
                     var ret = await _clientWebSocket.ReceiveAsync(_buff, CancellationToken.None);
 
@@ -135,7 +142,7 @@ namespace KingNetwork.Client.Listeners
             }
             catch (Exception ex)
             {
-                if (_clientWebSocket.State != WebSocketState.Open)
+                if (IsConnected)
                     _clientDisconnectedHandler();
                 else
                     Console.WriteLine($"Error: {ex.Message}.");

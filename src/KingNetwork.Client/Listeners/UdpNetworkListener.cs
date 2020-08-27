@@ -11,6 +11,13 @@ namespace KingNetwork.Client.Listeners
     /// </summary>
     public class UdpNetworkListener : NetworkListener
     {
+        #region properties
+
+        /// <inheritdoc/>
+        public override bool IsConnected => _listener != null ? _listener.Connected : false;
+
+        #endregion
+
         #region constructors
 
         /// <summary>

@@ -1,7 +1,9 @@
 ﻿using CubesMultiplayerDemoShared;
 using KingNetwork.Client;
 using KingNetwork.Shared;
+using KingNetwork.Shared.Interfaces;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class Network : MonoBehaviour
@@ -32,25 +34,27 @@ public class Network : MonoBehaviour
         client.MessageReceivedHandler = OnMessageReceived;
         client.Connect(ip);
 
+        Thread.Sleep(15); // Delay for socket connection.
+
         if (client.HasConnected)
             Debug.Log("Client  started!");
         else
             Debug.LogError("Could not start client!");
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (client != null && client.HasConnected)
         {
             lastDistance = Vector3.Distance(lastNetworkedPosition, player.transform.position);
             if (lastDistance >= MIN_DISTANCE_TO_SEND_POSITION)
             {
-                using (var kingBuffer = new KingBuffer())
+                using (var kingBuffer = KingBufferWriter.Create())
                 {
-                    kingBuffer.WriteMessagePacket(MyPackets.PlayerPosition);
-                    kingBuffer.WriteFloat(player.transform.position.x);
-                    kingBuffer.WriteFloat(player.transform.position.y);
-                    kingBuffer.WriteFloat(player.transform.position.z);
+                    kingBuffer.Write(MyPackets.PlayerPosition);
+                    kingBuffer.Write(player.transform.position.x);
+                    kingBuffer.Write(player.transform.position.y);
+                    kingBuffer.Write(player.transform.position.z);
 
                     client.SendMessage(kingBuffer);
 
@@ -74,26 +78,26 @@ public class Network : MonoBehaviour
         }
     }
 
-    public void OnMessageReceived(IKingBuffer kingBuffer)
+    public void OnMessageReceived(IKingBufferReader reader)
     {
-        switch (kingBuffer.ReadMessagePacket<MyPackets>())
+        switch (reader.ReadMessagePacket<MyPackets>())
         {
             case MyPackets.PlayerPositionsArray:
 
-                var lengthArr = kingBuffer.ReadInteger();
+                var lengthArr = reader.ReadInt32();
 
                 Debug.Log($"Got positions array data num : {lengthArr}");
 
                 for (int i = 0; i < lengthArr; i++)
                 {
-                    var playerid = kingBuffer.ReadInteger();
+                    var playerid = reader.ReadUInt16();
 
                     if (!netPlayersDictionary.ContainsKey(playerid))
                         netPlayersDictionary.Add(playerid, new NetPlayer());
 
-                    netPlayersDictionary[playerid].X = kingBuffer.ReadFloat();
-                    netPlayersDictionary[playerid].Y = kingBuffer.ReadFloat();
-                    netPlayersDictionary[playerid].Z = kingBuffer.ReadFloat();
+                    netPlayersDictionary[playerid].X = reader.ReadSingle();
+                    netPlayersDictionary[playerid].Y = reader.ReadSingle();
+                    netPlayersDictionary[playerid].Z = reader.ReadSingle();
                 }
 
                 break;

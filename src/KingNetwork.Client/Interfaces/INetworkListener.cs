@@ -1,4 +1,3 @@
-using KingNetwork.Shared;
 using KingNetwork.Shared.Interfaces;
 
 namespace KingNetwork.Client.Interfaces
@@ -8,6 +7,17 @@ namespace KingNetwork.Client.Interfaces
     /// </summary>
     internal interface INetworkListener
     {
+        #region properties
+
+        /// <summary>
+        /// This property is responsible for returns if listener has connected.
+        /// </summary>
+        bool IsConnected { get; }
+
+        #endregion
+
+        #region methods
+
         /// <summary>
         /// Method responsible for start the client network tcp listener.
         /// </summary>
@@ -28,13 +38,10 @@ namespace KingNetwork.Client.Interfaces
         void Dispose();
 
         /// <summary>
-        /// This method is responsible for verify if listener has connected.
-        /// </summary>
-        bool Connected();
-
-        /// <summary>
         /// Method responsible for stop the tcp network listener.
         /// </summary>
         void Stop();
+
+        #endregion
     }
 }
