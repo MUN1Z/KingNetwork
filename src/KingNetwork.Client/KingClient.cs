@@ -129,7 +129,8 @@ namespace KingNetwork.Client
         /// <param name="port">The port number from server, the default value us 7171</param>
         /// <param name="listenerType">The listener type to creation of listener, the default value is NetworkListenerType.TCP.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer, the default value is 4096.</param>
-        public void Connect(string ip, ushort port = 7171, NetworkListenerType listenerType = NetworkListenerType.TCP, ushort maxMessageBuffer = 4096)
+        /// <returns>The boolean value of client connection.</returns>
+        public bool Connect(string ip, ushort port = 7171, NetworkListenerType listenerType = NetworkListenerType.TCP, ushort maxMessageBuffer = 4096)
         {
             try
             {
@@ -147,11 +148,15 @@ namespace KingNetwork.Client
 
                 _clientThread.IsBackground = true;
                 _clientThread.Start();
+
+                Thread.Sleep(15); // Delay for socket connection.
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}.");
             }
+
+            return HasConnected;
         }
 
         /// <summary>

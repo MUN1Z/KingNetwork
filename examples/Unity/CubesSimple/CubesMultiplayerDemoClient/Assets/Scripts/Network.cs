@@ -33,11 +33,8 @@ public class Network : MonoBehaviour
         client = new KingClient();
         client.MessageReceivedHandler = OnMessageReceived;
         client.DisconnectedHandler = OnDisconnected;
-        client.Connect(ip);
 
-        Thread.Sleep(15); // Delay for socket connection.
-
-        if (client.HasConnected)
+        if (client.Connect(ip))
             Debug.Log("Client  started!");
         else
             Debug.LogError("Could not start client!");
