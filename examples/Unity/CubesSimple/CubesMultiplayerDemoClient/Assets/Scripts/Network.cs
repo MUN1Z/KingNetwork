@@ -32,6 +32,7 @@ public class Network : MonoBehaviour
 
         client = new KingClient();
         client.MessageReceivedHandler = OnMessageReceived;
+        client.DisconnectedHandler = OnDisconnected;
         client.Connect(ip);
 
         Thread.Sleep(15); // Delay for socket connection.
@@ -77,6 +78,8 @@ public class Network : MonoBehaviour
             }
         }
     }
+
+    public void OnDisconnected() =>  Debug.Log($"Client disconnected from server.");
 
     public void OnMessageReceived(IKingBufferReader reader)
     {

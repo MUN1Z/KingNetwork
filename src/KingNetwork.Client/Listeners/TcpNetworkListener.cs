@@ -24,9 +24,9 @@ namespace KingNetwork.Client.Listeners
         /// Creates a new instance of a <see cref="TcpNetworkListener"/>.
         /// </summary>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
-        /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
-        public TcpNetworkListener(MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler)
-            : base (messageReceivedHandler, clientDisconnectedHandler) {  }
+        /// <param name="disconnectedHandler">The callback of client disconnected handler implementation.</param>
+        public TcpNetworkListener(MessageReceivedHandler messageReceivedHandler, DisconnectedHandler disconnectedHandler)
+            : base (messageReceivedHandler, disconnectedHandler) {  }
 
         #endregion
 
@@ -101,12 +101,12 @@ namespace KingNetwork.Client.Listeners
                 }
 
                 _stream.Close();
-                _clientDisconnectedHandler();
+                _disconnectedHandler();
             }
             catch (Exception ex)
             {
                 _stream.Close();
-                _clientDisconnectedHandler();
+                _disconnectedHandler();
                 Console.WriteLine($"Error: {ex.Message}.");
             }
         }

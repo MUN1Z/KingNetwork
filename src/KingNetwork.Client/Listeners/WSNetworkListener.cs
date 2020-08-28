@@ -50,9 +50,9 @@ namespace KingNetwork.Client.Listeners
         /// </summary>
         /// <param name="listenerType">The listener type of client connection.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
-        /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
-        public WSNetworkListener(NetworkListenerType listenerType, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler)
-            : base(messageReceivedHandler, clientDisconnectedHandler)
+        /// <param name="disconnectedHandler">The callback of client disconnected handler implementation.</param>
+        public WSNetworkListener(NetworkListenerType listenerType, MessageReceivedHandler messageReceivedHandler, DisconnectedHandler disconnectedHandler)
+            : base(messageReceivedHandler, disconnectedHandler)
         {
             _listenerType = listenerType;
         }
@@ -143,7 +143,7 @@ namespace KingNetwork.Client.Listeners
             catch (Exception ex)
             {
                 if (IsConnected)
-                    _clientDisconnectedHandler();
+                    _disconnectedHandler();
                 else
                     Console.WriteLine($"Error: {ex.Message}.");
             }

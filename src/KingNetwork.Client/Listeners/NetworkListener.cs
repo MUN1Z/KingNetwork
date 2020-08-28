@@ -22,7 +22,7 @@ namespace KingNetwork.Client.Listeners
         /// <summary>
         /// The callback of client disconnected handler implementation.
         /// </summary>
-        protected readonly ClientDisconnectedHandler _clientDisconnectedHandler;
+        protected readonly DisconnectedHandler _disconnectedHandler;
 
         /// <summary>
         /// The buffer of client connection.
@@ -69,7 +69,7 @@ namespace KingNetwork.Client.Listeners
         /// <summary>
         /// The delegate of client disconnected handler connection.
         /// </summary>
-        public delegate void ClientDisconnectedHandler();
+        public delegate void DisconnectedHandler();
 
         #endregion
 
@@ -80,12 +80,12 @@ namespace KingNetwork.Client.Listeners
         /// </summary>
         /// <param name="port">The port of server.</param>
         /// <param name="clientConnectedHandler">The client connected handler callback implementation.</param>
-        public NetworkListener(MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler)
+        public NetworkListener(MessageReceivedHandler messageReceivedHandler, DisconnectedHandler clientDisconnectedHandler)
         {
             try
             {
                 _messageReceivedHandler = messageReceivedHandler;
-                _clientDisconnectedHandler = clientDisconnectedHandler;
+                _disconnectedHandler = clientDisconnectedHandler;
             }
             catch (Exception ex)
             {

@@ -44,6 +44,11 @@ namespace KingNetwork.Client
         /// </summary>
         public NetworkListener.MessageReceivedHandler MessageReceivedHandler { get; set; }
 
+        /// <summary>
+        /// The callback of client disconnected handler implementation.
+        /// </summary>
+        public NetworkListener.DisconnectedHandler DisconnectedHandler { get; set; }
+
         #endregion
 
         #region delegates 	
@@ -129,11 +134,11 @@ namespace KingNetwork.Client
             try
             {
                 if (listenerType == NetworkListenerType.TCP)
-                    _networkListener = new TcpNetworkListener(OnMessageReceived, OnClientDisconnected);
+                    _networkListener = new TcpNetworkListener(OnMessageReceived, OnDisconnected);
                 else if (listenerType == NetworkListenerType.UDP)
-                    _networkListener = new UdpNetworkListener(OnMessageReceived, OnClientDisconnected);
+                    _networkListener = new UdpNetworkListener(OnMessageReceived, OnDisconnected);
                 else if (listenerType == NetworkListenerType.WSBinary || listenerType == NetworkListenerType.WSText)
-                    _networkListener = new WSNetworkListener(listenerType, OnMessageReceived, OnClientDisconnected);
+                    _networkListener = new WSNetworkListener(listenerType, OnMessageReceived, OnDisconnected);
 
                 _clientThread = new Thread(() =>
                 {
@@ -206,11 +211,12 @@ namespace KingNetwork.Client
         /// <summary>
         /// Method responsible for execute the callback of client disconnected from server.
         /// </summary>
-        private void OnClientDisconnected()
+        private void OnDisconnected()
         {
             try
             {
                 _networkListener.Stop();
+                DisconnectedHandler?.Invoke();
             }
             catch (Exception ex)
             {
