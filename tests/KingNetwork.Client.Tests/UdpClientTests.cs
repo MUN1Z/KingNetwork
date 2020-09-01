@@ -8,8 +8,8 @@ using Xunit.Extensions.Ordering;
 
 namespace KingNetwork.Client.Tests
 {
-	[Order(1)]
-	public class TcpClientTests
+	[Order(2)]
+	public class UdpClientTests
 	{
 
 		#region private members
@@ -22,11 +22,11 @@ namespace KingNetwork.Client.Tests
 
 		#region constructors
 
-		public TcpClientTests()
+		public UdpClientTests()
 		{
 			_ip = "127.0.0.1";
 
-			_kingServer = ServerManager.GetInstance(NetworkListenerType.TCP).KingServer;
+			_kingServer = ServerManager.GetInstance(NetworkListenerType.UDP).KingServer;
 			_kingClient = ClientManager.GetInstance().KingClient;
 		}
 
@@ -35,14 +35,14 @@ namespace KingNetwork.Client.Tests
 		#region tests implementations
 
 		[Fact, Order(1)]
-		public void Verify_KingTCPClientConnection_ShouldReturnTrue()
+		public void Verify_KingUDPClientConnection_ShouldReturnTrue()
 		{
-			var connectionResult = _kingClient.Connect(_ip);
+			var connectionResult = _kingClient.Connect(_ip, listenerType: NetworkListenerType.UDP);
 			Assert.True(connectionResult);
 		}
 
 		[Fact, Order(2)]
-		public void Verify_KingTCPClientMessageReceivedHandler_ShouldHasReceivedMessage()
+		public void Verify_KingUDPClientMessageReceivedHandler_ShouldHasReceivedMessage()
 		{
 			bool hasMessageReceived = false;
 
@@ -62,7 +62,7 @@ namespace KingNetwork.Client.Tests
 		}
 
 		[Fact, Order(3)]
-		public void Verify_KingTCPClientDisconnection_ShouldHasConnectedFalse()
+		public void Verify_KingUDPClientDisconnection_ShouldHasConnectedFalse()
 		{
 			_kingClient.Disconnect();
 

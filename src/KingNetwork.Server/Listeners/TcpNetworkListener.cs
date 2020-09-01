@@ -53,7 +53,7 @@ namespace KingNetwork.Server
             try
             {
                 var clientId = GetNewClientIdentifier();
-                var client = new TcpClient(clientId, _listener.EndAccept(asyncResult), _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+                var client = new TCPClient(clientId, _listener.EndAccept(asyncResult), _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
                 _clientConnectedHandler(client);
             }
             catch(Exception ex)

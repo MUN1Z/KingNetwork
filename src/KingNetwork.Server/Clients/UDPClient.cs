@@ -14,7 +14,7 @@ namespace KingNetwork.Server
         #region properties
 
         /// <inheritdoc/>
-        public override bool IsConnected => _udpListener.Socket.Connected;
+        public override bool IsConnected => _udpListener != null;
 
         #endregion
 
@@ -35,7 +35,7 @@ namespace KingNetwork.Server
         #region constructor
 
         /// <summary>
-        /// Creates a new instance of a <see cref="TcpClient"/>.
+        /// Creates a new instance of a <see cref="UDPClient"/>.
         /// </summary>
         /// <param name="id">The identifier number of connected client.</param>
         /// <param name="socketClient">The tcp client from connected client.</param>
