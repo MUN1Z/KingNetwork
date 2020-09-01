@@ -103,6 +103,22 @@ namespace KingNetwork.Client.Listeners
             }
         }
 
+        /// <inheritdoc/>
+        public override void Stop()
+        {
+            try
+            {
+                _clientWebSocket.Abort();
+                _clientWebSocket.Dispose();
+
+                base.Stop();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
         #endregion
 
         #region private methods implementation

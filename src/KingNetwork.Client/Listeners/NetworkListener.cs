@@ -107,7 +107,7 @@ namespace KingNetwork.Client.Listeners
         public void Dispose() => Dispose(true);
 
         /// <inheritdoc/>
-        public void Stop()
+        public virtual void Stop()
         {
             try
             {

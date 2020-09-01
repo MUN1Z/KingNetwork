@@ -22,7 +22,7 @@ namespace KingNetwork.SimpleExample.Client
         {
             try
             {
-                _networkListenerType = NetworkListenerType.TCP;
+                _networkListenerType = NetworkListenerType.WSText;
 
                 var client = new KingClient();
                 client.MessageReceivedHandler = OnMessageReceived;

@@ -22,10 +22,11 @@ namespace KingNetwork.SimpleExample.Server
         {
             try
             {
-                _networkListenerType = NetworkListenerType.TCP;
+                _networkListenerType = NetworkListenerType.WSText;
 
                 var server = new KingServer();
                 server.OnMessageReceivedHandler = OnMessageReceived;
+                server.OnClientConnectedHandler = OnClientConnectedHandler;
                 server.Start(_networkListenerType);
 
                 Console.ReadLine();
@@ -76,6 +77,24 @@ namespace KingNetwork.SimpleExample.Server
                             break;
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        private static void OnClientConnectedHandler(IClient client)
+        {
+            try
+            {
+                Console.WriteLine($"OnClientConnectedHandler from {client.Id}");
+
+                var writer = KingBufferWriter.Create();
+
+                writer.Write("Testinho2");
+
+                client.SendMessage(writer);
             }
             catch (Exception ex)
             {
