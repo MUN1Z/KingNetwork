@@ -1,3 +1,4 @@
+using KingNetwork.Client.Tests.Managers;
 using KingNetwork.Server;
 using KingNetwork.Shared;
 using KingNetwork.Shared.Interfaces;
@@ -7,54 +8,8 @@ using Xunit.Extensions.Ordering;
 
 namespace KingNetwork.Client.Tests
 {
-	public class ServerManager
-	{
-		private static ServerManager _instance;
-		private static Thread _serverTread;
-
-		public ServerManager()
-		{
-			_serverTread = new Thread(() =>
-			{
-				KingServer = new KingServer();
-				KingServer.Start();
-			});
-
-			_serverTread.Start();
-		}
-
-		public static ServerManager GetInstance()
-		{
-			if (_instance == null)
-				_instance = new ServerManager();
-
-			return _instance;
-		}
-
-		public KingServer KingServer { get; set; }
-	}
-
-	public class ClientManager
-	{
-		private static ClientManager _instance;
-
-		public ClientManager()
-		{
-			KingClient = new KingClient();
-		}
-
-		public static ClientManager GetInstance()
-		{
-			if (_instance == null)
-				_instance = new ClientManager();
-
-			return _instance;
-		}
-
-		public KingClient KingClient { get; set; }
-	}
-
-	public class TestClientExample
+	[Order(1)]
+	public class TcpClientTests
 	{
 
 		#region private members
@@ -65,19 +20,24 @@ namespace KingNetwork.Client.Tests
 
 		#endregion
 
-		public TestClientExample()
+		#region constructors
+
+		public TcpClientTests()
 		{
 			_ip = "127.0.0.1";
 
-			_kingServer = ServerManager.GetInstance().KingServer;
+			_kingServer = ServerManager.GetInstance(NetworkListenerType.TCP).KingServer;
 			_kingClient = ClientManager.GetInstance().KingClient;
 		}
+
+		#endregion
+
+		#region testes implementations
 
 		[Fact, Order(1)]
 		public void Verify_KingClientConnection_ShouldReturnTrue()
 		{
 			var connectionResult = _kingClient.Connect(_ip);
-
 			Assert.True(connectionResult);
 		}
 
@@ -108,5 +68,7 @@ namespace KingNetwork.Client.Tests
 
 			Assert.False(_kingClient.HasConnected);
 		}
+
+		#endregion
 	}
 }
