@@ -1,6 +1,7 @@
 using KingNetwork.Shared;
 using KingNetwork.Shared.Interfaces;
 using System;
+using System.Net;
 using System.Net.Sockets;
 
 namespace KingNetwork.Server
@@ -34,6 +35,9 @@ namespace KingNetwork.Server
         /// <inheritdoc/>
         public override bool IsConnected => _socketClient.Connected;
 
+        /// <inheritdoc/>
+        public override string IpAddress { get; }
+
         #endregion
 
         #region constructors
@@ -60,6 +64,7 @@ namespace KingNetwork.Server
                 _stream = new NetworkStream(_socketClient);
 
                 Id = id;
+                IpAddress = _socketClient.RemoteEndPoint.ToString();
 
                 _stream.BeginRead(_buffer, 0, _socketClient.ReceiveBufferSize, ReceiveDataCallback, null);
             }
@@ -141,7 +146,7 @@ namespace KingNetwork.Server
             }
             catch (Exception ex)
             {
-                _socketClient.Close();
+                _socketClient.Dispose();
                 _clientDisconnectedHandler(this);
             }
             

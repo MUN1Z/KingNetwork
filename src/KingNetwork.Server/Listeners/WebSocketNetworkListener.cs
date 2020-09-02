@@ -79,9 +79,8 @@ namespace KingNetwork.Server
                 if (listenerContext.Request.IsWebSocketRequest)
                 {
                     var webSocket = (await listenerContext.AcceptWebSocketAsync(null)).WebSocket;
-
                     var clientId = GetNewClientIdentifier();
-                    var client = new WSClient(clientId, _listenerType, webSocket, listenerContext, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+                    var client = new WSClient(clientId, listenerContext.Request.RemoteEndPoint.ToString(), _listenerType, webSocket, listenerContext, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
                     _clientConnectedHandler(client);
                 }
                 else

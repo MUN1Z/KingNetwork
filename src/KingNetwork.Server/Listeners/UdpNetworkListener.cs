@@ -119,13 +119,14 @@ namespace KingNetwork.Server
                 var clientId = GetNewClientIdentifier();
                 var client = new UDPClient(clientId, this, endPoint, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
                 
-                _clientConnectedHandler(client);
                 _kingUdpClients.Add(endPoint, client);
 
                 var writter = KingBufferWriter.Create();
                 writter.Write((byte)1);
 
                 client.SendMessage(writter);
+
+                _clientConnectedHandler(client);
             }
         }
 

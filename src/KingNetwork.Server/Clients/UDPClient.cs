@@ -16,6 +16,9 @@ namespace KingNetwork.Server
         /// <inheritdoc/>
         public override bool IsConnected => _udpListener != null;
 
+        /// <inheritdoc/>
+        public override string IpAddress => _remoteEndPoint.ToString();
+
         #endregion
 
         #region private members

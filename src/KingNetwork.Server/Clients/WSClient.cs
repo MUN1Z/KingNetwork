@@ -42,6 +42,9 @@ namespace KingNetwork.Server
         /// <inheritdoc/>
         public override bool IsConnected => _webSocket != null;
 
+        /// <inheritdoc/>
+        public override string IpAddress { get; }
+
         #endregion
 
         #region constructors
@@ -50,16 +53,19 @@ namespace KingNetwork.Server
         /// Creates a new instance of a <see cref="WSClient"/>.
         /// </summary>
         /// <param name="id">The identifier number of connected client.</param>
+        /// <param name="id">The identifier number of connected client.</param>
         /// <param name="listenerType">The listener type of client connection.</param>
         /// <param name="ws">The websocket connection.</param>
         /// <param name="listenerContext">The websocket http listener context.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer.</param>
-        public WSClient(ushort id, NetworkListenerType listenerType, WebSocket ws, HttpListenerContext listenerContext, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
+        public WSClient(ushort id, string remoteEndPoint, NetworkListenerType listenerType, WebSocket ws, HttpListenerContext listenerContext, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
         {
             try
             {
+                IpAddress = remoteEndPoint;
+
                 _webSocket = ws;
                 _listenerContext = listenerContext;
                 _listenerType = listenerType;
@@ -162,7 +168,10 @@ namespace KingNetwork.Server
                 catch (Exception ex)
                 {
                     if (_webSocket.State != WebSocketState.Open)
+                    {
                         _clientDisconnectedHandler(this);
+                       Console.WriteLine($"Client '{IpAddress}' Disconnected.");
+                    }
                     else
                         Console.WriteLine($"Error: {ex.Message}.");
                     break;

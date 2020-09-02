@@ -28,7 +28,7 @@ namespace KingNetwork.Server
         public ushort Id { get; set; }
 
         /// <inheritdoc/>
-        public string IpAddress { get; }
+        public abstract string IpAddress { get; }
 
         /// <inheritdoc/>
 		public abstract bool IsConnected { get; }
