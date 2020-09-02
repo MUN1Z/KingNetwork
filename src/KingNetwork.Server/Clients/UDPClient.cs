@@ -78,6 +78,23 @@ namespace KingNetwork.Server
             }
         }
 
+        /// <inheritdoc/>
+        public override void Disconnect()
+        {
+            try
+            {
+                _udpListener.Socket.Close();
+                _udpListener.Stop();
+                _udpListener.Dispose();
+
+                _clientDisconnectedHandler(this);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
         #endregion
 
         #region private methods implementation

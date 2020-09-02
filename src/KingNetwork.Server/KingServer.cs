@@ -365,6 +365,29 @@ namespace KingNetwork.Server
             }
         }
 
+        /// <summary>
+        /// Method responsible for disconnect a specific client from server.
+        /// </summary>
+        /// <param name="client">The client instance.</param>
+        public void DisconnectClient(IClient client) => DisconnectClient(client.Id);
+
+        /// <summary>
+        /// Method responsible for disconnect a specific client from server.
+        /// </summary>
+        /// <param name="id">The client id value.</param>
+        public void DisconnectClient(ushort id)
+        {
+            try
+            {
+                _clients[id].Disconnect();
+                _clients.Remove(id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
         #endregion
     }
 }

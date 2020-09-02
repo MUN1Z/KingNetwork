@@ -105,6 +105,20 @@ namespace KingNetwork.Server
             }
         }
 
+        /// <inheritdoc/>
+        public override void Disconnect()
+        {
+            try
+            {
+                _webSocket.Abort();
+                _clientDisconnectedHandler(this);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
         #endregion
 
         #region private methods implementations

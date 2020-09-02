@@ -89,11 +89,25 @@ namespace KingNetwork.Server
                 Console.WriteLine($"Error: {ex.Message}.");
             }
         }
-        
+
+        /// <inheritdoc/>
+        public override void Disconnect()
+        {
+            try
+            {
+                _socketClient.Close();
+                _clientDisconnectedHandler(this);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
         #endregion
 
         #region private methods implementation
-        
+
         /// <summary> 	
         /// The callback from received message from connected client. 	
         /// </summary> 	

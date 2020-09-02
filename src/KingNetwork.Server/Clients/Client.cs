@@ -54,5 +54,8 @@ namespace KingNetwork.Server
 
         /// <inheritdoc/>
         public abstract void SendMessage(IKingBufferWriter writer);
+
+        /// <inheritdoc/>
+        public abstract void Disconnect();
     }
 }

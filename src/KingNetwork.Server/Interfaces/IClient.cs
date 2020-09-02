@@ -29,5 +29,9 @@ namespace KingNetwork.Server.Interfaces
         /// <param name="writer">The king bufferwriter  of received message.</param>
         void SendMessage(IKingBufferWriter writer);
 
+        /// <summary>
+        /// Method responsible for disconnect a client connection.
+        /// </summary>
+        void Disconnect();
     }
 }
