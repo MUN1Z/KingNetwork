@@ -22,7 +22,7 @@ namespace KingNetwork.SimpleExample.Client
         {
             try
             {
-                _networkListenerType = NetworkListenerType.UDP;
+                _networkListenerType = NetworkListenerType.TCP;
 
                 var client = new KingClient();
                 client.MessageReceivedHandler = OnMessageReceived;
@@ -33,20 +33,20 @@ namespace KingNetwork.SimpleExample.Client
                     Console.WriteLine("client.HasConnected");
                 }
 
-                new Thread(() =>
-                {
-                    Thread.Sleep(5000);
+                //new Thread(() =>
+                //{
+                //    Thread.Sleep(5000);
 
-                    using (var buffer = KingBufferWriter.Create())
-                    {
-                        if (_networkListenerType != NetworkListenerType.WSText)
-                            buffer.Write(MyPackets.PacketOne);
+                //    using (var buffer = KingBufferWriter.Create())
+                //    {
+                //        if (_networkListenerType != NetworkListenerType.WSText)
+                //            buffer.Write(MyPackets.PacketOne);
 
-                        buffer.Write("Testinho1");
+                //        buffer.Write("Testinho1");
 
-                        client.SendMessage(buffer);
-                    }
-                }).Start();
+                //        client.SendMessage(buffer);
+                //    }
+                //}).Start();
 
                 Console.ReadLine();
             }
@@ -64,15 +64,12 @@ namespace KingNetwork.SimpleExample.Client
         {
             try
             {
-                if (_networkListenerType == NetworkListenerType.WSText)
-                    Console.WriteLine($"OnMessageReceived: {reader.ReadString()}");
-                else
-                    switch (reader.ReadMessagePacket<MyPackets>())
-                    {
-                        case MyPackets.PacketOne:
-                            Console.WriteLine("OnMessageReceived for PacketOne");
-                            break;
-                    }
+                switch (reader.ReadMessagePacket<MyPackets>())
+                {
+                    case MyPackets.PacketOne:
+                        Console.WriteLine($"OnMessageReceived: {reader.ReadString()}");
+                        break;
+                }
             }
             catch (Exception ex)
             {

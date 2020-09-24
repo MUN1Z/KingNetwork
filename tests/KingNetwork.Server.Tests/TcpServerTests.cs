@@ -11,7 +11,7 @@ using System.Linq;
 namespace KingNetwork.Client.Tests
 {
 	[Order(1)]
-	public class TcpServertTests
+	public class TcpServerTests
 	{
 
 		#region private members
@@ -24,7 +24,7 @@ namespace KingNetwork.Client.Tests
 
 		#region constructors
 
-		public TcpServertTests()
+		public TcpServerTests()
 		{
 			_ip = "127.0.0.1";
 

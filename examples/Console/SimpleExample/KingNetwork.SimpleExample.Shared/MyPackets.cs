@@ -6,6 +6,6 @@
     public enum MyPackets : byte
     {
         PacketZero,
-        PacketOne
+        PacketOne = 0x0A
     }
 }
