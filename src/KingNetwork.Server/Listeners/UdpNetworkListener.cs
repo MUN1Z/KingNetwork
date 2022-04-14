@@ -50,7 +50,7 @@ namespace KingNetwork.Server
             {
                 _kingUdpClients = new Dictionary<EndPoint, UDPClient>();
                 _listener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                _listener.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), port));
+                _listener.Bind(new IPEndPoint(IPAddress.Any, port));
 
                 EndPoint endPointFrom = new IPEndPoint(IPAddress.Any, 0);
 

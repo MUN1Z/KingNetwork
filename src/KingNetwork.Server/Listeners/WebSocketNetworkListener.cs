@@ -44,14 +44,13 @@ namespace KingNetwork.Server
         {
             try
             {
-                //var host = Dns.GetHostEntry(Dns.GetHostName());
-                //var hostIp = host.AddressList.FirstOrDefault(c => c.AddressFamily == AddressFamily.InterNetwork).ToString();
+                var hostIp = Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(c => c.AddressFamily == AddressFamily.InterNetwork).ToString();
 
                 _listenerType = listenerType;
                 _httpListener = new HttpListener();
                 _httpListener.Prefixes.Add($"http://localhost:{port}/");
                 _httpListener.Prefixes.Add($"http://127.0.0.1:{port}/");
-                //_httpListener.Prefixes.Add($"http://{hostIp}:{port}/");
+                _httpListener.Prefixes.Add($"http://{hostIp}:{port}/");
                 _httpListener.Start();
 
                 Console.WriteLine($"Starting the WebSocket network listener on port: {port}.");
