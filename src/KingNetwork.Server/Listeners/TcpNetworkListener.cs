@@ -1,7 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
-using static KingNetwork.Server.Client;
+using static KingNetwork.Server.ClientConnection;
 
 namespace KingNetwork.Server
 {
@@ -53,7 +53,7 @@ namespace KingNetwork.Server
             try
             {
                 var clientId = GetNewClientIdentifier();
-                var client = new TCPClient(clientId, _listener.EndAccept(asyncResult), _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+                var client = new TCPClientConnection(clientId, _listener.EndAccept(asyncResult), _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
                 _clientConnectedHandler(client);
             }
             catch(Exception ex)

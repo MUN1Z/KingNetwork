@@ -29,7 +29,7 @@ namespace KingNetwork.Server
         /// <summary> 	
         /// The network dictionary of clients. 	
         /// </summary> 	
-        private readonly Dictionary<ushort, IClient> _clients;
+        private readonly Dictionary<ushort, IClientConnection> _clients;
 
         /// <summary> 	
         /// The Server port. 	
@@ -53,7 +53,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The callback of message received handler implementation.
         /// </summary>
-        public Client.MessageReceivedHandler OnMessageReceivedHandler { get; set; }
+        public ClientConnection.MessageReceivedHandler OnMessageReceivedHandler { get; set; }
 
         /// <summary>
         /// The callback of client connnected handler implementation.
@@ -63,7 +63,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The callback of client disconnected handler implementation.
         /// </summary>
-        public Client.ClientDisconnectedHandler OnClientDisconnectedHandler { get; set; }
+        public ClientConnection.ClientDisconnectedHandler OnClientDisconnectedHandler { get; set; }
 
         /// <summary>
         /// The callback of started server handler implementation.
@@ -80,13 +80,13 @@ namespace KingNetwork.Server
         /// </summary> 	
         /// <param name="client">The connected client.</param>
         /// <param name="reader">The king buffer reader from received message.</param>
-        public delegate void ServerPacketHandler(IClient client, IKingBufferReader reader);
+        public delegate void ServerPacketHandler(IClientConnection client, IKingBufferReader reader);
 
         /// <summary> 	
         /// The handler from callback of client connection. 	
         /// </summary> 	
         /// <param name="client">The connected client.</param>
-        public delegate void ClientConnectedHandler(IClient client);
+        public delegate void ClientConnectedHandler(IClientConnection client);
 
         /// <summary> 	
         /// The handler from callback of started server. 	
@@ -110,7 +110,7 @@ namespace KingNetwork.Server
                 _port = port;
                 _maxMessageBuffer = maxMessageBuffer;
                 _maxClientConnections = maxClientConnections;
-                _clients = new Dictionary<ushort, IClient>();
+                _clients = new Dictionary<ushort, IClientConnection>();
                 _serverPacketHandlers = new Dictionary<byte, ServerPacketHandler>();
             }
             catch (Exception ex)
@@ -128,7 +128,7 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="client">The connected client.</param>
         /// <param name="kingBuffer">The king buffer received from message.</param>
-        private void OnMessageReceived(IClient client, IKingBufferReader reader)
+        private void OnMessageReceived(IClientConnection client, IKingBufferReader reader)
         {
             try
             {
@@ -147,7 +147,7 @@ namespace KingNetwork.Server
         /// Method responsible for execute the callback of client connected in server.
         /// </summary>
         /// <param name="client">The socket client object from connected client.</param>
-        private void OnClientConnected(IClient client)
+        private void OnClientConnected(IClientConnection client)
         {
             try
             {
@@ -174,7 +174,7 @@ namespace KingNetwork.Server
         /// Method responsible for execute the callback of client disconnected in server.
         /// </summary>
         /// <param name="client">The instance of disconnected client.</param>
-        private void OnClientDisconnected(IClient client)
+        private void OnClientDisconnected(IClientConnection client)
         {
             try
             {
@@ -224,12 +224,12 @@ namespace KingNetwork.Server
         /// Method responsible for return one connected client by id.
         /// </summary>
         /// <param name="id">The id of connected client.</param>
-        public IClient GetClient(ushort id) => _clients[id];
+        public IClientConnection GetClient(ushort id) => _clients[id];
 
         /// <summary>
         /// Method responsible for return all connected clients.
         /// </summary>
-        public IList<IClient> GetAllClients() => _clients.Values.ToList();
+        public IList<IClientConnection> GetAllClients() => _clients.Values.ToList();
 
         /// <summary>
         /// Method responsible for put packet handler in the list of packet handlers.
@@ -318,7 +318,7 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public void SendMessage(IClient client, KingBufferWriter kingBuffer)
+        public void SendMessage(IClientConnection client, KingBufferWriter kingBuffer)
         {
             try
             {
@@ -352,7 +352,7 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer of received message.</param>
-        public void SendMessageToAllMinus(IClient client, KingBufferWriter kingBuffer)
+        public void SendMessageToAllMinus(IClientConnection client, KingBufferWriter kingBuffer)
         {
             try
             {
@@ -369,7 +369,7 @@ namespace KingNetwork.Server
         /// Method responsible for disconnect a specific client from server.
         /// </summary>
         /// <param name="client">The client instance.</param>
-        public void DisconnectClient(IClient client) => DisconnectClient(client.Id);
+        public void DisconnectClient(IClientConnection client) => DisconnectClient(client.Id);
 
         /// <summary>
         /// Method responsible for disconnect a specific client from server.

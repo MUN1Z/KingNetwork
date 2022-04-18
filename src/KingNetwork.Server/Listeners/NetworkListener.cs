@@ -2,7 +2,7 @@
 using System;
 using System.Net.Sockets;
 using System.Threading;
-using static KingNetwork.Server.Client;
+using static KingNetwork.Server.ClientConnection;
 
 namespace KingNetwork.Server
 {
@@ -56,7 +56,7 @@ namespace KingNetwork.Server
         /// The handler from callback of client connection. 	
         /// </summary> 	
         /// <param name="socketClient">The socket client from connected client.</param>
-        public delegate void ClientConnectedHandler(Client socketClient);
+        public delegate void ClientConnectedHandler(ClientConnection socketClient);
 
         #endregion
 

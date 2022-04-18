@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using static KingNetwork.Server.Client;
+using static KingNetwork.Server.ClientConnection;
 
 namespace KingNetwork.Server
 {
@@ -27,7 +27,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The kingUdpClients list.
         /// </summary>
-        private Dictionary<EndPoint, UDPClient> _kingUdpClients;
+        private Dictionary<EndPoint, UDPClientConnection> _kingUdpClients;
 
         #endregion
 
@@ -48,7 +48,7 @@ namespace KingNetwork.Server
         {
             try
             {
-                _kingUdpClients = new Dictionary<EndPoint, UDPClient>();
+                _kingUdpClients = new Dictionary<EndPoint, UDPClientConnection>();
                 _listener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 _listener.Bind(new IPEndPoint(IPAddress.Any, port));
 
@@ -99,7 +99,7 @@ namespace KingNetwork.Server
             Monitor.Enter(kingUdpClientsObj);
 
             bool hasClientConnection = false;
-            UDPClient kingUdpClient = null;
+            UDPClientConnection kingUdpClient = null;
 
             try
             {
@@ -117,7 +117,7 @@ namespace KingNetwork.Server
             else if (array.Length == 9)
             {
                 var clientId = GetNewClientIdentifier();
-                var client = new UDPClient(clientId, this, endPoint, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+                var client = new UDPClientConnection(clientId, this, endPoint, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
                 
                 _kingUdpClients.Add(endPoint, client);
 

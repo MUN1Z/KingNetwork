@@ -11,7 +11,7 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for represents the websocket client connection.
     /// </summary>
-    public class WSClient : Client
+    public class WSClientConnection : ClientConnection
     {
         #region private members
 
@@ -50,7 +50,7 @@ namespace KingNetwork.Server
         #region constructors
 
         /// <summary>
-        /// Creates a new instance of a <see cref="WSClient"/>.
+        /// Creates a new instance of a <see cref="WSClientConnection"/>.
         /// </summary>
         /// <param name="id">The identifier number of connected client.</param>
         /// <param name="id">The identifier number of connected client.</param>
@@ -60,7 +60,7 @@ namespace KingNetwork.Server
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer.</param>
-        public WSClient(ushort id, string remoteEndPoint, NetworkListenerType listenerType, WebSocket ws, HttpListenerContext listenerContext, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
+        public WSClientConnection(ushort id, string remoteEndPoint, NetworkListenerType listenerType, WebSocket ws, HttpListenerContext listenerContext, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
         {
             try
             {

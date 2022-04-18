@@ -7,6 +7,6 @@ namespace KingNetwork.Server
     public abstract class PacketHandler : IPacketHandler
     {
         /// <inheritdoc/>
-        public abstract void HandleMessageData(IClient client, IKingBufferReader reader);
+        public abstract void HandleMessageData(IClientConnection client, IKingBufferReader reader);
     }
 }

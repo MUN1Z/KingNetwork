@@ -4,9 +4,9 @@ using KingNetwork.Shared.Interfaces;
 namespace KingNetwork.Server.Interfaces
 {
     /// <summary>
-    /// This interface is responsible for represents the client.
+    /// This interface is responsible for represents the client connection.
     /// </summary>
-    public interface IClient
+    public interface IClientConnection
     {
         /// <summary>
         /// The identification number of client.

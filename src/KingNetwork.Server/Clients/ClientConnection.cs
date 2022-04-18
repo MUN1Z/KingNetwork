@@ -6,7 +6,7 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for represents the client connection.
     /// </summary>
-    public abstract class Client : IClient
+    public abstract class ClientConnection : IClientConnection
     {
         #region private members
 
@@ -42,13 +42,13 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="reader">The king buffer reader of received message.</param>
-        public delegate void MessageReceivedHandler(IClient client, IKingBufferReader reader);
+        public delegate void MessageReceivedHandler(IClientConnection client, IKingBufferReader reader);
 
         /// <summary>
 		/// The delegate of client disconnected handler connection.
 		/// </summary>
         /// <param name="client">The instance of disconnected client.</param>
-        public delegate void ClientDisconnectedHandler(IClient client);
+        public delegate void ClientDisconnectedHandler(IClientConnection client);
 
         #endregion
 

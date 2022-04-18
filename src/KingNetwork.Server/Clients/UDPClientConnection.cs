@@ -9,7 +9,7 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for represents the udp client connection.
     /// </summary>
-    public class UDPClient : Client
+    public class UDPClientConnection : ClientConnection
     {
         #region properties
 
@@ -38,14 +38,14 @@ namespace KingNetwork.Server
         #region constructor
 
         /// <summary>
-        /// Creates a new instance of a <see cref="UDPClient"/>.
+        /// Creates a new instance of a <see cref="UDPClientConnection"/>.
         /// </summary>
         /// <param name="id">The identifier number of connected client.</param>
         /// <param name="socketClient">The tcp client from connected client.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer.</param>
-        public UDPClient(ushort id, UdpNetworkListener socketClient, EndPoint remoteEndPoint, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
+        public UDPClientConnection(ushort id, UdpNetworkListener socketClient, EndPoint remoteEndPoint, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
         {
             try
             {

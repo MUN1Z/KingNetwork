@@ -1,7 +1,6 @@
 using KingNetwork.Shared;
 using KingNetwork.Shared.Interfaces;
 using System;
-using System.Net;
 using System.Net.Sockets;
 
 namespace KingNetwork.Server
@@ -9,7 +8,7 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for represents the tcp client connection.
     /// </summary>
-    public class TCPClient : Client
+    public class TCPClientConnection : ClientConnection
     {
         #region private members
 
@@ -43,14 +42,14 @@ namespace KingNetwork.Server
         #region constructors
 
         /// <summary>
-        /// Creates a new instance of a <see cref="TCPClient"/>.
+        /// Creates a new instance of a <see cref="TCPClientConnection"/>.
         /// </summary>
         /// <param name="id">The identifier number of connected client.</param>
         /// <param name="socketClient">The tcp client from connected client.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer.</param>
-        public TCPClient(ushort id, Socket socketClient, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
+        public TCPClientConnection(ushort id, Socket socketClient, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
         {
             try
             {
