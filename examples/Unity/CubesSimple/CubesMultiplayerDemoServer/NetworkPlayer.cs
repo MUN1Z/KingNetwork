@@ -4,7 +4,7 @@ namespace CubesMultiplayerDemoServer
 {
     public class NetworkPlayer
     {
-        public IClient IClient { get; private set; }
+        public IClientConnection IClient { get; private set; }
 
         public float X { get; set; }
         public float Y { get; set; }
@@ -12,7 +12,7 @@ namespace CubesMultiplayerDemoServer
 
         public bool Moved { get; set; }
 
-        public NetworkPlayer(IClient client)
+        public NetworkPlayer(IClientConnection client)
         {
             IClient = client;
 

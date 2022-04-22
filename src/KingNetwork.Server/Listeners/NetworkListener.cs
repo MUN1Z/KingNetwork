@@ -1,5 +1,6 @@
 ﻿using KingNetwork.Server.Interfaces;
 using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using static KingNetwork.Server.ClientConnection;
@@ -36,7 +37,17 @@ namespace KingNetwork.Server
         /// <summary>
 		/// The listener for tcp connection.
 		/// </summary>
-        protected Socket _listener;
+        protected Socket _tcpListener;
+
+        /// <summary>
+        /// The listener for udp connection.
+        /// </summary>
+        protected Socket _udpListener;
+
+        /// <summary>
+        /// The listener for http connection.
+        /// </summary
+        protected HttpListener _httpListener;
 
         /// <summary>
 		/// The value for dispose object.
@@ -114,7 +125,11 @@ namespace KingNetwork.Server
             if (!_disposedValue)
             {
                 if (disposing)
-                    _listener.Close();
+                {
+                    _tcpListener?.Close();
+                    _udpListener?.Close();
+                    _httpListener?.Close();
+                }
 
                 _disposedValue = true;
             }

@@ -15,11 +15,6 @@ namespace KingNetwork.Client.Listeners
         #region private members
 
         /// <summary>
-        /// The client websocket connection.
-        /// </summary>
-        private ClientWebSocket _clientWebSocket;
-
-        /// <summary>
         /// The buffer size of websocket connection.
         /// </summary>
         private int _messageBufferSize;
@@ -39,7 +34,7 @@ namespace KingNetwork.Client.Listeners
         #region properties
 
         /// <inheritdoc/>
-        public override bool IsConnected => _clientWebSocket != null ? _clientWebSocket.State == WebSocketState.Open : false;
+        public override bool IsConnected => _webSocketListener != null ? _webSocketListener.State == WebSocketState.Open : false;
 
         #endregion
 
@@ -68,7 +63,7 @@ namespace KingNetwork.Client.Listeners
             {
                 _messageBufferSize = maxMessageBuffer;
                 _buff = new ArraySegment<byte>(new byte[_messageBufferSize]);
-                _clientWebSocket = new ClientWebSocket();
+                _webSocketListener = new ClientWebSocket();
 
                 StartConnection(new Uri($"ws://{ip}:{port}"));
             }
@@ -88,12 +83,12 @@ namespace KingNetwork.Client.Listeners
                     if (_listenerType == NetworkListenerType.WSText)
                     {
                         var data = new ArraySegment<byte>(writer.BufferData, 4, writer.BufferData.Length - 4);
-                        _clientWebSocket.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None);
+                        _webSocketListener.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None);
                     }
                     else if (_listenerType == NetworkListenerType.WSBinary)
                     {
                         var data = new ArraySegment<byte>(writer.BufferData);
-                        _clientWebSocket.SendAsync(data, WebSocketMessageType.Binary, true, CancellationToken.None);
+                        _webSocketListener.SendAsync(data, WebSocketMessageType.Binary, true, CancellationToken.None);
                     }
                 }
             }
@@ -108,8 +103,8 @@ namespace KingNetwork.Client.Listeners
         {
             try
             {
-                _clientWebSocket.Abort();
-                _clientWebSocket.Dispose();
+                _webSocketListener.Abort();
+                _webSocketListener.Dispose();
 
                 base.Stop();
             }
@@ -131,12 +126,12 @@ namespace KingNetwork.Client.Listeners
         {
             try
             {
-                if (_clientWebSocket.State == WebSocketState.Open) return;
-                await _clientWebSocket.ConnectAsync(uri, CancellationToken.None);
+                if (_webSocketListener.State == WebSocketState.Open) return;
+                await _webSocketListener.ConnectAsync(uri, CancellationToken.None);
 
                 while (IsConnected)
                 {
-                    var ret = await _clientWebSocket.ReceiveAsync(_buff, CancellationToken.None);
+                    var ret = await _webSocketListener.ReceiveAsync(_buff, CancellationToken.None);
 
                     if (ret.MessageType == WebSocketMessageType.Text)
                     {

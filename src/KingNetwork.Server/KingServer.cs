@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using KingNetwork.Shared;
 using KingNetwork.Shared.Interfaces;
+using KingNetwork.Shared.Enums;
 
 namespace KingNetwork.Server
 {
@@ -202,6 +203,8 @@ namespace KingNetwork.Server
                     _networkListener = new TcpNetworkListener(_port, OnClientConnected, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
                 else if (listenerType == NetworkListenerType.UDP)
                     _networkListener = new UdpNetworkListener(_port, OnClientConnected, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
+                else if (listenerType == NetworkListenerType.RUDP)
+                    _networkListener = new RudpNetworkListener(_port, OnClientConnected, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
                 else if (listenerType == NetworkListenerType.WSBinary || listenerType == NetworkListenerType.WSText)
                     _networkListener = new WebSocketNetworkListener(listenerType, _port, OnClientConnected, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
                 
@@ -331,6 +334,27 @@ namespace KingNetwork.Server
         }
 
         /// <summary>
+        /// Method responsible for send message to specific connected client.
+        /// </summary>
+        /// <param name="client">The client instance.</param>
+        /// <param name="kingBuffer">The king buffer of received message.</param>
+        /// <param name="messageType">The message type to send message listener.</param>
+        public void SendMessage(IClientConnection client, KingBufferWriter kingBuffer, RudpMessageType messageType)
+        {
+            try
+            {
+                if (client is RudpClientConnection rudpClientConnection)
+                    rudpClientConnection.SendMessage(kingBuffer, messageType);
+                else
+                    client.SendMessage(kingBuffer);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
         /// Method responsible for send message to all connected client.
         /// </summary>
         /// <param name="kingBuffer">The king buffer of received message.</param>
@@ -340,6 +364,27 @@ namespace KingNetwork.Server
             {
                 foreach (var client in GetAllClients().Where(c => c.IsConnected))
                     SendMessage(client, kingBuffer);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
+        /// Method responsible for send message to all connected client.
+        /// </summary>
+        /// <param name="kingBuffer">The king buffer of received message.</param>
+        /// <param name="messageType">The message type to send message listener.</param>
+        public void SendMessageToAll(KingBufferWriter kingBuffer, RudpMessageType messageType)
+        {
+            try
+            {
+                foreach (var client in GetAllClients().Where(c => c.IsConnected))
+                    if (client is RudpClientConnection rudpClientConnection)
+                        rudpClientConnection.SendMessage(kingBuffer, messageType);
+                    else
+                        client.SendMessage(kingBuffer);
             }
             catch (Exception ex)
             {
@@ -358,6 +403,28 @@ namespace KingNetwork.Server
             {
                 foreach (var clientToSend in GetAllClients().Where(c => c.IsConnected && c.Id != client.Id))
                     SendMessage(clientToSend, kingBuffer);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
+        /// Method responsible for send message to all connected client minus one specific client.
+        /// </summary>
+        /// <param name="client">The client instance.</param>
+        /// <param name="kingBuffer">The king buffer of received message.</param>
+        /// <param name="messageType">The message type to send message listener.</param>
+        public void SendMessageToAllMinus(IClientConnection client, KingBufferWriter kingBuffer, RudpMessageType messageType)
+        {
+            try
+            {
+                foreach (var clientToSend in GetAllClients().Where(c => c.IsConnected && c.Id != client.Id))
+                    if (clientToSend is RudpClientConnection rudpClientConnection)
+                        rudpClientConnection.SendMessage(kingBuffer, messageType);
+                    else
+                        clientToSend.SendMessage(kingBuffer);
             }
             catch (Exception ex)
             {

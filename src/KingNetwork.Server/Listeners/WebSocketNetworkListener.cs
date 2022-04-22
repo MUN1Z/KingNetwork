@@ -8,16 +8,11 @@ using static KingNetwork.Server.ClientConnection;
 namespace KingNetwork.Server
 {
     /// <summary>
-    /// This class is responsible for managing the tcp network tcp listener.
+    /// This class is responsible for managing the web socket network listener.
     /// </summary>
     public class WebSocketNetworkListener : NetworkListener, IDisposable
     {
         #region private members
-
-        /// <summary>
-        /// The http listener connection.
-        /// </summary
-        private HttpListener _httpListener;
 
         /// <summary>
         /// The listener type of connection.

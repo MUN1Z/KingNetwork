@@ -7,6 +7,7 @@
     {
         TCP,
         UDP,
+        RUDP,
         WSBinary,
         WSText
     }

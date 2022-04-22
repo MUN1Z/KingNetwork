@@ -22,7 +22,7 @@ namespace KingNetwork.SimpleExample.Server
         {
             try
             {
-                _networkListenerType = NetworkListenerType.UDP;
+                _networkListenerType = NetworkListenerType.RUDP;
 
                 var server = new KingServer();
                 server.OnMessageReceivedHandler = OnMessageReceived;
@@ -42,7 +42,7 @@ namespace KingNetwork.SimpleExample.Server
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="reader">The king buffer reader from received message.</param>
-        private static void OnMessageReceived(IClient client, IKingBufferReader reader)
+        private static void OnMessageReceived(IClientConnection client, IKingBufferReader reader)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace KingNetwork.SimpleExample.Server
             }
         }
 
-        private static void OnClientConnectedHandler(IClient client)
+        private static void OnClientConnectedHandler(IClientConnection client)
         {
             try
             {

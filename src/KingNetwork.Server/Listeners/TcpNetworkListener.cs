@@ -27,10 +27,10 @@ namespace KingNetwork.Server
         {
             try
             {
-                _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _listener.Bind(new IPEndPoint(IPAddress.Any, port));
-                _listener.Listen(100);
-                _listener.BeginAccept(new AsyncCallback(OnAccept), null);
+                _tcpListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _tcpListener.Bind(new IPEndPoint(IPAddress.Any, port));
+                _tcpListener.Listen(100);
+                _tcpListener.BeginAccept(new AsyncCallback(OnAccept), null);
 
                 Console.WriteLine($"Starting the TCP network listener on port: {port}.");
             }
@@ -53,7 +53,7 @@ namespace KingNetwork.Server
             try
             {
                 var clientId = GetNewClientIdentifier();
-                var client = new TCPClientConnection(clientId, _listener.EndAccept(asyncResult), _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+                var client = new TCPClientConnection(clientId, _tcpListener.EndAccept(asyncResult), _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
                 _clientConnectedHandler(client);
             }
             catch(Exception ex)
@@ -62,7 +62,7 @@ namespace KingNetwork.Server
             }
             finally
             {
-                _listener.BeginAccept(new AsyncCallback(OnAccept), null);
+                _tcpListener.BeginAccept(new AsyncCallback(OnAccept), null);
             }
         }
 

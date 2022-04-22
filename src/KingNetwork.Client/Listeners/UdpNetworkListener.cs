@@ -14,7 +14,7 @@ namespace KingNetwork.Client.Listeners
         #region properties
 
         /// <inheritdoc/>
-        public override bool IsConnected => _listener != null ? _listener.Connected : false;
+        public override bool IsConnected => _udpListener != null ? _udpListener.Connected : false;
 
         #endregion
 
@@ -37,34 +37,34 @@ namespace KingNetwork.Client.Listeners
         {
             try
             {
-                _remoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+                _udpRemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
 
-                _listener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                _udpListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-                _listener.ReceiveBufferSize = maxMessageBuffer;
-                _listener.SendBufferSize = maxMessageBuffer;
+                _udpListener.ReceiveBufferSize = maxMessageBuffer;
+                _udpListener.SendBufferSize = maxMessageBuffer;
 
-                _buffer = new byte[maxMessageBuffer];
+                _udpBuffer = new byte[maxMessageBuffer];
 
-                _listener.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0));
-                _listener.Connect(_remoteEndPoint);
+                _udpListener.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0));
+                _udpListener.Connect(_udpRemoteEndPoint);
 
                 byte[] array = new byte[9];
 
-                _listener.Send(array);
+                _udpListener.Send(array);
 
                  array = new byte[16];
 
-                _listener.ReceiveTimeout = 5000;
-                _listener.Receive(array);
-                _listener.ReceiveTimeout = 0;
+                _udpListener.ReceiveTimeout = 5000;
+                _udpListener.Receive(array);
+                _udpListener.ReceiveTimeout = 0;
 
                 if (array[0] != 1)
                 {
                     throw new SocketException(10053);
                 }
 
-                _listener.BeginReceiveFrom(_buffer, 0, _listener.ReceiveBufferSize, SocketFlags.None, ref _remoteEndPoint, new AsyncCallback(ReceiveDataCallback), _buffer);
+                _udpListener.BeginReceiveFrom(_udpBuffer, 0, _udpListener.ReceiveBufferSize, SocketFlags.None, ref _udpRemoteEndPoint, new AsyncCallback(ReceiveDataCallback), _udpBuffer);
             }
             catch (Exception ex)
             {
@@ -77,7 +77,7 @@ namespace KingNetwork.Client.Listeners
         {
             try
             {
-                _listener.SendTo(writer.BufferData, _remoteEndPoint);
+                _udpListener.SendTo(writer.BufferData, _udpRemoteEndPoint);
             }
             catch (Exception ex)
             {
@@ -97,9 +97,9 @@ namespace KingNetwork.Client.Listeners
         {
             try
             {
-                if (_listener.Connected)
+                if (_udpListener.Connected)
                 { 
-                    int bytesRead = _listener.EndReceive(asyncResult);
+                    int bytesRead = _udpListener.EndReceive(asyncResult);
 
                     if (bytesRead > 0)
                     {
@@ -107,7 +107,7 @@ namespace KingNetwork.Client.Listeners
 
                         _messageReceivedHandler.Invoke(kingBufferReader);
 
-                        _listener.BeginReceiveFrom(_buffer, 0, _buffer.Length, SocketFlags.None, ref _remoteEndPoint, new AsyncCallback(this.ReceiveDataCallback), (byte[])asyncResult.AsyncState);
+                        _udpListener.BeginReceiveFrom(_udpBuffer, 0, _udpBuffer.Length, SocketFlags.None, ref _udpRemoteEndPoint, new AsyncCallback(this.ReceiveDataCallback), (byte[])asyncResult.AsyncState);
                     }
                 }
                 else

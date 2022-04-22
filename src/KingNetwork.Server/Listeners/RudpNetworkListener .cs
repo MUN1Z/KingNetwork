@@ -11,14 +11,14 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for managing the udp network udp listener.
     /// </summary>
-    public class UdpNetworkListener : NetworkListener
+    public class RudpNetworkListener : NetworkListener
     {
         #region properties
 
         /// <summary>
         /// The socket connection listener;
         /// </summary>
-        public Socket Socket => _udpListener;
+        public Socket UdpSocket => _udpListener;
 
         #endregion
 
@@ -27,7 +27,12 @@ namespace KingNetwork.Server
         /// <summary>
         /// The kingUdpClients list.
         /// </summary>
-        private Dictionary<EndPoint, UDPClientConnection> _kingUdpClients;
+        private Dictionary<EndPoint, RudpClientConnection> _kingRudpClients;
+
+        /// <summary>
+        /// The kingUdpClients list.
+        /// </summary>
+        private Socket _tcpAcceptConnection;
 
         #endregion
 
@@ -41,14 +46,21 @@ namespace KingNetwork.Server
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The number max of connected clients, the default value is 1000.</param>
-        public UdpNetworkListener(ushort port, ClientConnectedHandler clientConnectedHandler,
+        public RudpNetworkListener(ushort port, ClientConnectedHandler clientConnectedHandler,
             MessageReceivedHandler messageReceivedHandler,
             ClientDisconnectedHandler clientDisconnectedHandler,
             ushort maxMessageBuffer) : base(port, clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer)
         {
             try
             {
-                _kingUdpClients = new Dictionary<EndPoint, UDPClientConnection>();
+                //Tcp
+                _tcpListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _tcpListener.Bind(new IPEndPoint(IPAddress.Any, port));
+                _tcpListener.Listen(100);
+                _tcpListener.BeginAccept(new AsyncCallback(OnAcceptTcp), null);
+
+                //Udp
+                _kingRudpClients = new Dictionary<EndPoint, RudpClientConnection>();
                 _udpListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 _udpListener.Bind(new IPEndPoint(IPAddress.Any, port));
 
@@ -57,7 +69,7 @@ namespace KingNetwork.Server
                 byte[] array = new byte[_maxMessageBuffer];
                 _udpListener.BeginReceiveFrom(array, 0, _maxMessageBuffer, SocketFlags.None, ref endPointFrom, new AsyncCallback(ReceiveDataCallback), array);
 
-                Console.WriteLine($"Starting the UDP network listener on port: {port}.");
+                Console.WriteLine($"Starting the RUDP network listener on port: {port}.");
             }
             catch (Exception ex)
             {
@@ -68,6 +80,27 @@ namespace KingNetwork.Server
         #endregion
 
         #region private methods implementation
+
+        /// <summary> 	
+        /// The callback from accept client connection. 	
+        /// </summary> 	
+        /// <param name="asyncResult">The async result from socket accepted in connection.</param>
+        private void OnAcceptTcp(IAsyncResult asyncResult)
+        {
+            try
+            {
+                var clientId = GetNewClientIdentifier();
+                _tcpAcceptConnection = _tcpListener.EndAccept(asyncResult);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+            finally
+            {
+                _tcpListener.BeginAccept(new AsyncCallback(OnAcceptTcp), null);
+            }
+        }
 
         /// <summary> 	
         /// The callback from received message from connected server. 	
@@ -94,16 +127,16 @@ namespace KingNetwork.Server
 
             _udpListener.BeginReceiveFrom((byte[])asyncResult.AsyncState, 0, _maxMessageBuffer, SocketFlags.None, ref endPoint, new AsyncCallback(this.ReceiveDataCallback), (byte[])asyncResult.AsyncState);
 
-            var kingUdpClientsObj = _kingUdpClients;
+            var kingUdpClientsObj = _kingRudpClients;
 
             Monitor.Enter(kingUdpClientsObj);
 
             bool hasClientConnection = false;
-            UDPClientConnection kingUdpClient = null;
+            RudpClientConnection kingRudpClient = null;
 
             try
             {
-                hasClientConnection = _kingUdpClients.TryGetValue(endPoint, out kingUdpClient);
+                hasClientConnection = _kingRudpClients.TryGetValue(endPoint, out kingRudpClient);
             }
             finally
             {
@@ -112,14 +145,14 @@ namespace KingNetwork.Server
 
             if (hasClientConnection)
             {
-                kingUdpClient.ReceiveDataCallback(array);
+                kingRudpClient.ReceiveUdpDataCallback(array);
             }
             else if (array.Length == 9)
             {
                 var clientId = GetNewClientIdentifier();
-                var client = new UDPClientConnection(clientId, _udpListener, endPoint, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
-                
-                _kingUdpClients.Add(endPoint, client);
+                var client = new RudpClientConnection(clientId, _tcpAcceptConnection, _udpListener, endPoint, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+
+                _kingRudpClients.Add(endPoint, client);
 
                 var writter = KingBufferWriter.Create();
                 writter.Write((byte)1);

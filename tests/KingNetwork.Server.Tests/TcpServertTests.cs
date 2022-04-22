@@ -41,7 +41,7 @@ namespace KingNetwork.Client.Tests
 		{
 			bool hasClientConnected = false;
 
-			_kingServer.OnClientConnectedHandler += (IClient client) =>
+			_kingServer.OnClientConnectedHandler += (IClientConnection client) =>
 			{
 				hasClientConnected = true;
 			};
@@ -58,7 +58,7 @@ namespace KingNetwork.Client.Tests
 		{
 			bool hasMessageReceived = false;
 
-			_kingServer.OnMessageReceivedHandler += (IClient client, IKingBufferReader reader) =>
+			_kingServer.OnMessageReceivedHandler += (IClientConnection client, IKingBufferReader reader) =>
 			{
 				hasMessageReceived = true;
 			};
@@ -78,7 +78,7 @@ namespace KingNetwork.Client.Tests
 		{
 			bool hasClientDisconnected = false;
 
-			_kingServer.OnClientDisconnectedHandler += (IClient client) =>
+			_kingServer.OnClientDisconnectedHandler += (IClientConnection client) =>
 			{
 				hasClientDisconnected = true;
 			};

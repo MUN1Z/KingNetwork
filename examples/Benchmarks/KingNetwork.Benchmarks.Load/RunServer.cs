@@ -78,7 +78,7 @@ namespace KingNetwork.Benchmarks.Load
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="kingBuffer">The king buffer from received message.</param>
-        private static void OnMessageReceived(IClient client, IKingBufferReader reader)
+        private static void OnMessageReceived(IClientConnection client, IKingBufferReader reader)
         {
             try
             {

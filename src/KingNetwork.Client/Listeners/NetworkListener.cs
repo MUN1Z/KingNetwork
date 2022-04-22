@@ -1,9 +1,10 @@
-﻿using KingNetwork.Client.Interfaces;
-using KingNetwork.Shared;
+﻿using KingNetwork.Shared.Enums;
+using KingNetwork.Client.Interfaces;
 using KingNetwork.Shared.Interfaces;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.WebSockets;
 
 namespace KingNetwork.Client.Listeners
 {
@@ -25,9 +26,14 @@ namespace KingNetwork.Client.Listeners
         protected readonly DisconnectedHandler _disconnectedHandler;
 
         /// <summary>
-        /// The buffer of client connection.
+        /// The tcp buffer of client connection.
         /// </summary>
-        protected byte[] _buffer;
+        protected byte[] _tcpBuffer;
+
+        /// <summary>
+        /// The udp buffer of client connection.
+        /// </summary>
+        protected byte[] _udpBuffer;
 
         /// <summary>
         /// The stream of listener client.
@@ -37,7 +43,17 @@ namespace KingNetwork.Client.Listeners
         /// <summary>
         /// The listener for tcp connection.
         /// </summary>
-        protected Socket _listener;
+        protected Socket _tcpListener;
+
+        /// <summary>
+        /// The listener for udp connection.
+        /// </summary>
+        protected Socket _udpListener;
+
+        /// <summary>
+        /// The listener for web socket connection.
+        /// </summary>
+        protected ClientWebSocket _webSocketListener;
 
         /// <summary>
 		/// The value for dispose object.
@@ -45,9 +61,14 @@ namespace KingNetwork.Client.Listeners
         private bool _disposedValue;
 
         /// <summary>
-		/// The value for remote end point.
+		/// The value for tcp remote end point.
 		/// </summary>
-        protected EndPoint _remoteEndPoint;
+        protected EndPoint _tcpRemoteEndPoint;
+
+        /// <summary>
+        /// The value for udp remote end point.
+        /// </summary>
+        protected EndPoint _udpRemoteEndPoint;
 
         #endregion
 
@@ -131,8 +152,12 @@ namespace KingNetwork.Client.Listeners
         {
             if (!_disposedValue)
             {
-                if (disposing && _listener != null)
-                    _listener.Close();
+                if (disposing)
+                {
+                    _tcpListener?.Close();
+                    _udpListener?.Close();
+                    _webSocketListener?.Dispose();
+                }
 
                 _disposedValue = true;
             }

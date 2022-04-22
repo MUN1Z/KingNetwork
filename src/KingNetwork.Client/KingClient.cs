@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using KingNetwork.Shared.Enums;
 using KingNetwork.Client.Interfaces;
 using KingNetwork.Client.Listeners;
 using KingNetwork.Shared;
@@ -138,6 +139,8 @@ namespace KingNetwork.Client
                     _networkListener = new TcpNetworkListener(OnMessageReceived, OnDisconnected);
                 else if (listenerType == NetworkListenerType.UDP)
                     _networkListener = new UdpNetworkListener(OnMessageReceived, OnDisconnected);
+                else if (listenerType == NetworkListenerType.RUDP)
+                    _networkListener = new RudpNetworkListener(OnMessageReceived, OnDisconnected);
                 else if (listenerType == NetworkListenerType.WSBinary || listenerType == NetworkListenerType.WSText)
                     _networkListener = new WSNetworkListener(listenerType, OnMessageReceived, OnDisconnected);
 
@@ -183,6 +186,26 @@ namespace KingNetwork.Client
             try
             {
                 _networkListener.SendMessage(writer);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}.");
+            }
+        }
+
+        /// <summary>
+        /// Method responsible for send reliable and unreliable message to connected server.
+        /// </summary>
+        /// <param name="writer">The king buffer writer to send message.</param>
+        /// <param name="messageType">The message type to send message listener.</param>
+        public void SendMessage(IKingBufferWriter writer, RudpMessageType messageType)
+        {
+            try
+            {
+                if (_networkListener is RudpNetworkListener rudpNetworkListener)
+                    rudpNetworkListener.SendMessage(writer, messageType);
+                else
+                    _networkListener.SendMessage(writer);
             }
             catch (Exception ex)
             {

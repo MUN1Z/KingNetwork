@@ -26,7 +26,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The  udp network listener instance;
         /// </summary>
-        private UdpNetworkListener _udpListener;
+        private Socket _udpListener;
 
         /// <summary>
         /// The sremote end point;
@@ -45,7 +45,7 @@ namespace KingNetwork.Server
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer.</param>
-        public UDPClientConnection(ushort id, UdpNetworkListener socketClient, EndPoint remoteEndPoint, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
+        public UDPClientConnection(ushort id, Socket socketClient, EndPoint remoteEndPoint, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
         {
             try
             {
@@ -72,8 +72,8 @@ namespace KingNetwork.Server
         {
             try
             {
-                if (_udpListener.Socket != null)
-                    _udpListener.Socket.BeginSendTo(writer.BufferData, 0, writer.BufferData.Length, SocketFlags.None, _remoteEndPoint, UdpSendCompleted, new Action<SocketError>(UdpSendCompleted));
+                if (_udpListener != null)
+                    _udpListener.BeginSendTo(writer.BufferData, 0, writer.BufferData.Length, SocketFlags.None, _remoteEndPoint, UdpSendCompleted, new Action<SocketError>(UdpSendCompleted));
             }
             catch (Exception ex)
             {
@@ -86,8 +86,7 @@ namespace KingNetwork.Server
         {
             try
             {
-                _udpListener.Socket.Close();
-                _udpListener.Stop();
+                _udpListener.Close();
                 _udpListener.Dispose();
 
                 _clientDisconnectedHandler(this);
@@ -121,7 +120,7 @@ namespace KingNetwork.Server
             Action<SocketError> action = result.AsyncState as Action<SocketError>;
             try
             {
-                _udpListener.Socket.EndSendTo(result);
+                _udpListener.EndSendTo(result);
             }
             catch (SocketException ex)
             {

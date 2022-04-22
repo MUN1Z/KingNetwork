@@ -1,4 +1,5 @@
 using KingNetwork.Client;
+using KingNetwork.Shared.Enums;
 using KingNetwork.Shared;
 using KingNetwork.Shared.Interfaces;
 using KingNetwork.SimpleExample.Shared;
@@ -22,7 +23,7 @@ namespace KingNetwork.SimpleExample.Client
         {
             try
             {
-                _networkListenerType = NetworkListenerType.UDP;
+                _networkListenerType = NetworkListenerType.RUDP;
 
                 var client = new KingClient();
                 client.MessageReceivedHandler = OnMessageReceived;
@@ -42,9 +43,22 @@ namespace KingNetwork.SimpleExample.Client
                         if (_networkListenerType != NetworkListenerType.WSText)
                             buffer.Write(MyPackets.PacketOne);
 
-                        buffer.Write("Testinho1");
+                        if(_networkListenerType == NetworkListenerType.RUDP)
+                        {
+                            buffer.Write("Testinho1 - Reliable");
+                            client.SendMessage(buffer, RudpMessageType.Reliable);
 
-                        client.SendMessage(buffer);
+                            buffer.Reset();
+
+                            buffer.Write(MyPackets.PacketOne);
+                            buffer.Write("Testinho2 - Unreliable");
+                            client.SendMessage(buffer, RudpMessageType.Unreliable);
+                        }
+                        else
+                        {
+                            buffer.Write("Testinho1");
+                            client.SendMessage(buffer);
+                        }
                     }
                 }).Start();
 

@@ -11,7 +11,7 @@ namespace KingNetwork.HandlerExample.Server.PacketHandlers
     public class MyPacketHandlerOne : PacketHandler
     {
         /// <inheritdoc/>
-        public override void HandleMessageData(IClient client, IKingBufferReader reader)
+        public override void HandleMessageData(IClientConnection client, IKingBufferReader reader)
         {
             Console.WriteLine($"OnMessageReceived PacketOne from {client.Id}");
         }

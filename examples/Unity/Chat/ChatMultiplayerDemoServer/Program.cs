@@ -58,7 +58,7 @@ namespace ChatMultiplayerDemoServer
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="reader">The king buffer reader from received message.</param>
-        private void OnMessageReceived(IClient client, IKingBufferReader reader)
+        private void OnMessageReceived(IClientConnection client, IKingBufferReader reader)
         {
             try
             {

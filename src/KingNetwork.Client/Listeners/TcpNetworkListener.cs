@@ -14,7 +14,7 @@ namespace KingNetwork.Client.Listeners
         #region properties
 
         /// <inheritdoc/>
-        public override bool IsConnected => _listener != null ? _listener.Connected : false;
+        public override bool IsConnected => _tcpListener != null ? _tcpListener.Connected : false;
 
         #endregion
 
@@ -37,18 +37,18 @@ namespace KingNetwork.Client.Listeners
         {
             try
             {
-                _remoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+                _tcpRemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
 
-                _listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _listener.ReceiveBufferSize = maxMessageBuffer;
-                _listener.SendBufferSize = maxMessageBuffer;
+                _tcpListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _tcpListener.ReceiveBufferSize = maxMessageBuffer;
+                _tcpListener.SendBufferSize = maxMessageBuffer;
 
-                _listener.Connect(_remoteEndPoint);
+                _tcpListener.Connect(_tcpRemoteEndPoint);
 
-                _buffer = new byte[maxMessageBuffer];
-                _stream = new NetworkStream(_listener);
+                _tcpBuffer = new byte[maxMessageBuffer];
+                _stream = new NetworkStream(_tcpListener);
                 
-                _stream.BeginRead(_buffer, 0, _listener.ReceiveBufferSize, ReceiveDataCallback, null);
+                _stream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveDataCallback, null);
             }
             catch (Exception ex)
             {
@@ -81,16 +81,16 @@ namespace KingNetwork.Client.Listeners
         {
             try
             {
-                if (_listener.Connected)
+                if (_tcpListener.Connected)
                 {
                     var endRead = _stream.EndRead(asyncResult);
 
                     if (endRead != 0)
                     {
                         var numArray = new byte[endRead];
-                        Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
+                        Buffer.BlockCopy(_tcpBuffer, 0, numArray, 0, endRead);
 
-                        _stream.BeginRead(_buffer, 0, _listener.ReceiveBufferSize, ReceiveDataCallback, null);
+                        _stream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveDataCallback, null);
 
                         var buffer = KingBufferReader.Create(numArray, 0, numArray.Length);
 

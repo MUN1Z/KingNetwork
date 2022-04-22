@@ -123,6 +123,56 @@ using(var writer = KingBufferWriter.Create()
 client.Disconnect();
 ```
 
+# Using the RUDP connection on KingServer
+```C#
+// create and start the server
+var server = new KingServer(port: 7171);
+server.MessageReceivedHandler = OnMessageReceived;
+server.Start(NetworkListenerType.RUDP);
+
+// implements the callback for MessageReceivedHandler
+private void OnMessageReceived(IClient client, IKingBufferReader reader)
+{
+    Console.WriteLine($"Received data from client {client.Id}, data length {reader.Length()}");
+}
+
+// send a message to all clients
+using(var writer = KingBufferWriter.Create())
+{
+    writer.Write("Test message!");
+    //You can use RudpMessageType.Reliable to send Reliable messages and RudpMessageType.Unreliable to send Unreliable messages
+    server.SendMessageToAll(writer, RudpMessageType.Reliable);
+}
+
+// stop the server when you don't need it anymore
+server.Stop();
+```
+
+# Using the RUDP connection on KingClient
+```C#
+// create and connect the client
+var client = new KingClient();
+client.MessageReceivedHandler = OnMessageReceived;
+client.Connect("127.0.0.1", 7171, NetworkListenerType.RUDP);
+
+// implements the callback for MessageReceivedHandler
+private void OnMessageReceived(IKingBufferReader reader)
+{
+    Console.WriteLine($"Received data from server, data length {reader.Length()}");
+}
+
+/// send a message to server
+using(var writer = KingBufferWriter.Create()
+{
+    writer.Write("Test message!");
+    //You can use RudpMessageType.Reliable to send Reliable messages and RudpMessageType.Unreliable to send Unreliable messages
+    client.SendMessage(writer, RudpMessageType.Reliable);
+}
+
+// disconnect from the server when we are done
+client.Disconnect();
+```
+
 # Using the WebSocket connection on KingServer
 ```C#
 // create and start the server

@@ -18,7 +18,7 @@ namespace CubesMultiplayerDemoServer
         /// <summary>
         /// The network players dictionary.
         /// </summary>
-        private Dictionary<IClient, NetworkPlayer> _networkPlayersDictionary;
+        private Dictionary<IClientConnection, NetworkPlayer> _networkPlayersDictionary;
 
         /// <summary>
         /// The king server instance.
@@ -32,7 +32,7 @@ namespace CubesMultiplayerDemoServer
         {
             try
             {
-                _networkPlayersDictionary = new Dictionary<IClient, NetworkPlayer>();
+                _networkPlayersDictionary = new Dictionary<IClientConnection, NetworkPlayer>();
 
                 _server = new KingServer();
 
@@ -56,7 +56,7 @@ namespace CubesMultiplayerDemoServer
         {
             try
             {
-                var sendPosDict = new Dictionary<IClient, NetworkPlayer>(_networkPlayersDictionary);
+                var sendPosDict = new Dictionary<IClientConnection, NetworkPlayer>(_networkPlayersDictionary);
 
                 foreach (var sendToPlayer in sendPosDict)
                 {
@@ -125,7 +125,7 @@ namespace CubesMultiplayerDemoServer
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="reader">The king buffer reader from received message.</param>
-        private void OnMessageReceived(IClient client, IKingBufferReader reader)
+        private void OnMessageReceived(IClientConnection client, IKingBufferReader reader)
         {
             try
             {
@@ -157,7 +157,7 @@ namespace CubesMultiplayerDemoServer
         /// Method responsible for execute the callback of on client connected handler.
         /// </summary>
         /// <param name="client">The client instance.</param>
-        private void OnClientConnectedHandler(IClient client)
+        private void OnClientConnectedHandler(IClientConnection client)
         {
             try
             {
@@ -195,7 +195,7 @@ namespace CubesMultiplayerDemoServer
         /// Method responsible for execute the callback of on client disconnected handler.
         /// </summary>
         /// <param name="client">The client instance.</param>
-        private void OnClientDisconnectedHandler(IClient client)
+        private void OnClientDisconnectedHandler(IClientConnection client)
         {
             try
             {

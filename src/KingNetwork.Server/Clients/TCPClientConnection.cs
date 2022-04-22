@@ -100,6 +100,8 @@ namespace KingNetwork.Server
             try
             {
                 _socketClient.Close();
+                _socketClient.Dispose();
+
                 _clientDisconnectedHandler(this);
             }
             catch (Exception ex)
