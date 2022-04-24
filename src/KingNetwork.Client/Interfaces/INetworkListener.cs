@@ -1,4 +1,4 @@
-using KingNetwork.Shared.Interfaces;
+using KingNetwork.Shared;
 
 namespace KingNetwork.Client.Interfaces
 {
@@ -30,7 +30,7 @@ namespace KingNetwork.Client.Interfaces
         /// Method responsible for send message to connected server.
         /// </summary>
         /// <param name="writer">The king buffer writer of received message.</param>
-        void SendMessage(IKingBufferWriter writer);
+        void SendMessage(KingBufferWriter writer);
 
         /// <summary>
         /// This method is responsible for call the dispose implementation method.

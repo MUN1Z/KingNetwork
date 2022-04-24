@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>7.3</LangVersion>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <PackageProjectUrl>https://github.com/Mun1z/KingNetwork/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Mun1z/KingNetwork/</RepositoryUrl>
     <RepositoryType>github</RepositoryType>
@@ -12,6 +12,8 @@
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <Description>KingNetwork is an open source library to facilitate the creation and communication of clients and servers through TCP, UDP and Web sockets.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

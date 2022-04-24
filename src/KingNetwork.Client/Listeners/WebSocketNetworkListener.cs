@@ -10,7 +10,7 @@ namespace KingNetwork.Client.Listeners
     /// <summary>
     /// This class is responsible for managing the network websocket listener.
     /// </summary>
-    public class WSNetworkListener : NetworkListener
+    public class WebSocketNetworkListener : NetworkListener
     {
         #region private members
 
@@ -41,12 +41,12 @@ namespace KingNetwork.Client.Listeners
         #region constructors
 
         /// <summary>
-        /// Creates a new instance of a <see cref="WSNetworkListener"/>.
+        /// Creates a new instance of a <see cref="WebSocketNetworkListener"/>.
         /// </summary>
         /// <param name="listenerType">The listener type of client connection.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="disconnectedHandler">The callback of client disconnected handler implementation.</param>
-        public WSNetworkListener(NetworkListenerType listenerType, MessageReceivedHandler messageReceivedHandler, DisconnectedHandler disconnectedHandler)
+        public WebSocketNetworkListener(NetworkListenerType listenerType, MessageReceivedHandler messageReceivedHandler, DisconnectedHandler disconnectedHandler)
             : base(messageReceivedHandler, disconnectedHandler)
         {
             _listenerType = listenerType;
@@ -59,59 +59,38 @@ namespace KingNetwork.Client.Listeners
         /// <inheritdoc/>
         public override void StartClient(string ip, int port, ushort maxMessageBuffer)
         {
-            try
-            {
-                _messageBufferSize = maxMessageBuffer;
-                _buff = new ArraySegment<byte>(new byte[_messageBufferSize]);
-                _webSocketListener = new ClientWebSocket();
+            _messageBufferSize = maxMessageBuffer;
+            _buff = new ArraySegment<byte>(new byte[_messageBufferSize]);
+            _webSocketListener = new ClientWebSocket();
 
-                StartConnection(new Uri($"ws://{ip}:{port}"));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            StartConnection(new Uri($"ws://{ip}:{port}"));
         }
 
         /// <inheritdoc/>
-        public override void SendMessage(IKingBufferWriter writer)
+        public override void SendMessage(KingBufferWriter writer)
         {
-            try
+            if (IsConnected)
             {
-                if (IsConnected)
+                if (_listenerType == NetworkListenerType.WSText)
                 {
-                    if (_listenerType == NetworkListenerType.WSText)
-                    {
-                        var data = new ArraySegment<byte>(writer.BufferData, 4, writer.BufferData.Length - 4);
-                        _webSocketListener.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None);
-                    }
-                    else if (_listenerType == NetworkListenerType.WSBinary)
-                    {
-                        var data = new ArraySegment<byte>(writer.BufferData);
-                        _webSocketListener.SendAsync(data, WebSocketMessageType.Binary, true, CancellationToken.None);
-                    }
+                    var data = new ArraySegment<byte>(writer.BufferData, 4, writer.BufferData.Length - 4);
+                    _webSocketListener.SendAsync(data, WebSocketMessageType.Text, true, CancellationToken.None);
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
+                else if (_listenerType == NetworkListenerType.WSBinary)
+                {
+                    var data = new ArraySegment<byte>(writer.BufferData);
+                    _webSocketListener.SendAsync(data, WebSocketMessageType.Binary, true, CancellationToken.None);
+                }
             }
         }
 
         /// <inheritdoc/>
         public override void Stop()
         {
-            try
-            {
-                _webSocketListener.Abort();
-                _webSocketListener.Dispose();
+            _webSocketListener.Abort();
+            _webSocketListener.Dispose();
 
-                base.Stop();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            base.Stop();
         }
 
         #endregion
@@ -156,7 +135,9 @@ namespace KingNetwork.Client.Listeners
                 if (IsConnected)
                     _disconnectedHandler();
                 else
-                    Console.WriteLine($"Error: {ex.Message}.");
+                    return;
+
+                throw ex;
             }
         }
 

@@ -52,7 +52,7 @@ namespace KingNetwork.Server
         /// <summary>
 		/// The value for dispose object.
 		/// </summary>
-        private bool _disposedValue;
+        protected bool _disposedValue;
 
         /// <summary> 	
         /// The counter for generation of client id. 	
@@ -76,12 +76,12 @@ namespace KingNetwork.Server
         /// <summary>
         /// Creates a new instance of a <see cref="NetworkListener"/>.
         /// </summary>
-        /// <param name="port">The port of server.</param>
         /// <param name="clientConnectedHandler">The client connected handler callback implementation.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The number max of connected clients, the default value is 1000.</param>
-        public NetworkListener(ushort port, ClientConnectedHandler clientConnectedHandler, 
+        public NetworkListener(
+            ClientConnectedHandler clientConnectedHandler, 
             MessageReceivedHandler messageReceivedHandler,
             ClientDisconnectedHandler clientDisconnectedHandler,
             ushort maxMessageBuffer)
@@ -102,14 +102,7 @@ namespace KingNetwork.Server
         /// <inheritdoc/>
         public void Stop()
         {
-            try
-            {
-                Dispose(true);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            Dispose(true);
         }
 
         #endregion

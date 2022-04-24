@@ -1,5 +1,4 @@
 using KingNetwork.Shared;
-using KingNetwork.Shared.Interfaces;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -35,54 +34,55 @@ namespace KingNetwork.Client.Listeners
         /// <inheritdoc/>
         public override void StartClient(string ip, int port, ushort maxMessageBuffer)
         {
+            _udpRemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+
+            _udpListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+            _udpListener.ReceiveBufferSize = maxMessageBuffer;
+            _udpListener.SendBufferSize = maxMessageBuffer;
+
+            _udpBuffer = new byte[maxMessageBuffer];
+
             try
             {
-                _udpRemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-
-                _udpListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-                _udpListener.ReceiveBufferSize = maxMessageBuffer;
-                _udpListener.SendBufferSize = maxMessageBuffer;
-
-                _udpBuffer = new byte[maxMessageBuffer];
-
                 _udpListener.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0));
                 _udpListener.Connect(_udpRemoteEndPoint);
-
-                byte[] array = new byte[9];
-
-                _udpListener.Send(array);
-
-                 array = new byte[16];
-
-                _udpListener.ReceiveTimeout = 5000;
-                _udpListener.Receive(array);
-                _udpListener.ReceiveTimeout = 0;
-
-                if (array[0] != 1)
-                {
-                    throw new SocketException(10053);
-                }
-
-                _udpListener.BeginReceiveFrom(_udpBuffer, 0, _udpListener.ReceiveBufferSize, SocketFlags.None, ref _udpRemoteEndPoint, new AsyncCallback(ReceiveDataCallback), _udpBuffer);
             }
-            catch (Exception ex)
+            catch (SocketException e)
             {
-                Console.WriteLine($"Error: {ex.Message}.");
+                throw new Exception("Unable to bind UDP ports.");
             }
+
+            byte[] array = new byte[9];
+
+            _udpListener.Send(array);
+
+            array = new byte[16];
+
+            _udpListener.ReceiveTimeout = 5000;
+            int receivedUdp = _udpListener.Receive(array);
+            _udpListener.ReceiveTimeout = 0;
+
+            if (receivedUdp != 16 || array[0] != 1)
+            {
+                throw new Exception("Timeout waiting for UDP acknowledgement from server.");
+            }
+            SocketAsyncEventArgs udpArgs = new SocketAsyncEventArgs();
+
+            udpArgs.BufferList = null;
+            udpArgs.SetBuffer(_udpBuffer, 0, maxMessageBuffer);
+
+            udpArgs.Completed += ReceiveDataCompletedCallback;
+
+            bool udpCompletingAsync = _udpListener.ReceiveAsync(udpArgs);
+            if (!udpCompletingAsync)
+                ReceiveDataCompletedCallback(this, udpArgs);
         }
 
         /// <inheritdoc/>
-        public override void SendMessage(IKingBufferWriter writer)
+        public override void SendMessage(KingBufferWriter writer)
         {
-            try
-            {
-                _udpListener.SendTo(writer.BufferData, _udpRemoteEndPoint);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            _udpListener.SendTo(writer.BufferData, _udpRemoteEndPoint);
         }
 
         #endregion
@@ -92,34 +92,35 @@ namespace KingNetwork.Client.Listeners
         /// <summary> 	
         /// The callback from received message from connected server. 	
         /// </summary> 	
-        /// <param name="asyncResult">The async result from a received message from connected server.</param>
-        private void ReceiveDataCallback(IAsyncResult asyncResult)
+        /// <param name="sender">The sender from a received message from connected server.</param>
+        /// <param name="e">The event args from a received message from connected server.</param>
+        private void ReceiveDataCompletedCallback(object sender, SocketAsyncEventArgs e)
         {
-            try
+            bool receiveDataStatus;
+            do
             {
-                if (_udpListener.Connected)
-                { 
-                    int bytesRead = _udpListener.EndReceive(asyncResult);
-
-                    if (bytesRead > 0)
+                if (e.SocketError == SocketError.Success)
+                {
+                    using (var kingBufferReader = KingBufferReader.Create(e.Buffer, 0, e.BytesTransferred))
                     {
-                        var kingBufferReader = KingBufferReader.Create((byte[])asyncResult.AsyncState, 0, bytesRead);
+                        receiveDataStatus = _udpListener.ReceiveAsync(e);
 
-                        _messageReceivedHandler.Invoke(kingBufferReader);
-
-                        _udpListener.BeginReceiveFrom(_udpBuffer, 0, _udpBuffer.Length, SocketFlags.None, ref _udpRemoteEndPoint, new AsyncCallback(this.ReceiveDataCallback), (byte[])asyncResult.AsyncState);
+                        if (kingBufferReader.Length != 0)
+                            _messageReceivedHandler.Invoke(kingBufferReader);
                     }
+                }
+                else if (e.SocketError == SocketError.ConnectionReset)
+                {
+                    receiveDataStatus = _udpListener.ReceiveAsync(e);
                 }
                 else
                 {
                     _disconnectedHandler();
+                    e.Completed -= ReceiveDataCompletedCallback;
+                    return;
                 }
-            }
-            catch (Exception ex)
-            {
-                _disconnectedHandler();
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+
+            } while (!receiveDataStatus);
         }
 
         #endregion

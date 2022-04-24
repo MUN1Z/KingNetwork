@@ -63,11 +63,11 @@ namespace KingNetwork.Benchmarks.Load
 
             for (int i = 0; i < clientConnections; ++i)
             {
-                var client = new KingClient();
+                var client = new KingClient(_networkListenerType);
 
                 client.MessageReceivedHandler = OnMessageReceived;
 
-                client.Connect(ip, 7171, _networkListenerType);
+                client.Connect(ip, 7171);
                 clients.Add(client);
 
                 Thread.Sleep(15);

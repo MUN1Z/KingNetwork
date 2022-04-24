@@ -1,13 +1,28 @@
-using NUnit.Framework;
+using Xunit;
+using XUnitPriorityOrderer;
 
 namespace KingNetwork.Shared.Tests
 {
-	[TestFixture]
-	public sealed class TestSharedExample
+    [Order(3)]
+	public class SharedTests
 	{
-		[Test]
-		public void Example() {
-			Assert.AreEqual(1, 1);
+		#region constructors
+
+		public SharedTests()
+		{
+
 		}
-	}
+
+		#endregion
+
+		#region tests implementations
+
+		[Fact, Order(1)]
+		public void Test()
+		{
+			Assert.True(true);
+		}
+
+        #endregion
+    }
 }

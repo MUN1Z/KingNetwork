@@ -1,5 +1,4 @@
 using KingNetwork.Server;
-using System;
 using KingNetwork.Server.Interfaces;
 using KingNetwork.Shared;
 using KingNetwork.SimpleExample.Shared;
@@ -22,12 +21,14 @@ namespace KingNetwork.SimpleExample.Server
         {
             try
             {
-                _networkListenerType = NetworkListenerType.RUDP;
+                _networkListenerType = NetworkListenerType.UDP;
 
-                var server = new KingServer();
+                var server = new KingServer(_networkListenerType);
+
                 server.OnMessageReceivedHandler = OnMessageReceived;
                 server.OnClientConnectedHandler = OnClientConnectedHandler;
-                server.Start(_networkListenerType);
+
+                server.StartAsync(out var cancellationToken);
 
                 Console.ReadLine();
             }
@@ -92,6 +93,7 @@ namespace KingNetwork.SimpleExample.Server
 
                 var writer = KingBufferWriter.Create();
 
+                writer.Write(MyPackets.PacketOne);
                 writer.Write("Testinho2");
 
                 client.SendMessage(writer);

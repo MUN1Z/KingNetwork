@@ -3,7 +3,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/mun1z/kingnetwork?label=stargazers&logoColor=yellow&style=social)](https://github.com/mun1z/kingnetwork/stargazers)
 
 <p align="center">
-  <img src="https://github.com/Mun1z/KingNetwork/blob/master/resources/logo.png">
+  <img src="https://github.com/Mun1z/KingNetwork/blob/main/resources/logo.png">
 </p>
 
 # Examples
@@ -11,7 +11,7 @@
 **Cubes Unity Example**<br/>
 
 <p align="center">
-  <img src="https://github.com/Mun1z/KingNetwork/blob/master/resources/CubesExample.gif">
+  <img src="https://github.com/Mun1z/KingNetwork/blob/main/resources/CubesExample.gif">
 </p>
 
 <br/>
@@ -29,10 +29,10 @@
 
 # Using the TCP connection on KingServer
 ```C#
-// create and start the server
+// create and start the async server
 var server = new KingServer(port: 7171);
 server.MessageReceivedHandler = OnMessageReceived;
-server.Start();
+server.StartAsync(out var cancellationToken);
 
 // implements the callback for MessageReceivedHandler
 private void OnMessageReceived(IClient client, IKingBufferReader reader)
@@ -78,9 +78,9 @@ client.Disconnect();
 # Using the UDP connection on KingServer
 ```C#
 // create and start the server
-var server = new KingServer(port: 7171);
+var server = new KingServer(listenerType: NetworkListenerType.UDP, port: 7171);
 server.MessageReceivedHandler = OnMessageReceived;
-server.Start(NetworkListenerType.UDP);
+server.Start(out var cancellationToken);
 
 // implements the callback for MessageReceivedHandler
 private void OnMessageReceived(IClient client, IKingBufferReader reader)
@@ -102,7 +102,7 @@ server.Stop();
 # Using the UDP connection on KingClient
 ```C#
 // create and connect the client
-var client = new KingClient();
+var client = new KingClient(listenerType: NetworkListenerType.UDP);
 client.MessageReceivedHandler = OnMessageReceived;
 client.Connect("127.0.0.1", 7171, NetworkListenerType.UDP);
 

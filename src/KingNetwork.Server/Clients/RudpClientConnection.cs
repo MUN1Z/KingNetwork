@@ -54,7 +54,7 @@ namespace KingNetwork.Server
         #region constructor
 
         /// <summary>
-        /// Creates a new instance of a <see cref="UDPClientConnection"/>.
+        /// Creates a new instance of a <see cref="UdpClientConnection"/>.
         /// </summary>
         /// <param name="id">The identifier number of connected client.</param>
         /// <param name="tcpSocketClient">The tcp client from socket connection.</param>
@@ -64,32 +64,25 @@ namespace KingNetwork.Server
         /// <param name="maxMessageBuffer">The max length of message buffer.</param>
         public RudpClientConnection(ushort id, Socket tcpSocketClient, Socket udpSocketClient, EndPoint remoteEndPoint, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
         {
-            try
-            {
-                _messageReceivedHandler = messageReceivedHandler;
-                _clientDisconnectedHandler = clientDisconnectedHandler;
-                Id = id;
+            _messageReceivedHandler = messageReceivedHandler;
+            _clientDisconnectedHandler = clientDisconnectedHandler;
+            Id = id;
 
-                //Udp
-                _udpListener = udpSocketClient;
-                _remoteEndPoint = remoteEndPoint;
+            //Udp
+            _udpListener = udpSocketClient;
+            _remoteEndPoint = remoteEndPoint;
 
-                //Tcp
-                _tcpListener = tcpSocketClient;
-                _tcpListener.ReceiveBufferSize = maxMessageBuffer;
-                _tcpListener.SendBufferSize = maxMessageBuffer;
-                _tcpBuffer = new byte[maxMessageBuffer];
-                _tcpStream = new NetworkStream(_tcpListener);
+            //Tcp
+            _tcpListener = tcpSocketClient;
+            _tcpListener.ReceiveBufferSize = maxMessageBuffer;
+            _tcpListener.SendBufferSize = maxMessageBuffer;
+            _tcpBuffer = new byte[maxMessageBuffer];
+            _tcpStream = new NetworkStream(_tcpListener);
 
-                Id = id;
-                IpAddress = _tcpListener.RemoteEndPoint.ToString();
+            Id = id;
+            IpAddress = _tcpListener.RemoteEndPoint.ToString();
 
-                _tcpStream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveTcpDataCallback, null);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            _tcpStream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveTcpDataCallback, null);
         }
 
         #endregion
@@ -97,51 +90,30 @@ namespace KingNetwork.Server
         #region public methods implementation
 
         /// <inheritdoc/>
-        public override void SendMessage(IKingBufferWriter writer)
+        public override void SendMessage(KingBufferWriter writer)
         {
-            try
-            {
-                SendMessage(writer, RudpMessageType.Reliable);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            SendMessage(writer, RudpMessageType.Reliable);
         }
 
         /// <inheritdoc/>
-        public void SendMessage(IKingBufferWriter writer, RudpMessageType messageType)
+        public void SendMessage(KingBufferWriter writer, RudpMessageType messageType)
         {
-            try
-            {
-                if (messageType == RudpMessageType.Reliable)
-                    _udpListener?.BeginSendTo(writer.BufferData, 0, writer.BufferData.Length, SocketFlags.None, _remoteEndPoint, UdpSendCompleted, new Action<SocketError>(UdpSendCompleted));
-                else
-                    _udpListener?.BeginSendTo(writer.BufferData, 0, writer.BufferData.Length, SocketFlags.None, _remoteEndPoint, UdpSendCompleted, new Action<SocketError>(UdpSendCompleted));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            if (messageType == RudpMessageType.Reliable)
+                _udpListener?.BeginSendTo(writer.BufferData, 0, writer.BufferData.Length, SocketFlags.None, _remoteEndPoint, UdpSendCompleted, new Action<SocketError>(UdpSendCompleted));
+            else
+                _udpListener?.BeginSendTo(writer.BufferData, 0, writer.BufferData.Length, SocketFlags.None, _remoteEndPoint, UdpSendCompleted, new Action<SocketError>(UdpSendCompleted));
         }
 
         /// <inheritdoc/>
         public override void Disconnect()
         {
-            try
-            {
-                _tcpListener?.Close();
-                _tcpListener?.Dispose();
+            _tcpListener?.Close();
+            _tcpListener?.Dispose();
 
-                _udpListener?.Close();
-                _udpListener?.Dispose();
+            _udpListener?.Close();
+            _udpListener?.Dispose();
 
-                _clientDisconnectedHandler(this);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            _clientDisconnectedHandler(this);
         }
 
         #endregion
@@ -183,9 +155,8 @@ namespace KingNetwork.Server
             {
                 _tcpListener.Dispose();
                 _clientDisconnectedHandler(this);
+                throw ex;
             }
-
-            Console.WriteLine($"Tcp Client '{IpAddress}' Disconnected.");
         }
 
         /// <summary>
@@ -230,7 +201,7 @@ namespace KingNetwork.Server
             catch (Exception ex)
             {
                 _clientDisconnectedHandler(this);
-                Console.WriteLine($"Udp Client '{IpAddress}' Disconnected.");
+                throw ex;
             }
         }
 

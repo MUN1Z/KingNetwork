@@ -26,7 +26,7 @@ namespace KingNetwork.Client.Listeners
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="disconnectedHandler">The callback of client disconnected handler implementation.</param>
         public TcpNetworkListener(MessageReceivedHandler messageReceivedHandler, DisconnectedHandler disconnectedHandler)
-            : base (messageReceivedHandler, disconnectedHandler) {  }
+            : base(messageReceivedHandler, disconnectedHandler) { }
 
         #endregion
 
@@ -35,38 +35,24 @@ namespace KingNetwork.Client.Listeners
         /// <inheritdoc/>
         public override void StartClient(string ip, int port, ushort maxMessageBuffer)
         {
-            try
-            {
-                _tcpRemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            _tcpRemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
 
-                _tcpListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _tcpListener.ReceiveBufferSize = maxMessageBuffer;
-                _tcpListener.SendBufferSize = maxMessageBuffer;
+            _tcpListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _tcpListener.ReceiveBufferSize = maxMessageBuffer;
+            _tcpListener.SendBufferSize = maxMessageBuffer;
 
-                _tcpListener.Connect(_tcpRemoteEndPoint);
+            _tcpListener.Connect(_tcpRemoteEndPoint);
 
-                _tcpBuffer = new byte[maxMessageBuffer];
-                _stream = new NetworkStream(_tcpListener);
-                
-                _stream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveDataCallback, null);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            _tcpBuffer = new byte[maxMessageBuffer];
+            _stream = new NetworkStream(_tcpListener);
+
+            _stream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveDataCallback, null);
         }
 
         /// <inheritdoc/>
-        public override void SendMessage(IKingBufferWriter writer)
+        public override void SendMessage(KingBufferWriter writer)
         {
-            try
-            {
-                _stream.BeginWrite(writer.BufferData, 0, writer.Length, null, null);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            _stream.BeginWrite(writer.BufferData, 0, writer.Length, null, null);
         }
 
         #endregion
@@ -107,7 +93,7 @@ namespace KingNetwork.Client.Listeners
             {
                 _stream.Close();
                 _disconnectedHandler();
-                Console.WriteLine($"Error: {ex.Message}.");
+                throw ex;
             }
         }
 

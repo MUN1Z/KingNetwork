@@ -3,8 +3,6 @@ using KingNetwork.Shared.Enums;
 using KingNetwork.Shared;
 using KingNetwork.Shared.Interfaces;
 using KingNetwork.SimpleExample.Shared;
-using System;
-using System.Threading;
 
 namespace KingNetwork.SimpleExample.Client
 {
@@ -23,11 +21,14 @@ namespace KingNetwork.SimpleExample.Client
         {
             try
             {
-                _networkListenerType = NetworkListenerType.RUDP;
+                _networkListenerType = NetworkListenerType.UDP;
 
-                var client = new KingClient();
+                var client = new KingClient(_networkListenerType);
                 client.MessageReceivedHandler = OnMessageReceived;
-                client.Connect("127.0.0.1", 7171, _networkListenerType);
+
+                Thread.Sleep(2000);
+
+                client.Connect("127.0.0.1", 7171);
 
                 if (client.HasConnected)
                 {
@@ -36,7 +37,7 @@ namespace KingNetwork.SimpleExample.Client
 
                 new Thread(() =>
                 {
-                    Thread.Sleep(5000);
+                    Thread.Sleep(2000);
 
                     using (var buffer = KingBufferWriter.Create())
                     {
@@ -46,12 +47,14 @@ namespace KingNetwork.SimpleExample.Client
                         if(_networkListenerType == NetworkListenerType.RUDP)
                         {
                             buffer.Write("Testinho1 - Reliable");
+
                             client.SendMessage(buffer, RudpMessageType.Reliable);
 
                             buffer.Reset();
 
                             buffer.Write(MyPackets.PacketOne);
                             buffer.Write("Testinho2 - Unreliable");
+
                             client.SendMessage(buffer, RudpMessageType.Unreliable);
                         }
                         else
@@ -84,7 +87,8 @@ namespace KingNetwork.SimpleExample.Client
                     switch (reader.ReadMessagePacket<MyPackets>())
                     {
                         case MyPackets.PacketOne:
-                            Console.WriteLine("OnMessageReceived for PacketOne");
+                            Console.WriteLine($"OnMessageReceived PacketOne from server");
+                            Console.WriteLine($"Message: {reader.ReadString()}");
                             break;
                     }
             }

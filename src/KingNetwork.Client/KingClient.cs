@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using KingNetwork.Shared.Enums;
 using KingNetwork.Client.Interfaces;
 using KingNetwork.Client.Listeners;
 using KingNetwork.Shared;
 using KingNetwork.Shared.Interfaces;
+using System.Diagnostics;
 
 namespace KingNetwork.Client
 {
@@ -27,9 +27,9 @@ namespace KingNetwork.Client
         private INetworkListener _networkListener;
 
         /// <summary> 	
-        /// The thread for start the network listener. 	
+        /// The Server network listener type. 	
         /// </summary> 	
-        private Thread _clientThread;
+        private readonly NetworkListenerType _listenerType;
 
         #endregion
 
@@ -65,11 +65,15 @@ namespace KingNetwork.Client
         #region constructors
 
         /// <summary>
-		/// Creates a new instance of a <see cref="KingClient"/>.
-		/// </summary>
-        public KingClient()
+        /// Creates a new instance of a <see cref="KingClient"/>.
+        /// <param name="listenerType">The listener type to creation of listener, the default value is NetworkListenerType.TCP.</param>
+        /// </summary>
+        public KingClient(NetworkListenerType listenerType = NetworkListenerType.TCP)
         {
+            _listenerType = listenerType;
             _clientPacketHandlers = new Dictionary<byte, ClientPacketHandler>();
+
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledException);
         }
 
         #endregion
@@ -77,26 +81,31 @@ namespace KingNetwork.Client
         #region public methods implementation
 
         /// <summary>
+        /// Provisory method to log all exceptions of client.
+        /// </summary>
+        /// <param name="sender">The sender of exception.</param>
+        /// <param name="e">The exception event args.</param>
+        private void UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            var message = $"Exception: {(e.ExceptionObject as Exception).Message}.";
+            Debug.WriteLine(message);
+            Console.WriteLine(message);
+        }
+
+        /// <summary>
         /// Method responsible for put packet handler in the list of packet handlers.
         /// </summary>
         /// <param name="packet">The value of packet handler.</param>
         public void PutHandler<TPacketHandler, TPacket>(TPacket packet) where TPacketHandler : PacketHandler, new() where TPacket : IConvertible
         {
-            try
+            if (Enum.IsDefined(typeof(TPacket), packet))
             {
-                if (Enum.IsDefined(typeof(TPacket), packet))
-                {
-                    if (_clientPacketHandlers.ContainsKey((byte)(IConvertible)packet))
-                        _clientPacketHandlers.Remove((byte)(IConvertible)packet);
+                if (_clientPacketHandlers.ContainsKey((byte)(IConvertible)packet))
+                    _clientPacketHandlers.Remove((byte)(IConvertible)packet);
 
-                    var handler = new TPacketHandler();
+                var handler = new TPacketHandler();
 
-                    _clientPacketHandlers.Add((byte)(IConvertible)packet, handler.HandleMessageData);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
+                _clientPacketHandlers.Add((byte)(IConvertible)packet, handler.HandleMessageData);
             }
         }
 
@@ -107,19 +116,12 @@ namespace KingNetwork.Client
         /// <param name="clientPacketHandler">The client packet handler callback implementation.</param>
         public void PutHandler<TPacket>(TPacket packet, ClientPacketHandler clientPacketHandler) where TPacket : IConvertible
         {
-            try
+            if (Enum.IsDefined(typeof(TPacket), packet))
             {
-                if (Enum.IsDefined(typeof(TPacket), packet))
-                {
-                    if (_clientPacketHandlers.ContainsKey((byte)(IConvertible)packet))
-                        _clientPacketHandlers.Remove((byte)(IConvertible)packet);
-                    
-                    _clientPacketHandlers.Add((byte)(IConvertible)packet, clientPacketHandler);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
+                if (_clientPacketHandlers.ContainsKey((byte)(IConvertible)packet))
+                    _clientPacketHandlers.Remove((byte)(IConvertible)packet);
+
+                _clientPacketHandlers.Add((byte)(IConvertible)packet, clientPacketHandler);
             }
         }
 
@@ -128,36 +130,20 @@ namespace KingNetwork.Client
         /// </summary>
         /// <param name="ip">The ip address from server.</param>
         /// <param name="port">The port number from server, the default value us 7171</param>
-        /// <param name="listenerType">The listener type to creation of listener, the default value is NetworkListenerType.TCP.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer, the default value is 4096.</param>
         /// <returns>The boolean value of client connection.</returns>
-        public bool Connect(string ip, ushort port = 7171, NetworkListenerType listenerType = NetworkListenerType.TCP, ushort maxMessageBuffer = 4096)
+        public bool Connect(string ip, ushort port = 7171, ushort maxMessageBuffer = 4096)
         {
-            try
-            {
-                if (listenerType == NetworkListenerType.TCP)
-                    _networkListener = new TcpNetworkListener(OnMessageReceived, OnDisconnected);
-                else if (listenerType == NetworkListenerType.UDP)
-                    _networkListener = new UdpNetworkListener(OnMessageReceived, OnDisconnected);
-                else if (listenerType == NetworkListenerType.RUDP)
-                    _networkListener = new RudpNetworkListener(OnMessageReceived, OnDisconnected);
-                else if (listenerType == NetworkListenerType.WSBinary || listenerType == NetworkListenerType.WSText)
-                    _networkListener = new WSNetworkListener(listenerType, OnMessageReceived, OnDisconnected);
+            if (_listenerType == NetworkListenerType.TCP)
+                _networkListener = new TcpNetworkListener(OnMessageReceived, OnDisconnected);
+            else if (_listenerType == NetworkListenerType.UDP)
+                _networkListener = new UdpNetworkListener(OnMessageReceived, OnDisconnected);
+            else if (_listenerType == NetworkListenerType.RUDP)
+                _networkListener = new RudpNetworkListener(OnMessageReceived, OnDisconnected);
+            else if (_listenerType == NetworkListenerType.WSBinary || _listenerType == NetworkListenerType.WSText)
+                _networkListener = new WebSocketNetworkListener(_listenerType, OnMessageReceived, OnDisconnected);
 
-                _clientThread = new Thread(() =>
-                {
-                    _networkListener.StartClient(ip, port, maxMessageBuffer);
-                });
-
-                _clientThread.IsBackground = true;
-                _clientThread.Start();
-
-                Thread.Sleep(15); // Delay for socket connection.
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            _networkListener.StartClient(ip, port, maxMessageBuffer);
 
             return HasConnected;
         }
@@ -167,30 +153,16 @@ namespace KingNetwork.Client
         /// </summary>
         public void Disconnect()
         {
-            try
-            {
-                _networkListener.Stop();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            _networkListener.Stop();
         }
 
         /// <summary>
         /// Method responsible for send message to connected server.
         /// </summary>
         /// <param name="writer">The king buffer writer to send message.</param>
-        public void SendMessage(IKingBufferWriter writer)
+        public void SendMessage(KingBufferWriter writer)
         {
-            try
-            {
-                _networkListener.SendMessage(writer);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            _networkListener.SendMessage(writer);
         }
 
         /// <summary>
@@ -198,19 +170,12 @@ namespace KingNetwork.Client
         /// </summary>
         /// <param name="writer">The king buffer writer to send message.</param>
         /// <param name="messageType">The message type to send message listener.</param>
-        public void SendMessage(IKingBufferWriter writer, RudpMessageType messageType)
+        public void SendMessage(KingBufferWriter writer, RudpMessageType messageType)
         {
-            try
-            {
-                if (_networkListener is RudpNetworkListener rudpNetworkListener)
-                    rudpNetworkListener.SendMessage(writer, messageType);
-                else
-                    _networkListener.SendMessage(writer);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            if (_networkListener is RudpNetworkListener rudpNetworkListener)
+                rudpNetworkListener.SendMessage(writer, messageType);
+            else
+                _networkListener.SendMessage(writer);
         }
 
         #endregion
@@ -221,19 +186,12 @@ namespace KingNetwork.Client
         /// Method responsible for execute the callback of message received from client in server.
         /// </summary>
         /// <param name="reader">The king buffer reader of received message.</param>
-        private void OnMessageReceived(IKingBufferReader reader)
+        private void OnMessageReceived(KingBufferReader reader)
         {
-            try
-            {
-                if (reader.Length > 0 && _clientPacketHandlers.Count > 0 && _clientPacketHandlers.TryGetValue(reader.ReadByte(), out var clientPacketHandler))
-                    clientPacketHandler(reader);
-                else
-                    MessageReceivedHandler(reader);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            if (reader.Length > 0 && _clientPacketHandlers.Count > 0 && _clientPacketHandlers.TryGetValue(reader.ReadByte(), out var clientPacketHandler))
+                clientPacketHandler(reader);
+            else
+                MessageReceivedHandler(reader);
         }
 
         /// <summary>
@@ -241,15 +199,8 @@ namespace KingNetwork.Client
         /// </summary>
         private void OnDisconnected()
         {
-            try
-            {
-                _networkListener.Stop();
-                DisconnectedHandler?.Invoke();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            _networkListener.Stop();
+            DisconnectedHandler?.Invoke();
         }
 
         #endregion

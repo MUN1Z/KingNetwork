@@ -45,6 +45,8 @@ namespace KingNetwork.Shared
         /// <inheritdoc/>
         public int Position { get; private set; }
 
+        public byte[] BufferData => _bytes;
+
         #endregion
 
         #region constructors

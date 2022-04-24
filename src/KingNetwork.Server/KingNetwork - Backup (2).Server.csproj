@@ -11,7 +11,7 @@
     <Copyright>Felipe Muniz (Mun1z)</Copyright>
     <Description>KingNetwork is an open source library to facilitate the creation and communication of clients and servers through TCP, UDP and Web sockets.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,6 +1,5 @@
-﻿using KingNetwork.Shared.Enums;
-using KingNetwork.Client.Interfaces;
-using KingNetwork.Shared.Interfaces;
+﻿using KingNetwork.Client.Interfaces;
+using KingNetwork.Shared;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -39,7 +38,7 @@ namespace KingNetwork.Client.Listeners
         /// The stream of listener client.
         /// </summary>
         protected NetworkStream _stream;
-        
+
         /// <summary>
         /// The listener for tcp connection.
         /// </summary>
@@ -85,7 +84,7 @@ namespace KingNetwork.Client.Listeners
         /// The delegate of message received handler from server connection.
         /// </summary>
         /// <param name="reader">The king buffer reader of received message.</param>
-        public delegate void MessageReceivedHandler(IKingBufferReader reader);
+        public delegate void MessageReceivedHandler(KingBufferReader reader);
 
         /// <summary>
         /// The delegate of client disconnected handler connection.
@@ -103,15 +102,8 @@ namespace KingNetwork.Client.Listeners
         /// <param name="clientConnectedHandler">The client connected handler callback implementation.</param>
         public NetworkListener(MessageReceivedHandler messageReceivedHandler, DisconnectedHandler clientDisconnectedHandler)
         {
-            try
-            {
-                _messageReceivedHandler = messageReceivedHandler;
-                _disconnectedHandler = clientDisconnectedHandler;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            _messageReceivedHandler = messageReceivedHandler;
+            _disconnectedHandler = clientDisconnectedHandler;
         }
 
         #endregion
@@ -122,7 +114,7 @@ namespace KingNetwork.Client.Listeners
         public virtual void StartClient(string ip, int port, ushort maxMessageBuffer) { }
 
         /// <inheritdoc/>
-        public virtual void SendMessage(IKingBufferWriter writer) { }
+        public virtual void SendMessage(KingBufferWriter writer) { }
 
         /// <inheritdoc/>
         public void Dispose() => Dispose(true);
@@ -130,14 +122,7 @@ namespace KingNetwork.Client.Listeners
         /// <inheritdoc/>
         public virtual void Stop()
         {
-            try
-            {
-                Dispose(true);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            Dispose(true);
         }
 
         #endregion

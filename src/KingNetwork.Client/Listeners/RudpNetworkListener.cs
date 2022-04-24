@@ -36,85 +36,88 @@ namespace KingNetwork.Client.Listeners
         /// <inheritdoc/>
         public override void StartClient(string ip, int port, ushort maxMessageBuffer)
         {
+            //tcp
+            _tcpRemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+
+            _tcpListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _tcpListener.ReceiveBufferSize = maxMessageBuffer;
+            _tcpListener.SendBufferSize = maxMessageBuffer;
+
             try
             {
-                //tcp
-                _tcpRemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-
-                _tcpListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _tcpListener.ReceiveBufferSize = maxMessageBuffer;
-                _tcpListener.SendBufferSize = maxMessageBuffer;
-
                 _tcpListener.Connect(_tcpRemoteEndPoint);
+            }
+            catch (SocketException e)
+            {
+                throw new Exception("Unable to establish TCP connection to remote server.", e);
+            }
 
-                _tcpBuffer = new byte[maxMessageBuffer];
-                _stream = new NetworkStream(_tcpListener);
 
-                _stream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveTcpDataCallback, null);
+            _tcpBuffer = new byte[maxMessageBuffer];
+            _stream = new NetworkStream(_tcpListener);
 
-                //udp
-                _udpRemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
+            _stream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveTcpDataCallback, null);
 
-                _udpListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            //udp
+            _udpRemoteEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
 
-                _udpListener.ReceiveBufferSize = maxMessageBuffer;
-                _udpListener.SendBufferSize = maxMessageBuffer;
+            _udpListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-                _udpBuffer = new byte[maxMessageBuffer];
+            _udpListener.ReceiveBufferSize = maxMessageBuffer;
+            _udpListener.SendBufferSize = maxMessageBuffer;
 
+            _udpBuffer = new byte[maxMessageBuffer];
+
+            try
+            {
                 _udpListener.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0));
                 _udpListener.Connect(_udpRemoteEndPoint);
-
-                byte[] array = new byte[9];
-
-                _udpListener.Send(array);
-
-                 array = new byte[16];
-
-                _udpListener.ReceiveTimeout = 5000;
-                _udpListener.Receive(array);
-                _udpListener.ReceiveTimeout = 0;
-
-                if (array[0] != 1)
-                {
-                    throw new SocketException(10053);
-                }
-
-                _udpListener.BeginReceiveFrom(_udpBuffer, 0, _udpListener.ReceiveBufferSize, SocketFlags.None, ref _udpRemoteEndPoint, new AsyncCallback(ReceiveUdpDataCallback), _udpBuffer);
             }
-            catch (Exception ex)
+            catch (SocketException e)
             {
-                Console.WriteLine($"Error: {ex.Message}.");
+                throw new Exception("Unable to bind UDP ports.", e);
             }
+
+            byte[] array = new byte[9];
+
+            _udpListener.Send(array);
+
+            array = new byte[16];
+
+            _udpListener.ReceiveTimeout = 5000;
+            int receivedUdp = _udpListener.Receive(array);
+            _udpListener.ReceiveTimeout = 0;
+
+            if (receivedUdp != 16 || array[0] != 1)
+            {
+                throw new Exception("Timeout waiting for UDP acknowledgement from server.");
+            }
+
+            SocketAsyncEventArgs udpArgs = new SocketAsyncEventArgs();
+
+            udpArgs.BufferList = null;
+            udpArgs.SetBuffer(_udpBuffer, 0, maxMessageBuffer);
+
+            udpArgs.Completed += ReceiveDataCompletedCallback;
+
+            bool udpCompletingAsync = _udpListener.ReceiveAsync(udpArgs);
+            if (!udpCompletingAsync)
+                ReceiveDataCompletedCallback(this, udpArgs);
         }
 
         /// <inheritdoc/>
-        public override void SendMessage(IKingBufferWriter writer)
+        public override void SendMessage(KingBufferWriter writer)
         {
-            try
-            {
-                SendMessage(writer, RudpMessageType.Reliable);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            SendMessage(writer, RudpMessageType.Reliable);
         }
 
         /// <inheritdoc/>
-        public void SendMessage(IKingBufferWriter writer, RudpMessageType type)
+        public void SendMessage(KingBufferWriter writer, RudpMessageType type)
         {
-            try
-            {
-                if (type == RudpMessageType.Reliable)
-                    _stream.BeginWrite(writer.BufferData, 0, writer.Length, null, null);
-                else
-                    _udpListener.SendTo(writer.BufferData, _udpRemoteEndPoint);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            if (type == RudpMessageType.Reliable)
+                _stream.BeginWrite(writer.BufferData, 0, writer.Length, null, null);
+            else
+                _udpListener.SendTo(writer.BufferData, _udpRemoteEndPoint);
         }
 
         #endregion
@@ -155,41 +158,42 @@ namespace KingNetwork.Client.Listeners
             {
                 _stream.Close();
                 _disconnectedHandler();
-                Console.WriteLine($"Error: {ex.Message}.");
+                throw ex;
             }
         }
 
         /// <summary> 	
         /// The callback from received message from connected server. 	
         /// </summary> 	
-        /// <param name="asyncResult">The async result from a received message from connected server.</param>
-        private void ReceiveUdpDataCallback(IAsyncResult asyncResult)
+        /// <param name="sender">The sender from a received message from connected server.</param>
+        /// <param name="e">The event args from a received message from connected server.</param>
+        private void ReceiveDataCompletedCallback(object sender, SocketAsyncEventArgs e)
         {
-            try
+            bool receiveDataStatus;
+            do
             {
-                if (_udpListener.Connected)
-                { 
-                    int bytesRead = _udpListener.EndReceive(asyncResult);
-
-                    if (bytesRead > 0)
+                if (e.SocketError == SocketError.Success)
+                {
+                    using (var kingBufferReader = KingBufferReader.Create(e.Buffer, 0, e.BytesTransferred))
                     {
-                        var kingBufferReader = KingBufferReader.Create((byte[])asyncResult.AsyncState, 0, bytesRead);
+                        receiveDataStatus = _udpListener.ReceiveAsync(e);
 
-                        _messageReceivedHandler.Invoke(kingBufferReader);
-
-                        _udpListener.BeginReceiveFrom(_udpBuffer, 0, _udpBuffer.Length, SocketFlags.None, ref _udpRemoteEndPoint, new AsyncCallback(this.ReceiveUdpDataCallback), (byte[])asyncResult.AsyncState);
+                        if (kingBufferReader.Length != 0)
+                            _messageReceivedHandler.Invoke(kingBufferReader);
                     }
+                }
+                else if (e.SocketError == SocketError.ConnectionReset)
+                {
+                    receiveDataStatus = _udpListener.ReceiveAsync(e);
                 }
                 else
                 {
                     _disconnectedHandler();
+                    e.Completed -= ReceiveDataCompletedCallback;
+                    return;
                 }
-            }
-            catch (Exception ex)
-            {
-                _disconnectedHandler();
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+
+            } while (!receiveDataStatus);
         }
 
         #endregion

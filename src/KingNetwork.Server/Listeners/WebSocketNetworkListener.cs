@@ -32,30 +32,26 @@ namespace KingNetwork.Server
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The number max of connected clients, the default value is 1000.</param>
-        public WebSocketNetworkListener(NetworkListenerType listenerType, ushort port, ClientConnectedHandler clientConnectedHandler,
+        public WebSocketNetworkListener(
+            NetworkListenerType listenerType,
+            ushort port,
+            ClientConnectedHandler clientConnectedHandler,
             MessageReceivedHandler messageReceivedHandler,
             ClientDisconnectedHandler clientDisconnectedHandler,
-            ushort maxMessageBuffer) : base(port, clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer)
+            ushort maxMessageBuffer) : base(clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer)
         {
-            try
-            {
-                var hostIp = Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(c => c.AddressFamily == AddressFamily.InterNetwork).ToString();
+            var hostIp = Dns.GetHostEntry(Dns.GetHostName()).AddressList.FirstOrDefault(c => c.AddressFamily == AddressFamily.InterNetwork).ToString();
 
-                _listenerType = listenerType;
-                _httpListener = new HttpListener();
-                _httpListener.Prefixes.Add($"http://localhost:{port}/");
-                _httpListener.Prefixes.Add($"http://127.0.0.1:{port}/");
-                _httpListener.Prefixes.Add($"http://{hostIp}:{port}/");
-                _httpListener.Start();
+            _listenerType = listenerType;
+            _httpListener = new HttpListener();
+            _httpListener.Prefixes.Add($"http://localhost:{port}/");
+            _httpListener.Prefixes.Add($"http://127.0.0.1:{port}/");
+            _httpListener.Prefixes.Add($"http://{hostIp}:{port}/");
+            _httpListener.Start();
 
-                Console.WriteLine($"Starting the WebSocket network listener on port: {port}.");
+            Console.WriteLine($"Starting the WebSocket network listener on port: {port}.");
 
-                WaitForConnections();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            WaitForConnections();
         }
 
         #endregion
@@ -67,14 +63,14 @@ namespace KingNetwork.Server
         /// </summary>
         private async void WaitForConnections()
         {
-            while (true)
+            while (!_disposedValue)
             {
                 var listenerContext = await _httpListener.GetContextAsync();
                 if (listenerContext.Request.IsWebSocketRequest)
                 {
                     var webSocket = (await listenerContext.AcceptWebSocketAsync(null)).WebSocket;
                     var clientId = GetNewClientIdentifier();
-                    var client = new WSClientConnection(clientId, listenerContext.Request.RemoteEndPoint.ToString(), _listenerType, webSocket, listenerContext, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+                    var client = new WebSocketClientConnection(clientId, listenerContext.Request.RemoteEndPoint.ToString(), _listenerType, webSocket, listenerContext, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
                     _clientConnectedHandler(client);
                 }
                 else

@@ -8,7 +8,7 @@ namespace KingNetwork.Server
     /// <summary>
     /// This class is responsible for represents the tcp client connection.
     /// </summary>
-    public class TCPClientConnection : ClientConnection
+    public class TcpClientConnection : ClientConnection
     {
         #region private members
 
@@ -42,35 +42,28 @@ namespace KingNetwork.Server
         #region constructors
 
         /// <summary>
-        /// Creates a new instance of a <see cref="TCPClientConnection"/>.
+        /// Creates a new instance of a <see cref="TcpClientConnection"/>.
         /// </summary>
         /// <param name="id">The identifier number of connected client.</param>
         /// <param name="socketClient">The tcp client from connected client.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The max length of message buffer.</param>
-        public TCPClientConnection(ushort id, Socket socketClient, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
+        public TcpClientConnection(ushort id, Socket socketClient, MessageReceivedHandler messageReceivedHandler, ClientDisconnectedHandler clientDisconnectedHandler, ushort maxMessageBuffer)
         {
-            try
-            {
-                _socketClient = socketClient;
-                _messageReceivedHandler = messageReceivedHandler;
-                _clientDisconnectedHandler = clientDisconnectedHandler;
+            _socketClient = socketClient;
+            _messageReceivedHandler = messageReceivedHandler;
+            _clientDisconnectedHandler = clientDisconnectedHandler;
 
-                _socketClient.ReceiveBufferSize = maxMessageBuffer;
-                _socketClient.SendBufferSize = maxMessageBuffer;
-                _buffer = new byte[maxMessageBuffer];
-                _stream = new NetworkStream(_socketClient);
+            _socketClient.ReceiveBufferSize = maxMessageBuffer;
+            _socketClient.SendBufferSize = maxMessageBuffer;
+            _buffer = new byte[maxMessageBuffer];
+            _stream = new NetworkStream(_socketClient);
 
-                Id = id;
-                IpAddress = _socketClient.RemoteEndPoint.ToString();
+            Id = id;
+            IpAddress = _socketClient.RemoteEndPoint.ToString();
 
-                _stream.BeginRead(_buffer, 0, _socketClient.ReceiveBufferSize, ReceiveDataCallback, null);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            _stream.BeginRead(_buffer, 0, _socketClient.ReceiveBufferSize, ReceiveDataCallback, null);
         }
 
         #endregion
@@ -78,36 +71,22 @@ namespace KingNetwork.Server
         #region public methods implementation
 
         /// <inheritdoc/>
-        public override void SendMessage(IKingBufferWriter writer)
+        public override void SendMessage(KingBufferWriter writer)
         {
-            try
+            if (IsConnected)
             {
-                if (IsConnected)
-                {
-                    _stream.Write(writer.BufferData, 0, writer.Length);
-                    _stream.Flush();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
+                _stream.Write(writer.BufferData, 0, writer.Length);
+                _stream.Flush();
             }
         }
 
         /// <inheritdoc/>
         public override void Disconnect()
         {
-            try
-            {
-                _socketClient.Close();
-                _socketClient.Dispose();
+            _socketClient.Close();
+            _socketClient.Dispose();
 
-                _clientDisconnectedHandler(this);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            _clientDisconnectedHandler(this);
         }
 
         #endregion
@@ -133,7 +112,7 @@ namespace KingNetwork.Server
                         Buffer.BlockCopy(_buffer, 0, numArray, 0, endRead);
 
                         _stream.BeginRead(_buffer, 0, _socketClient.ReceiveBufferSize, ReceiveDataCallback, null);
-                        
+
                         var buffer = KingBufferReader.Create(numArray, 0, numArray.Length);
 
                         _messageReceivedHandler(this, buffer);
@@ -149,9 +128,8 @@ namespace KingNetwork.Server
             {
                 _socketClient.Dispose();
                 _clientDisconnectedHandler(this);
+                throw ex;
             }
-            
-            Console.WriteLine($"Client '{IpAddress}' Disconnected.");
         }
 
         #endregion

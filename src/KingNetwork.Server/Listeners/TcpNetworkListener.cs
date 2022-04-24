@@ -20,24 +20,19 @@ namespace KingNetwork.Server
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="clientDisconnectedHandler">The callback of client disconnected handler implementation.</param>
         /// <param name="maxMessageBuffer">The number max of connected clients, the default value is 1000.</param>
-        public TcpNetworkListener(ushort port, ClientConnectedHandler clientConnectedHandler, 
+        public TcpNetworkListener(
+            ushort port, 
+            ClientConnectedHandler clientConnectedHandler, 
             MessageReceivedHandler messageReceivedHandler,
             ClientDisconnectedHandler clientDisconnectedHandler,
-            ushort maxMessageBuffer) : base(port, clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer)
+            ushort maxMessageBuffer) : base(clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer)
         {
-            try
-            {
-                _tcpListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _tcpListener.Bind(new IPEndPoint(IPAddress.Any, port));
-                _tcpListener.Listen(100);
-                _tcpListener.BeginAccept(new AsyncCallback(OnAccept), null);
+            _tcpListener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _tcpListener.Bind(new IPEndPoint(IPAddress.Any, port));
+            _tcpListener.Listen(100);
+            _tcpListener.BeginAccept(new AsyncCallback(OnAccept), null);
 
-                Console.WriteLine($"Starting the TCP network listener on port: {port}.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
+            Console.WriteLine($"Starting the TCP network listener on port: {port}.");
         }
 
         #endregion
@@ -50,20 +45,10 @@ namespace KingNetwork.Server
         /// <param name="asyncResult">The async result from socket accepted in connection.</param>
         private void OnAccept(IAsyncResult asyncResult)
         {
-            try
-            {
-                var clientId = GetNewClientIdentifier();
-                var client = new TCPClientConnection(clientId, _tcpListener.EndAccept(asyncResult), _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
-                _clientConnectedHandler(client);
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}.");
-            }
-            finally
-            {
-                _tcpListener.BeginAccept(new AsyncCallback(OnAccept), null);
-            }
+            var clientId = GetNewClientIdentifier();
+            var client = new TcpClientConnection(clientId, _tcpListener.EndAccept(asyncResult), _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+            _clientConnectedHandler(client);
+            _tcpListener.BeginAccept(new AsyncCallback(OnAccept), null);
         }
 
         #endregion

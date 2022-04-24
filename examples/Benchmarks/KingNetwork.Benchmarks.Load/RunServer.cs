@@ -47,7 +47,7 @@ namespace KingNetwork.Benchmarks.Load
         public static void StartServer()
         {
             _networkListenerType = NetworkListenerType.WSText;
-            _server = new KingServer();
+            _server = new KingServer(_networkListenerType);
             _server.OnMessageReceivedHandler = OnMessageReceived;
             
             new Thread(() =>
@@ -70,7 +70,7 @@ namespace KingNetwork.Benchmarks.Load
                
             }).Start();
 
-            _server.Start(_networkListenerType);
+            _server.StartAsync(out var canceletionToken);
         }
 
         /// <summary>

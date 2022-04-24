@@ -27,7 +27,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// The kingUdpClients list.
         /// </summary>
-        private Dictionary<EndPoint, UDPClientConnection> _kingUdpClients;
+        private Dictionary<EndPoint, UdpClientConnection> _kingUdpClients;
 
         #endregion
 
@@ -44,11 +44,11 @@ namespace KingNetwork.Server
         public UdpNetworkListener(ushort port, ClientConnectedHandler clientConnectedHandler,
             MessageReceivedHandler messageReceivedHandler,
             ClientDisconnectedHandler clientDisconnectedHandler,
-            ushort maxMessageBuffer) : base(port, clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer)
+            ushort maxMessageBuffer) : base(clientConnectedHandler, messageReceivedHandler, clientDisconnectedHandler, maxMessageBuffer)
         {
             try
             {
-                _kingUdpClients = new Dictionary<EndPoint, UDPClientConnection>();
+                _kingUdpClients = new Dictionary<EndPoint, UdpClientConnection>();
                 _udpListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 _udpListener.Bind(new IPEndPoint(IPAddress.Any, port));
 
@@ -99,7 +99,7 @@ namespace KingNetwork.Server
             Monitor.Enter(kingUdpClientsObj);
 
             bool hasClientConnection = false;
-            UDPClientConnection kingUdpClient = null;
+            UdpClientConnection kingUdpClient = null;
 
             try
             {
@@ -117,8 +117,8 @@ namespace KingNetwork.Server
             else if (array.Length == 9)
             {
                 var clientId = GetNewClientIdentifier();
-                var client = new UDPClientConnection(clientId, _udpListener, endPoint, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
-                
+                var client = new UdpClientConnection(clientId, _udpListener, endPoint, _messageReceivedHandler, _clientDisconnectedHandler, _maxMessageBuffer);
+
                 _kingUdpClients.Add(endPoint, client);
 
                 var writter = KingBufferWriter.Create();

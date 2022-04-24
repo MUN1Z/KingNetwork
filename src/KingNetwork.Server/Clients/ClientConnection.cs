@@ -1,4 +1,5 @@
 using KingNetwork.Server.Interfaces;
+using KingNetwork.Shared;
 using KingNetwork.Shared.Interfaces;
 
 namespace KingNetwork.Server
@@ -42,18 +43,18 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="client">The client instance.</param>
         /// <param name="reader">The king buffer reader of received message.</param>
-        public delegate void MessageReceivedHandler(IClientConnection client, IKingBufferReader reader);
+        public delegate void MessageReceivedHandler(ClientConnection client, KingBufferReader reader);
 
         /// <summary>
 		/// The delegate of client disconnected handler connection.
 		/// </summary>
         /// <param name="client">The instance of disconnected client.</param>
-        public delegate void ClientDisconnectedHandler(IClientConnection client);
+        public delegate void ClientDisconnectedHandler(ClientConnection client);
 
         #endregion
 
         /// <inheritdoc/>
-        public abstract void SendMessage(IKingBufferWriter writer);
+        public abstract void SendMessage(KingBufferWriter writer);
 
         /// <inheritdoc/>
         public abstract void Disconnect();

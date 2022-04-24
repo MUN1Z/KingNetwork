@@ -1,4 +1,5 @@
-﻿using KingNetwork.Shared.Interfaces;
+﻿using KingNetwork.Shared.Encryptation;
+using KingNetwork.Shared.Interfaces;
 using System;
 using System.Text;
 
@@ -72,9 +73,9 @@ namespace KingNetwork.Shared
         /// Method responsible for create a buffer instance.
         /// </summary>
         /// <param name="capacity">The initial capacity value of buffer.</param>
-        public static KingBufferWriter Create(int initialCapacity)
+        public static KingBufferWriter Create(int initialCapacity, byte[] data = null)
         {
-            return Create(initialCapacity, Encoding.UTF8);
+            return Create(initialCapacity, Encoding.UTF8, data);
         }
 
         /// <summary>
@@ -82,14 +83,22 @@ namespace KingNetwork.Shared
         /// </summary>
         /// <param name="capacity">The initial capacity value of buffer.</param>
         /// <param name="encoding">The encoding value to write char array in the buffer.</param>
-        public static KingBufferWriter Create(int initialCapacity, Encoding encoding)
+        /// <param name="encoding">The encoding value to write char array in the buffer.</param>
+        public static KingBufferWriter Create(int initialCapacity, Encoding encoding, byte[] data = null)
         {
             var writer = KingPoolManager.KingBufferWriter;
 
-            if (writer._buffer == null || writer.Capacity != initialCapacity)
+            if (data != null)
+            {
+                writer.Length = initialCapacity;
+                writer._buffer = data;
+            }
+            else if (writer._buffer == null || writer.Capacity != initialCapacity)
+            {
+                writer.Length = 0;
                 writer._buffer = new byte[initialCapacity];
+            }
 
-            writer.Length = 0;
             writer.Encoding = encoding;
 
             return writer;
@@ -98,6 +107,18 @@ namespace KingNetwork.Shared
         #endregion
 
         #region public methods implementation   
+
+        /// <summary>
+        ///     Adds padding right bytes (0x33) to buffer
+        /// </summary>
+        /// <param name="count">how many times the padding will be added</param>
+        public void AddPaddingBytes(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Write((byte)0x33);
+            }
+        }
 
         /// <inheritdoc/>
         public void Write(byte value)
