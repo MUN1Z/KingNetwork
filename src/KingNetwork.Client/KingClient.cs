@@ -6,6 +6,7 @@ using KingNetwork.Client.Listeners;
 using KingNetwork.Shared;
 using KingNetwork.Shared.Interfaces;
 using System.Diagnostics;
+using System.Threading;
 
 namespace KingNetwork.Client
 {
@@ -38,7 +39,7 @@ namespace KingNetwork.Client
         /// <summary>
         /// The flag of client connection.
         /// </summary>
-        public bool HasConnected => _networkListener.IsConnected;
+        public bool HasConnected => _networkListener.HasConnected;
 
         /// <summary>
         /// The callback of message received handler implementation.
@@ -49,6 +50,11 @@ namespace KingNetwork.Client
         /// The callback of client disconnected handler implementation.
         /// </summary>
         public NetworkListener.DisconnectedHandler OnDisconnectedHandler { get; set; }
+
+        /// <summary>
+        /// The callback of client connected handler implementation.
+        /// </summary>
+        public NetworkListener.ConnectedHandler OnConnectedHandler { get; set; }
 
         #endregion
 
@@ -144,6 +150,11 @@ namespace KingNetwork.Client
                 _networkListener = new WebSocketNetworkListener(_listenerType, OnMessageReceived, OnDisconnected);
 
             _networkListener.StartClient(ip, port, maxMessageBuffer);
+
+            while (!HasConnected)
+                Thread.Sleep(10);
+
+            OnConnectedHandler?.Invoke();
 
             return HasConnected;
         }

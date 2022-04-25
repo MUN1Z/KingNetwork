@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace KingNetwork.Benchmarks.Load
 {
@@ -44,7 +45,7 @@ namespace KingNetwork.Benchmarks.Load
         /// <summary>
         /// Method responsible for start the server.
         /// </summary>
-        public static void StartServer()
+        public static async Task StartServerAsync()
         {
             _networkListenerType = NetworkListenerType.TCP;
             _server = new KingServer(_networkListenerType);
@@ -70,7 +71,7 @@ namespace KingNetwork.Benchmarks.Load
                
             }).Start();
 
-            _server.StartAsync(out var canceletionToken);
+            await _server.StartAsync();
         }
 
         /// <summary>

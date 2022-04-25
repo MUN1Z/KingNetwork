@@ -61,6 +61,13 @@ namespace KingNetwork.Server
 
         #endregion
 
+        #region Properties
+
+        /// <inheritdoc/>
+        public bool HasStarted { get; set; }
+
+        #endregion
+
         #region delegates 
 
         /// <summary> 	

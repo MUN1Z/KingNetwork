@@ -33,6 +33,8 @@ namespace KingNetwork.Server
             _tcpListener.BeginAccept(new AsyncCallback(OnAccept), null);
 
             Console.WriteLine($"Starting the TCP network listener on port: {port}.");
+
+            HasStarted = true;
         }
 
         #endregion

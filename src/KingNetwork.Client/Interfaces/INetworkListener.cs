@@ -12,7 +12,7 @@ namespace KingNetwork.Client.Interfaces
         /// <summary>
         /// This property is responsible for returns if listener has connected.
         /// </summary>
-        bool IsConnected { get; }
+        bool HasConnected { get; }
 
         #endregion
 

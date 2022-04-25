@@ -58,6 +58,11 @@ namespace KingNetwork.Server
         #region properties
 
         /// <summary>
+        /// The flag of client connection.
+        /// </summary>
+        public bool HasStarted => _networkListener != null && _networkListener.HasStarted;
+
+        /// <summary>
         /// The callback of message received handler implementation.
         /// </summary>
         public ClientConnection.MessageReceivedHandler OnMessageReceivedHandler { get; set; }
@@ -186,7 +191,7 @@ namespace KingNetwork.Server
         /// <summary>
         /// Method responsible for start the network listener.
         /// </summary>
-        private void StartListener()
+        private bool StartListener()
         {
             if (_listenerType == NetworkListenerType.TCP)
                 _networkListener = new TcpNetworkListener(_port, OnClientConnected, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
@@ -198,6 +203,8 @@ namespace KingNetwork.Server
                 _networkListener = new WebSocketNetworkListener(_listenerType, _port, OnClientConnected, OnMessageReceived, OnClientDisconnected, _maxMessageBuffer);
 
             OnServerStartedHandler?.Invoke();
+
+            return HasStarted;
         }
 
         /// <summary>
@@ -205,16 +212,21 @@ namespace KingNetwork.Server
         /// </summary>
         /// <param name="cancellationToken">The cancellation token for the task execution.</param>
         /// <param name="serverFrameRate">The server frame rate per secounds.</param>
-        private void StartListenerAsync(CancellationToken cancellationToken, ushort serverFrameRate)
+        private async Task<bool> StartListenerAsync(CancellationToken cancellationToken, ushort serverFrameRate)
         {
-            Task.Run(async () =>
-            {
-                StartListener();
+            _ = Task.Run(async () =>
+              {
+                  StartListener();
 
-                while (!cancellationToken.IsCancellationRequested)
-                    await Task.Delay(TimeSpan.FromSeconds(1 / serverFrameRate), cancellationToken);
+                  while (!cancellationToken.IsCancellationRequested)
+                      await Task.Delay(TimeSpan.FromSeconds(1 / serverFrameRate), cancellationToken);
 
-            }, cancellationToken);
+              }, cancellationToken);
+
+            while (!HasStarted)
+                await Task.Delay(TimeSpan.FromSeconds(1 / serverFrameRate), cancellationToken);
+
+            return HasStarted;
         }
 
         #endregion
@@ -260,7 +272,7 @@ namespace KingNetwork.Server
             {
                 if (_serverPacketHandlers.ContainsKey((byte)(IConvertible)packet))
                     _serverPacketHandlers.Remove((byte)(IConvertible)packet);
-                    
+
                 _serverPacketHandlers.Add((byte)(IConvertible)packet, serverPacketHandler);
             }
         }
@@ -268,24 +280,33 @@ namespace KingNetwork.Server
         /// <summary>
         /// Method responsible for start the server.
         /// </summary>
-        public void Start() => StartListener();
+        public bool Start() => StartListener();
 
         /// <summary>
         /// Method responsible for start the server.
         /// </summary>
-        /// <param name="listenerType">The listener type to creation of listener.</param>
+        /// <param name="cancellationToken">The cancelation token task, default value.</param>
         /// <param name="serverFrameRate">The server frame rate per secounds, default 30 secounds.</param>
-        public void StartAsync(out CancellationTokenSource cancellationTokenSource, ushort serverFrameRate = 30)
+        public async Task<bool> StartAsync(CancellationToken cancellationToken = default(CancellationToken), ushort serverFrameRate = 30)
         {
-            cancellationTokenSource = new CancellationTokenSource();
-            StartListenerAsync(cancellationTokenSource.Token, serverFrameRate);
+            return await StartListenerAsync(cancellationToken, serverFrameRate);
+        }
+
+        /// <summary>
+        /// Method responsible for start the server.
+        /// </summary>
+        /// <param name="cancellationTokenSource">The cancelation token task source.</param>
+        /// <param name="serverFrameRate">The server frame rate per secounds, default 30 secounds.</param>
+        public async Task<bool> StartAsync(CancellationTokenSource cancellationTokenSource, ushort serverFrameRate = 30)
+        {
+            return await StartListenerAsync(cancellationTokenSource.Token, serverFrameRate);
         }
 
         /// <summary>
         /// Method responsible for stop the server.
         /// </summary>
         public void Stop() => _networkListener.Stop();
-        
+
         /// <summary>
         /// Method responsible for send message to specific connected client.
         /// </summary>

@@ -1,6 +1,3 @@
-using KingNetwork.Shared;
-using KingNetwork.Shared.Interfaces;
-
 namespace KingNetwork.Server.Interfaces
 {
     /// <summary>
@@ -9,6 +6,11 @@ namespace KingNetwork.Server.Interfaces
     public interface INetworkListener
     {
         #region public methods implementation
+
+        /// <summary>
+        /// This property is responsible for returns if listener has started.
+        /// </summary>
+        bool HasStarted { get; }
 
         /// <summary>
         /// This method is responsible for call the dispose implementation method.

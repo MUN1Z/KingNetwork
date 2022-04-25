@@ -17,7 +17,7 @@ namespace KingNetwork.SimpleExample.Server
         /// This method is responsible for main execution of console application.
         /// </summary>
         /// <param name="args">The string args received by parameters.</param>
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             try
             {
@@ -28,7 +28,7 @@ namespace KingNetwork.SimpleExample.Server
                 server.OnMessageReceivedHandler = OnMessageReceived;
                 server.OnClientConnectedHandler = OnClientConnectedHandler;
 
-                server.StartAsync(out var cancellationToken);
+                await server.StartAsync();
 
                 Console.ReadLine();
             }

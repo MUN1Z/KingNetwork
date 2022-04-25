@@ -51,6 +51,8 @@ namespace KingNetwork.Server
 
             Console.WriteLine($"Starting the WebSocket network listener on port: {port}.");
 
+            HasStarted = true;
+
             WaitForConnections();
         }
 

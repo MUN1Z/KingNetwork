@@ -1,5 +1,4 @@
 using KingNetwork.Shared;
-using KingNetwork.Shared.Interfaces;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -14,7 +13,7 @@ namespace KingNetwork.Client.Listeners
         #region properties
 
         /// <inheritdoc/>
-        public override bool IsConnected => _tcpListener != null ? _tcpListener.Connected : false;
+        public override bool HasConnected => _tcpListener != null ? _tcpListener.Connected : false;
 
         #endregion
 

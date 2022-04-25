@@ -58,6 +58,8 @@ namespace KingNetwork.Server
                 _udpListener.BeginReceiveFrom(array, 0, _maxMessageBuffer, SocketFlags.None, ref endPointFrom, new AsyncCallback(ReceiveDataCallback), array);
 
                 Console.WriteLine($"Starting the UDP network listener on port: {port}.");
+
+                HasStarted = true;
             }
             catch (Exception ex)
             {

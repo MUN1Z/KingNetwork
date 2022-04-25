@@ -16,7 +16,7 @@ namespace KingNetwork.Benchmarks.Load
         {
             Thread serverThread = new Thread(() =>
             {
-                RunServer.StartServer();
+                RunServer.StartServerAsync();
             });
 
             serverThread.IsBackground = false;

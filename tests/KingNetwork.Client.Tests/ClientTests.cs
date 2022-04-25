@@ -26,12 +26,13 @@ namespace KingNetwork.Client.Tests
         [InlineData(NetworkListenerType.RUDP)]
         [InlineData(NetworkListenerType.WSBinary)]
         [InlineData(NetworkListenerType.WSText)]
-        public void Verify_KingClientConnection_ShouldReturnTrue(NetworkListenerType type)
+        public async Task Verify_KingClientConnection_ShouldReturnTrueAsync(NetworkListenerType type)
         {
             //Arrange
             var kingServer = new KingServer(type, _port);
 
-            kingServer.StartAsync(out var cancellationToken);
+            var cancellationToken = new CancellationTokenSource();
+            await kingServer.StartAsync(cancellationToken);
 
             Thread.Sleep(15);
 
@@ -57,12 +58,13 @@ namespace KingNetwork.Client.Tests
         [InlineData(NetworkListenerType.RUDP)]
         [InlineData(NetworkListenerType.WSBinary)]
         [InlineData(NetworkListenerType.WSText)]
-        public void Verify_KingClientDisconnection_ShouldHasConnectedFalse(NetworkListenerType type)
+        public async Task Verify_KingClientDisconnection_ShouldHasConnectedFalseAsync(NetworkListenerType type)
         {
             //Arrange
             var kingServer = new KingServer(type, _port);
 
-            kingServer.StartAsync(out var cancellationToken);
+            var cancellationToken = new CancellationTokenSource();
+            await kingServer.StartAsync(cancellationToken);
 
             Thread.Sleep(15);
 
@@ -91,11 +93,13 @@ namespace KingNetwork.Client.Tests
         [InlineData(NetworkListenerType.RUDP)]
         [InlineData(NetworkListenerType.WSBinary)]
         [InlineData(NetworkListenerType.WSText)]
-        public void Verify_KingClientMessageReceivedHandler_ShouldHasReceivedMessage(NetworkListenerType type)
+        public async Task Verify_KingClientMessageReceivedHandler_ShouldHasReceivedMessageAsync(NetworkListenerType type)
         {
             //Arrange
             KingServer kingServer = new KingServer(type, _port);
-            kingServer.StartAsync(out var cancellationToken);
+
+            var cancellationToken = new CancellationTokenSource();
+            await kingServer.StartAsync(cancellationToken);
 
             Thread.Sleep(15);
 
@@ -134,11 +138,13 @@ namespace KingNetwork.Client.Tests
         [InlineData(NetworkListenerType.UDP)]
         [InlineData(NetworkListenerType.RUDP)]
         [InlineData(NetworkListenerType.WSBinary)]
-        public void Verify_KingClientXteaCryptoBinaryMessageReceivedHandler_ShouldHasReceivedXteaCryptoMessage(NetworkListenerType type)
+        public async Task Verify_KingClientXteaCryptoBinaryMessageReceivedHandler_ShouldHasReceivedXteaCryptoMessageAsync(NetworkListenerType type)
         {
             //Arrange
             KingServer kingServer = new KingServer(type, _port);
-            kingServer.StartAsync(out var cancellationToken);
+
+            var cancellationToken = new CancellationTokenSource();
+            await kingServer.StartAsync(cancellationToken);
 
             Thread.Sleep(15);
 
@@ -184,11 +190,12 @@ namespace KingNetwork.Client.Tests
         [InlineData(NetworkListenerType.UDP)]
         [InlineData(NetworkListenerType.RUDP)]
         [InlineData(NetworkListenerType.WSBinary)]
-        public void Verify_KingClientRsaCryptoBinaryMessageReceivedHandler_ShouldHasReceivedRsaCryptoMessage(NetworkListenerType type)
+        public async Task Verify_KingClientRsaCryptoBinaryMessageReceivedHandler_ShouldHasReceivedRsaCryptoMessageAsync(NetworkListenerType type)
         {
             //Arrange
             KingServer kingServer = new KingServer(type, _port);
-            kingServer.StartAsync(out var cancellationToken);
+            var cancellationToken = new CancellationTokenSource();
+            await kingServer.StartAsync(cancellationToken);
 
             Thread.Sleep(15);
 
@@ -238,11 +245,12 @@ namespace KingNetwork.Client.Tests
         [InlineData(NetworkListenerType.UDP)]
         [InlineData(NetworkListenerType.RUDP)]
         [InlineData(NetworkListenerType.WSBinary)]
-        public void Verify_KingClientLoginWithRsaAndXteaSecurityBinary_ShouldHasSucess(NetworkListenerType type)
+        public async Task Verify_KingClientLoginWithRsaAndXteaSecurityBinary_ShouldHasSucessAsync(NetworkListenerType type)
         {
             //Arrange
             KingServer kingServer = new KingServer(type, _port);
-            kingServer.StartAsync(out var cancellationToken);
+            var cancellationToken = new CancellationTokenSource();
+            await kingServer.StartAsync(cancellationToken);
 
             Thread.Sleep(15);
 

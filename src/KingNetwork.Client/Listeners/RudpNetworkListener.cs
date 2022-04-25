@@ -15,7 +15,7 @@ namespace KingNetwork.Client.Listeners
         #region properties
 
         /// <inheritdoc/>
-        public override bool IsConnected => _udpListener?.Connected == true || _tcpListener?.Connected == true ? true : false;
+        public override bool HasConnected => _udpListener?.Connected == true || _tcpListener?.Connected == true ? true : false;
 
         #endregion
 

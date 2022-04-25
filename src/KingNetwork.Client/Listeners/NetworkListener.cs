@@ -74,7 +74,7 @@ namespace KingNetwork.Client.Listeners
         #region Properties
 
         /// <inheritdoc/>
-		public abstract bool IsConnected { get; }
+		public abstract bool HasConnected { get; }
 
         #endregion
 
@@ -90,6 +90,11 @@ namespace KingNetwork.Client.Listeners
         /// The delegate of client disconnected handler connection.
         /// </summary>
         public delegate void DisconnectedHandler();
+
+        /// <summary>
+        /// The delegate of client connected handler connection.
+        /// </summary>
+        public delegate void ConnectedHandler();
 
         #endregion
 
