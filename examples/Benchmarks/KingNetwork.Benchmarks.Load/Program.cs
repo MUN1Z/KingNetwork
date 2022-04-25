@@ -22,7 +22,7 @@ namespace KingNetwork.Benchmarks.Load
             serverThread.IsBackground = false;
             serverThread.Start();
             
-            RunClients.StartClients("127.0.0.1", 1);
+            RunClients.StartClients("127.0.0.1", 10000);
 
             Console.ReadLine();
         }

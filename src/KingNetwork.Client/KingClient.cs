@@ -43,12 +43,12 @@ namespace KingNetwork.Client
         /// <summary>
         /// The callback of message received handler implementation.
         /// </summary>
-        public NetworkListener.MessageReceivedHandler MessageReceivedHandler { get; set; }
+        public NetworkListener.MessageReceivedHandler OnMessageReceivedHandler { get; set; }
 
         /// <summary>
         /// The callback of client disconnected handler implementation.
         /// </summary>
-        public NetworkListener.DisconnectedHandler DisconnectedHandler { get; set; }
+        public NetworkListener.DisconnectedHandler OnDisconnectedHandler { get; set; }
 
         #endregion
 
@@ -191,7 +191,7 @@ namespace KingNetwork.Client
             if (reader.Length > 0 && _clientPacketHandlers.Count > 0 && _clientPacketHandlers.TryGetValue(reader.ReadByte(), out var clientPacketHandler))
                 clientPacketHandler(reader);
             else
-                MessageReceivedHandler(reader);
+                OnMessageReceivedHandler(reader);
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace KingNetwork.Client
         private void OnDisconnected()
         {
             _networkListener.Stop();
-            DisconnectedHandler?.Invoke();
+            OnDisconnectedHandler?.Invoke();
         }
 
         #endregion

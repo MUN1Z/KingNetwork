@@ -73,12 +73,12 @@ namespace KingNetwork.Client.Listeners
 
                     if (endRead != 0)
                     {
-                        var numArray = new byte[endRead];
-                        Buffer.BlockCopy(_tcpBuffer, 0, numArray, 0, endRead);
+                        var tempArray = new byte[endRead];
+                        Buffer.BlockCopy(_tcpBuffer, 0, tempArray, 0, endRead);
 
                         _stream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveDataCallback, null);
 
-                        var buffer = KingBufferReader.Create(numArray, 0, numArray.Length);
+                        var buffer = KingBufferReader.Create(tempArray, 0, endRead);
 
                         _messageReceivedHandler(buffer);
 

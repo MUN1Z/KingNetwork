@@ -101,7 +101,10 @@ namespace KingNetwork.Client.Listeners
             {
                 if (e.SocketError == SocketError.Success)
                 {
-                    using (var kingBufferReader = KingBufferReader.Create(e.Buffer, 0, e.BytesTransferred))
+                    var tempArray = new byte[e.BytesTransferred];
+                    Buffer.BlockCopy(e.Buffer, 0, tempArray, 0, e.BytesTransferred);
+
+                    using (var kingBufferReader = KingBufferReader.Create(tempArray, 0, e.BytesTransferred))
                     {
                         receiveDataStatus = _udpListener.ReceiveAsync(e);
 

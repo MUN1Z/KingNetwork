@@ -24,7 +24,7 @@ namespace KingNetwork.SimpleExample.Client
                 _networkListenerType = NetworkListenerType.UDP;
 
                 var client = new KingClient(_networkListenerType);
-                client.MessageReceivedHandler = OnMessageReceived;
+                client.OnMessageReceivedHandler = OnMessageReceived;
 
                 Thread.Sleep(2000);
 

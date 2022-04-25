@@ -49,7 +49,7 @@ namespace KingNetwork.Benchmarks.Load
         /// <param name="clientConnections">The number of client connections.</param>
         public static void StartClients(string ip, int clientConnections)
         {
-            _networkListenerType = NetworkListenerType.WSBinary;
+            _networkListenerType = NetworkListenerType.TCP;
 
             var kingBuffer = KingBufferWriter.Create();
             //kingBuffer.Write((byte)0);
@@ -65,7 +65,7 @@ namespace KingNetwork.Benchmarks.Load
             {
                 var client = new KingClient(_networkListenerType);
 
-                client.MessageReceivedHandler = OnMessageReceived;
+                client.OnMessageReceivedHandler = OnMessageReceived;
 
                 client.Connect(ip, 7171);
                 clients.Add(client);

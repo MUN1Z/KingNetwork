@@ -4,6 +4,8 @@ namespace KingNetwork.Shared.Encryptation
 {
     public class XteaEncryptation
     {
+        #region public methods implementations
+
         public static KingBufferWriter Encrypt(KingBufferWriter msg, uint[] key)
         {
             if (key == null)
@@ -34,35 +36,9 @@ namespace KingNetwork.Shared.Encryptation
             return KingBufferWriter.Create(msg.Length, newBytes);
         }
 
-        public static unsafe bool Decrypt(ref KingBufferReader msg, int index, uint[] key)
+        public static bool Encrypt(ref KingBufferWriter msg, uint[] key)
         {
-            var length = msg.Length;
-            var buffer = msg.BufferData;
-
-            if (length <= index || (length - index) % 8 > 0 || key == null) return false;
-
-            fixed (byte* bufferPtr = buffer)
-            {
-                var words = (uint*)(bufferPtr + index);
-                var msgSize = length - index;
-
-                for (var pos = 0; pos < msgSize / 4; pos += 2)
-                {
-                    uint xCount = 32, xSum = 0xC6EF3720, xDelta = 0x9E3779B9;
-
-                    while (xCount-- > 0)
-                    {
-                        words[pos + 1] -= (((words[pos] << 4) ^ (words[pos] >> 5)) + words[pos]) ^ (xSum
-                            + key[(xSum >> 11) & 3]);
-                        xSum -= xDelta;
-                        words[pos] -= (((words[pos + 1] << 4) ^ (words[pos + 1] >> 5)) + words[pos + 1]) ^ (xSum
-                            + key[xSum & 3]);
-                    }
-                }
-            }
-
-            msg = KingBufferReader.Create(buffer, 0, length);
-
+            msg = Encrypt(msg, key);
             return true;
         }
 
@@ -96,6 +72,41 @@ namespace KingNetwork.Shared.Encryptation
             return KingBufferReader.Create(buffer, 0, length);
         }
 
+        public static unsafe KingBufferReader Decrypt(KingBufferReader msg, uint[] key)
+        {
+            return Decrypt(msg, 0, key);
+        }
+
+        public static unsafe bool Decrypt(ref KingBufferReader msg, int index, uint[] key)
+        {
+            msg = Decrypt(msg, index, key);
+            return true;
+        }
+
+        public static unsafe bool Decrypt(ref KingBufferReader msg, uint[] key)
+        {
+            msg = Decrypt(msg, key);
+            return true;
+        }
+
+        public static uint[] GenerateKey()
+        {
+            var key = new uint[4];
+
+            var random = new Random();
+
+            key[0] = (uint)random.Next(int.MinValue, int.MaxValue);
+            key[1] = (uint)random.Next(int.MinValue, int.MaxValue);
+            key[2] = (uint)random.Next(int.MinValue, int.MaxValue);
+            key[3] = (uint)random.Next(int.MinValue, int.MaxValue);
+
+            return key;
+        }
+
+        #endregion
+
+        #region private methods implementations
+
         private static byte[] ConvertToBytes(Span<uint> array)
         {
             var bytes = new byte[array.Length * 4];
@@ -128,5 +139,7 @@ namespace KingNetwork.Shared.Encryptation
 
             return newArray.AsSpan();
         }
+
+        #endregion
     }
 }

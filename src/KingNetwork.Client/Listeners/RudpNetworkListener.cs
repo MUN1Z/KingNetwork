@@ -138,12 +138,12 @@ namespace KingNetwork.Client.Listeners
 
                     if (endRead != 0)
                     {
-                        var numArray = new byte[endRead];
-                        Buffer.BlockCopy(_tcpBuffer, 0, numArray, 0, endRead);
+                        var tempArray = new byte[endRead];
+                        Buffer.BlockCopy(_tcpBuffer, 0, tempArray, 0, endRead);
 
                         _stream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveTcpDataCallback, null);
 
-                        var buffer = KingBufferReader.Create(numArray, 0, numArray.Length);
+                        var buffer = KingBufferReader.Create(tempArray, 0, endRead);
 
                         _messageReceivedHandler(buffer);
 
@@ -174,7 +174,10 @@ namespace KingNetwork.Client.Listeners
             {
                 if (e.SocketError == SocketError.Success)
                 {
-                    using (var kingBufferReader = KingBufferReader.Create(e.Buffer, 0, e.BytesTransferred))
+                    var tempArray = new byte[e.BytesTransferred];
+                    Buffer.BlockCopy(e.Buffer, 0, tempArray, 0, e.BytesTransferred);
+
+                    using (var kingBufferReader = KingBufferReader.Create(tempArray, 0, e.BytesTransferred))
                     {
                         receiveDataStatus = _udpListener.ReceiveAsync(e);
 
