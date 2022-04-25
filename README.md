@@ -32,7 +32,11 @@
 // create and start the async server
 var server = new KingServer(port: 7171);
 server.MessageReceivedHandler = OnMessageReceived;
-server.StartAsync(out var cancellationToken);
+
+//ASync execution
+await server.StartAsync(); //You can pass a out var cancellationToken in parameter
+//Sync execution
+server.Start();
 
 // implements the callback for MessageReceivedHandler
 private void OnMessageReceived(IClient client, IKingBufferReader reader)
@@ -80,7 +84,11 @@ client.Disconnect();
 // create and start the server
 var server = new KingServer(listenerType: NetworkListenerType.UDP, port: 7171);
 server.MessageReceivedHandler = OnMessageReceived;
-server.Start(out var cancellationToken);
+
+//ASync execution
+await server.StartAsync(); //You can pass a out var cancellationToken in parameter
+//Sync execution
+server.Start();
 
 // implements the callback for MessageReceivedHandler
 private void OnMessageReceived(IClient client, IKingBufferReader reader)
@@ -104,7 +112,7 @@ server.Stop();
 // create and connect the client
 var client = new KingClient(listenerType: NetworkListenerType.UDP);
 client.MessageReceivedHandler = OnMessageReceived;
-client.Connect("127.0.0.1", 7171, NetworkListenerType.UDP);
+client.Connect("127.0.0.1", 7171);
 
 // implements the callback for MessageReceivedHandler
 private void OnMessageReceived(IKingBufferReader reader)
@@ -126,9 +134,13 @@ client.Disconnect();
 # Using the RUDP connection on KingServer
 ```C#
 // create and start the server
-var server = new KingServer(port: 7171);
+var server = new KingServer(listenerType: NetworkListenerType.RUDP, port: 7171);
 server.MessageReceivedHandler = OnMessageReceived;
-server.Start(NetworkListenerType.RUDP);
+
+//ASync execution
+await server.StartAsync(); //You can pass a out var cancellationToken in parameter
+//Sync execution
+server.Start();
 
 // implements the callback for MessageReceivedHandler
 private void OnMessageReceived(IClient client, IKingBufferReader reader)
@@ -151,9 +163,9 @@ server.Stop();
 # Using the RUDP connection on KingClient
 ```C#
 // create and connect the client
-var client = new KingClient();
+var client = new KingClient(listenerType: NetworkListenerType.RUDP);
 client.MessageReceivedHandler = OnMessageReceived;
-client.Connect("127.0.0.1", 7171, NetworkListenerType.RUDP);
+client.Connect("127.0.0.1", 7171);
 
 // implements the callback for MessageReceivedHandler
 private void OnMessageReceived(IKingBufferReader reader)
@@ -176,9 +188,13 @@ client.Disconnect();
 # Using the WebSocket connection on KingServer
 ```C#
 // create and start the server
-var server = new KingServer(port: 7171);
+var server = new KingServer(listenerType: NetworkListenerType.WSText, port: 7171); // Or NetworkListenerType.WSBinary
 server.MessageReceivedHandler = OnMessageReceived;
-server.Start(NetworkListenerType.WSText); // Or NetworkListenerType.WSBinary
+
+//ASync execution
+await server.StartAsync(); //You can pass a out var cancellationToken in parameter
+//Sync execution
+server.Start();
 
 // implements the callback for MessageReceivedHandler
 private void OnMessageReceived(IClient client, IKingBufferReader reader)
@@ -200,9 +216,9 @@ server.Stop();
 # Using the WebSocket connection on KingClient
 ```C#
 // create and connect the client
-var client = new KingClient();
+var client = new KingClient(listenerType: NetworkListenerType.WSText); // Or NetworkListenerType.WSBinary
 client.MessageReceivedHandler = OnMessageReceived;
-client.Connect("127.0.0.1", 7171, NetworkListenerType.WSText); // Or NetworkListenerType.WSBinary
+client.Connect("127.0.0.1", 7171);
 
 // implements the callback for MessageReceivedHandler
 private void OnMessageReceived(IKingBufferReader reader)
