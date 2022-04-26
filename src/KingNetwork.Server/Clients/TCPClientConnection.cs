@@ -113,7 +113,7 @@ namespace KingNetwork.Server
 
                         _stream.BeginRead(_buffer, 0, _socketClient.ReceiveBufferSize, ReceiveDataCallback, null);
 
-                        var buffer = KingBufferReader.Create(numArray, 0, numArray.Length);
+                        var buffer = KingBufferReader.Create(numArray);
 
                         _messageReceivedHandler(this, buffer);
 

@@ -64,12 +64,23 @@ namespace KingNetwork.Shared
         /// Method responsible for create a buffer instance.
         /// </summary>
         /// <param name="bytes">The byte array value.</param>
+        /// <param name="padding">The padding of byte array data.</param>
+        public static KingBufferReader Create(byte[] bytes, int padding = 0)
+        {
+            return Create(bytes, 0, bytes.Length, padding);
+        }
+
+        /// <summary>
+        /// Method responsible for create a buffer instance.
+        /// </summary>
+        /// <param name="bytes">The byte array value.</param>
         /// <param name="dataOffset">The dataOffset of byte array data.</param>
-        /// <param name="dataLength">The dataLength of byte array data.</param>
-        public static KingBufferReader Create(byte[] bytes, int dataOffset, int dataLength)
+        /// <param name="dataLength">The dataLength of byte array data.</param
+        /// <param name="padding">The padding of byte array data.</param>
+        public static KingBufferReader Create(byte[] bytes, int dataOffset, int dataLength, int padding = 0)
         {
             var reader = KingPoolManager.KingBufferReader;
-            reader.Initialize(bytes, dataOffset, dataLength);
+            reader.Initialize(bytes, dataOffset, dataLength, padding);
             return reader;
         }
 
@@ -578,14 +589,15 @@ namespace KingNetwork.Shared
         /// <param name="bytes">The byte array value.</param>
         /// <param name="dataOffset">The dataOffset of byte array data.</param>
         /// <param name="dataLength">The dataLength of byte array data.</param>
-        private void Initialize(byte[] bytes, int dataOffset, int dataLength)
+        /// <param name="padding">The padding of byte array data.</param>
+        private void Initialize(byte[] bytes, int dataOffset, int dataLength, int padding = 0)
         {
             _bytes = bytes;
             _dataOffset = dataOffset;
 
             Encoding = Encoding.UTF8;
             Length = dataLength;
-            Position = 0;
+            Position = padding;
         }
 
         /// <summary>

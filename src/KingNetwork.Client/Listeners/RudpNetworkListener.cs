@@ -143,7 +143,7 @@ namespace KingNetwork.Client.Listeners
 
                         _stream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveTcpDataCallback, null);
 
-                        var buffer = KingBufferReader.Create(tempArray, 0, endRead);
+                        var buffer = KingBufferReader.Create(tempArray);
 
                         _messageReceivedHandler(buffer);
 
@@ -177,7 +177,7 @@ namespace KingNetwork.Client.Listeners
                     var tempArray = new byte[e.BytesTransferred];
                     Buffer.BlockCopy(e.Buffer, 0, tempArray, 0, e.BytesTransferred);
 
-                    using (var kingBufferReader = KingBufferReader.Create(tempArray, 0, e.BytesTransferred))
+                    using (var kingBufferReader = KingBufferReader.Create(tempArray))
                     {
                         receiveDataStatus = _udpListener.ReceiveAsync(e);
 

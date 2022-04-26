@@ -119,13 +119,13 @@ namespace KingNetwork.Client.Listeners
                         var writer = KingBufferWriter.Create();
                         writer.Write(data);
 
-                        var reader = KingBufferReader.Create(writer.BufferData, 0, writer.Length);
+                        var reader = KingBufferReader.Create(writer.BufferData);
 
                         _messageReceivedHandler(reader);
                     }
                     else if (ret.MessageType == WebSocketMessageType.Binary)
                     {
-                        var reader = KingBufferReader.Create(_buff.Take(ret.Count).ToArray(), 0, ret.Count);
+                        var reader = KingBufferReader.Create(_buff.Take(ret.Count).ToArray());
                         _messageReceivedHandler(reader);
                     }
                 }

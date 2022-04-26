@@ -138,7 +138,7 @@ namespace KingNetwork.Server
         {
             try
             {
-                _messageReceivedHandler?.Invoke(this, KingBufferReader.Create(data, 0, data.Length));
+                _messageReceivedHandler?.Invoke(this, KingBufferReader.Create(data));
             }
             catch (Exception ex)
             {

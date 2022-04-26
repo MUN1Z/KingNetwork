@@ -77,7 +77,7 @@ namespace KingNetwork.Client.Listeners
 
                         _stream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveDataCallback, null);
 
-                        var buffer = KingBufferReader.Create(tempArray, 0, endRead);
+                        var buffer = KingBufferReader.Create(tempArray);
 
                         _messageReceivedHandler(buffer);
 

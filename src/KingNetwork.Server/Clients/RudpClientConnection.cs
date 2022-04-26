@@ -140,7 +140,7 @@ namespace KingNetwork.Server
 
                         _tcpStream.BeginRead(_tcpBuffer, 0, _tcpListener.ReceiveBufferSize, ReceiveTcpDataCallback, null);
 
-                        var buffer = KingBufferReader.Create(numArray, 0, numArray.Length);
+                        var buffer = KingBufferReader.Create(numArray);
 
                         _messageReceivedHandler(this, buffer);
 
@@ -196,7 +196,7 @@ namespace KingNetwork.Server
         {
             try
             {
-                _messageReceivedHandler?.Invoke(this, KingBufferReader.Create(data, 0, data.Length));
+                _messageReceivedHandler?.Invoke(this, KingBufferReader.Create(data));
             }
             catch (Exception ex)
             {

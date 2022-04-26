@@ -268,8 +268,6 @@ namespace KingNetwork.Client.Tests
             var loginRequestPacket = (byte)0;
             var loginResponsePacket = (byte)1;
 
-            var isFirstMessage = true;
-
             var loginEmail = "test@mail.com";
             var loginPass = "1234";
             var loginSucess = "Login Sucess!";
@@ -279,54 +277,46 @@ namespace KingNetwork.Client.Tests
             //Act
             kingServer.OnMessageReceivedHandler += (ClientConnection client, KingBufferReader reader) =>
             {
-                if (isFirstMessage)
+                var packet = reader.ReadMessagePacket<byte>();
+
+                if (packet == loginRequestPacket)
                 {
-                    var decryptedRsaReader = RsaEncryptation.Decrypt(reader, privKey);
+                    RsaEncryptation.Decrypt(ref reader, privKey, 1);
 
-                    var packet = decryptedRsaReader.ReadMessagePacket<byte>();
+                    var email = reader.ReadString();
+                    var password = reader.ReadString();
 
-                    if (packet == loginRequestPacket)
+                    var xteaKeyFromClient = new uint[4];
+                    xteaKeyFromClient[0] = reader.ReadUInt32();
+                    xteaKeyFromClient[1] = reader.ReadUInt32();
+                    xteaKeyFromClient[2] = reader.ReadUInt32();
+                    xteaKeyFromClient[3] = reader.ReadUInt32();
+
+                    if (email.Equals(loginEmail) && password.Equals(loginPass))
                     {
-                        var email = decryptedRsaReader.ReadString();
-                        var password = decryptedRsaReader.ReadString();
+                        clientsAndXteakeys.Add(client, xteaKeyFromClient);
 
-                        var xteaKeyFromClient = new uint[4];
-                        xteaKeyFromClient[0] = decryptedRsaReader.ReadUInt32();
-                        xteaKeyFromClient[1] = decryptedRsaReader.ReadUInt32();
-                        xteaKeyFromClient[2] = decryptedRsaReader.ReadUInt32();
-                        xteaKeyFromClient[3] = decryptedRsaReader.ReadUInt32();
+                        using var writer = KingBufferWriter.Create();
+                        writer.Write(loginResponsePacket);
+                        writer.Write(loginSucess);
 
-                        if (email.Equals(loginEmail) && password.Equals(loginPass))
-                        {
-                            clientsAndXteakeys.Add(client, xteaKeyFromClient);
-                            isFirstMessage = false;
+                        //Use only xtea encrypt in client and server now
+                        var writterEncryptedXtea = XteaEncryptation.Encrypt(writer, xteaKeyFromClient);
 
-                            var writer = KingBufferWriter.Create();
-                            writer.Write(loginResponsePacket);
-                            writer.Write(loginSucess);
-
-                            //Use only xtea encrypt in client and server now
-                            var writterEncryptedXtea = XteaEncryptation.Encrypt(writer, xteaKeyFromClient);
-
-                            client.SendMessage(writterEncryptedXtea);
-                        }
+                        client.SendMessage(writterEncryptedXtea);
                     }
-                }
-                else
-                {
-                    //Implement another packets using xtea decrypt and encrypt
                 }
             };
 
             kingClient.OnMessageReceivedHandler += (KingBufferReader reader) =>
             {
-                var decryptedXteaMessage = XteaEncryptation.Decrypt(reader, xteaKey);
+                XteaEncryptation.Decrypt(ref reader, xteaKey);
 
-                var packet = decryptedXteaMessage.ReadMessagePacket<byte>();
+                var packet = reader.ReadMessagePacket<byte>();
 
                 if (packet == loginResponsePacket)
                 {
-                    messageReceivedAfterLogin = decryptedXteaMessage.ReadString();
+                    messageReceivedAfterLogin = reader.ReadString();
                 }
 
                 //Use only xtea encrypt in client and server now
@@ -348,8 +338,9 @@ namespace KingNetwork.Client.Tests
             writer.Write(xteaKey[3]);
 
             //On Login has crypted message with rsa encryptation, after this, will be used the xtea encryptation betwen server and client to use max speed of processings and networks.
-            var encriptedMessage = RsaEncryptation.Encrypt(writer, pubKey);
-            kingClient.SendMessage(encriptedMessage);
+            RsaEncryptation.Encrypt(ref writer, pubKey, 1);
+
+            kingClient.SendMessage(writer);
 
             Thread.Sleep(15);
 

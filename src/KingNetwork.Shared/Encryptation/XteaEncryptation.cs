@@ -69,7 +69,7 @@ namespace KingNetwork.Shared.Encryptation
                 }
             }
 
-            return KingBufferReader.Create(buffer, 0, length);
+            return KingBufferReader.Create(buffer);
         }
 
         public static unsafe KingBufferReader Decrypt(KingBufferReader msg, uint[] key)

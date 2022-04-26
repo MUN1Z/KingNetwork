@@ -73,6 +73,15 @@ namespace KingNetwork.Shared
         /// Method responsible for create a buffer instance.
         /// </summary>
         /// <param name="capacity">The initial capacity value of buffer.</param>
+        public static KingBufferWriter Create(byte[] data)
+        {
+            return Create(data.Length, Encoding.UTF8, data);
+        }
+
+        /// <summary>
+        /// Method responsible for create a buffer instance.
+        /// </summary>
+        /// <param name="capacity">The initial capacity value of buffer.</param>
         public static KingBufferWriter Create(int initialCapacity, byte[] data = null)
         {
             return Create(initialCapacity, Encoding.UTF8, data);

@@ -6,12 +6,12 @@
 
         public static KingBufferReader ToKingBufferReader(this KingBufferWriter writer)
         {
-            return KingBufferReader.Create(writer.BufferData, 0, writer.Length);
+            return KingBufferReader.Create(writer.BufferData);
         }
 
         public static KingBufferWriter ToKingBufferWriter(this KingBufferReader reader)
         {
-            return KingBufferWriter.Create(reader.Length, reader.BufferData);
+            return KingBufferWriter.Create(reader.BufferData);
         }
 
         #endregion
