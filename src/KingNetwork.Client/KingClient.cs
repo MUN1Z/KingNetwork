@@ -7,6 +7,7 @@ using KingNetwork.Shared;
 using KingNetwork.Shared.Interfaces;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace KingNetwork.Client
 {
@@ -52,9 +53,14 @@ namespace KingNetwork.Client
         public NetworkListener.DisconnectedHandler OnDisconnectedHandler { get; set; }
 
         /// <summary>
-        /// The callback of client connected handler implementation.
+        /// The callback of client connection success handler implementation.
         /// </summary>
-        public NetworkListener.ConnectedHandler OnConnectedHandler { get; set; }
+        public NetworkListener.ConnectionSuccessHandler OnConnectionSuccessHandler { get; set; }
+
+        /// <summary>
+        /// The callback of client connection fail handler implementation.
+        /// </summary>
+        public NetworkListener.ConnectionFailHandler OnConnectionFailHandler { get; set; }
 
         #endregion
 
@@ -136,27 +142,43 @@ namespace KingNetwork.Client
         /// </summary>
         /// <param name="ip">The ip address from server.</param>
         /// <param name="port">The port number from server, the default value us 7171</param>
-        /// <param name="maxMessageBuffer">The max length of message buffer, the default value is 4096.</param>
+        /// <param name="connectionTimeout">The timeout of client connection, the default value is 5000 milisecounds.</param>
+        /// <param name="maxMessageBuffer">The max length of message buffer, the default value is 4096 bytes.</param>
         /// <returns>The boolean value of client connection.</returns>
-        public bool Connect(string ip, ushort port = 7171, ushort maxMessageBuffer = 4096)
+        public void Connect(string ip, ushort port = 7171, ushort connectionTimeout = 5000, ushort maxMessageBuffer = 4096)
         {
-            if (_listenerType == NetworkListenerType.TCP)
-                _networkListener = new TcpNetworkListener(OnMessageReceived, OnDisconnected);
-            else if (_listenerType == NetworkListenerType.UDP)
-                _networkListener = new UdpNetworkListener(OnMessageReceived, OnDisconnected);
-            else if (_listenerType == NetworkListenerType.RUDP)
-                _networkListener = new RudpNetworkListener(OnMessageReceived, OnDisconnected);
-            else if (_listenerType == NetworkListenerType.WSBinary || _listenerType == NetworkListenerType.WSText)
-                _networkListener = new WebSocketNetworkListener(_listenerType, OnMessageReceived, OnDisconnected);
+            try
+            {
+                if (_listenerType == NetworkListenerType.TCP)
+                    _networkListener = new TcpNetworkListener(OnMessageReceived, OnDisconnected);
+                else if (_listenerType == NetworkListenerType.UDP)
+                    _networkListener = new UdpNetworkListener(OnMessageReceived, OnDisconnected);
+                else if (_listenerType == NetworkListenerType.RUDP)
+                    _networkListener = new RudpNetworkListener(OnMessageReceived, OnDisconnected);
+                else if (_listenerType == NetworkListenerType.WSBinary || _listenerType == NetworkListenerType.WSText)
+                    _networkListener = new WebSocketNetworkListener(_listenerType, OnMessageReceived, OnDisconnected);
 
-            _networkListener.StartClient(ip, port, maxMessageBuffer);
+                _networkListener.StartClient(ip, port, maxMessageBuffer);
+            }
+            catch (Exception ex)
+            {
+                OnConnectionFailHandler?.Invoke();
+                return;
+            }
 
-            while (!HasConnected)
-                Thread.Sleep(10);
+            var tokenSource = new CancellationTokenSource();
 
-            OnConnectedHandler?.Invoke();
+            _ = Task.Run(async () =>
+            {
+                _ = Task.Run(async () => { await Task.Delay(connectionTimeout); OnConnectionFailHandler?.Invoke(); tokenSource.Cancel(); }, tokenSource.Token);
 
-            return HasConnected;
+                while (!HasConnected)
+                    await Task.Delay(15);
+
+                OnConnectionSuccessHandler?.Invoke();
+                tokenSource.Cancel();
+
+            }, tokenSource.Token);
         }
 
         /// <summary>

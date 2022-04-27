@@ -2,6 +2,7 @@ using KingNetwork.Server;
 using KingNetwork.Shared;
 using KingNetwork.Shared.Encryptation;
 using KingNetwork.Shared.Extensions;
+using System.Diagnostics;
 using System.Security.Cryptography;
 using Xunit;
 using XUnitPriorityOrderer;
@@ -45,6 +46,80 @@ namespace KingNetwork.Client.Tests
 
             //Assert
             Assert.True(kingClient.HasConnected);
+
+            //Dispose
+            kingClient.Disconnect();
+            cancellationToken.Cancel();
+            kingServer?.Stop();
+        }
+
+        [Theory, Order(1)]
+        [InlineData(NetworkListenerType.TCP)]
+        [InlineData(NetworkListenerType.UDP)]
+        [InlineData(NetworkListenerType.RUDP)]
+        [InlineData(NetworkListenerType.WSBinary)]
+        [InlineData(NetworkListenerType.WSText)]
+        public async Task Verify_KingClientConnectionSuccessHandler_ShouldReturnTrueAsync(NetworkListenerType type)
+        {
+            //Arrange
+            var kingServer = new KingServer(type, _port);
+
+            var cancellationToken = new CancellationTokenSource();
+            await kingServer.StartAsync(cancellationToken);
+
+            Thread.Sleep(15);
+
+            var kingClient = new KingClient(type);
+
+            var hasConnected = false;
+
+            kingClient.OnConnectionSuccessHandler += () => { hasConnected = true; };
+            kingClient.OnConnectionFailHandler += () => { hasConnected = false; };
+
+            //Act
+            kingClient.Connect(_ip, _port);
+
+            Thread.Sleep(15);
+
+            //Assert
+            Assert.True(hasConnected);
+
+            //Dispose
+            kingClient.Disconnect();
+            cancellationToken.Cancel();
+            kingServer?.Stop();
+        }
+
+        [Theory, Order(1)]
+        [InlineData(NetworkListenerType.TCP)]
+        [InlineData(NetworkListenerType.UDP)]
+        [InlineData(NetworkListenerType.RUDP)]
+        [InlineData(NetworkListenerType.WSBinary)]
+        [InlineData(NetworkListenerType.WSText)]
+        public async Task Verify_KingClientConnectionFailHandler_ShouldReturnTrueAsync(NetworkListenerType type)
+        {
+            //Arrange
+            var kingServer = new KingServer(type, _port);
+
+            var cancellationToken = new CancellationTokenSource();
+            await kingServer.StartAsync(cancellationToken);
+
+            Thread.Sleep(15);
+
+            var kingClient = new KingClient(type);
+
+            var hasConnected = true;
+
+            kingClient.OnConnectionSuccessHandler += () => { hasConnected = true; };
+            kingClient.OnConnectionFailHandler += () => { hasConnected = false; };
+
+            //Act
+            kingClient.Connect(_ip, 7272);
+
+            Thread.Sleep(15);
+
+            //Assert
+            Assert.False(hasConnected);
 
             //Dispose
             kingClient.Disconnect();

@@ -46,7 +46,10 @@ namespace KingNetwork.Client.Listeners
         /// <param name="listenerType">The listener type of client connection.</param>
         /// <param name="messageReceivedHandler">The callback of message received handler implementation.</param>
         /// <param name="disconnectedHandler">The callback of client disconnected handler implementation.</param>
-        public WebSocketNetworkListener(NetworkListenerType listenerType, MessageReceivedHandler messageReceivedHandler, DisconnectedHandler disconnectedHandler)
+        public WebSocketNetworkListener(
+            NetworkListenerType listenerType,
+            MessageReceivedHandler messageReceivedHandler,
+            DisconnectedHandler disconnectedHandler)
             : base(messageReceivedHandler, disconnectedHandler)
         {
             _listenerType = listenerType;
@@ -63,7 +66,9 @@ namespace KingNetwork.Client.Listeners
             _buff = new ArraySegment<byte>(new byte[_messageBufferSize]);
             _webSocketListener = new ClientWebSocket();
 
-            StartConnection(new Uri($"ws://{ip}:{port}"));
+            _webSocketListener.ConnectAsync(new Uri($"ws://{ip}:{port}"), CancellationToken.None).Wait();
+
+            StartConnection();
         }
 
         /// <inheritdoc/>
@@ -101,12 +106,14 @@ namespace KingNetwork.Client.Listeners
         /// Method responsible for starts the web socket connection.
         /// </summary>
         /// <param name="uri">The uri to start the connection</param>
-        public async void StartConnection(Uri uri)
+        public async void StartConnection()
         {
             try
             {
-                if (_webSocketListener.State == WebSocketState.Open) return;
-                await _webSocketListener.ConnectAsync(uri, CancellationToken.None);
+                //if (_webSocketListener.State == WebSocketState.Open)
+                //    return;
+
+                //await _webSocketListener.ConnectAsync(uri, CancellationToken.None);
 
                 while (HasConnected)
                 {
@@ -132,10 +139,10 @@ namespace KingNetwork.Client.Listeners
             }
             catch (Exception ex)
             {
+                _webSocketListener.Dispose();
+
                 if (HasConnected)
                     _disconnectedHandler();
-                else
-                    return;
 
                 throw ex;
             }

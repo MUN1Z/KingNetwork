@@ -92,9 +92,14 @@ namespace KingNetwork.Client.Listeners
         public delegate void DisconnectedHandler();
 
         /// <summary>
+        /// The delegate of client connection success handler connection.
+        /// </summary>
+        public delegate void ConnectionSuccessHandler();
+
+        /// <summary>
         /// The delegate of client connected handler connection.
         /// </summary>
-        public delegate void ConnectedHandler();
+        public delegate void ConnectionFailHandler();
 
         #endregion
 
