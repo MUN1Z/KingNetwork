@@ -31,8 +31,4 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if not exist $(SolutionDir)\output mkdir $(SolutionDir)\output&#xD;&#xA;copy /Y &quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(SolutionDir)\output\$(TargetName).dll&quot;" />
-  </Target>
-
 </Project>

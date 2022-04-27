@@ -1,20 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>7.3</LangVersion>
     <Version>1.0.4</Version>
-    <PackageProjectUrl>https://github.com/Mun1z/KingNetwork/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Mun1z/KingNetwork/</RepositoryUrl>
-    <RepositoryType>github</RepositoryType>
     <PackageTags>socket, tcp, udp, king, network, kingnetwork, mun1z</PackageTags>
-    <Copyright>Felipe Muniz (Mun1z)</Copyright>
+    <RepositoryType>github</RepositoryType>
+    <RepositoryUrl>https://github.com/Mun1z/KingNetwork/</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Mun1z/KingNetwork/</PackageProjectUrl>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <Copyright>Felipe Muniz (Mun1z)</Copyright>
     <Description>KingNetwork is an open source library to facilitate the creation and communication of clients and servers through TCP, UDP and Web sockets.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion></AssemblyVersion>
-    <FileVersion></FileVersion>
-    <BaseOutputPath>bin\</BaseOutputPath>
+    <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,5 +24,9 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if not exist $(SolutionDir)\output mkdir $(SolutionDir)\output&#xD;&#xA;copy /Y &quot;$(TargetDir)$(TargetName).dll&quot; &quot;$(SolutionDir)\output\$(TargetName).dll&quot;" />
+  </Target>
 
 </Project>

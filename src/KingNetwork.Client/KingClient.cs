@@ -170,7 +170,16 @@ namespace KingNetwork.Client
 
             _ = Task.Run(async () =>
             {
-                _ = Task.Run(async () => { await Task.Delay(connectionTimeout); OnConnectionFailHandler?.Invoke(); tokenSource.Cancel(); }, tokenSource.Token);
+                _ = Task.Run(async () => 
+                { 
+                    await Task.Delay(connectionTimeout);
+
+                    if (HasConnected)
+                        return;
+
+                    OnConnectionFailHandler?.Invoke(); 
+                    tokenSource.Cancel(); 
+                }, tokenSource.Token);
 
                 while (!HasConnected)
                     await Task.Delay(15);
