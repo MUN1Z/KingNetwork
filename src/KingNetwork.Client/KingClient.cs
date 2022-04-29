@@ -233,7 +233,7 @@ namespace KingNetwork.Client
             if (reader.Length > 0 && _clientPacketHandlers.Count > 0 && _clientPacketHandlers.TryGetValue(reader.ReadByte(), out var clientPacketHandler))
                 clientPacketHandler(reader);
             else
-                OnMessageReceivedHandler(reader);
+                OnMessageReceivedHandler.Invoke(reader);
         }
 
         /// <summary>

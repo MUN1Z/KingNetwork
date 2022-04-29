@@ -11,13 +11,13 @@ namespace KingNetwork.Shared.Encryptation
             if (key == null)
                 throw new ArgumentException("Key invalid");
 
-            var pad = msg.Length % 8;
+            var pad = msg.BufferData.Length % 8;
             if (pad > 0)
                 msg.AddPaddingBytes(8 - pad);
 
-            var words = Split(msg.BufferData.AsSpan(0, msg.Length));
+            var words = Split(msg.BufferData.AsSpan(0, msg.BufferData.Length));
 
-            for (var pos = 0; pos < msg.Length / 4; pos += 2)
+            for (var pos = 0; pos < msg.BufferData.Length / 4; pos += 2)
             {
                 uint x_sum = 0, x_delta = 0x9e3779b9, x_count = 32;
 
@@ -33,7 +33,7 @@ namespace KingNetwork.Shared.Encryptation
 
             var newBytes = ConvertToBytes(words);
 
-            return KingBufferWriter.Create(msg.Length, newBytes);
+            return KingBufferWriter.Create(newBytes);
         }
 
         public static bool Encrypt(ref KingBufferWriter msg, uint[] key)
@@ -44,7 +44,7 @@ namespace KingNetwork.Shared.Encryptation
 
         public static unsafe KingBufferReader Decrypt(KingBufferReader msg, int index, uint[] key)
         {
-            var length = msg.Length;
+            var length = msg.BufferData.Length;
             var buffer = msg.BufferData;
 
             if (length <= index || (length - index) % 8 > 0 || key == null) return null;

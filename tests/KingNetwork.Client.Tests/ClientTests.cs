@@ -2,7 +2,6 @@ using KingNetwork.Server;
 using KingNetwork.Shared;
 using KingNetwork.Shared.Encryptation;
 using KingNetwork.Shared.Extensions;
-using System.Diagnostics;
 using System.Security.Cryptography;
 using Xunit;
 using XUnitPriorityOrderer;

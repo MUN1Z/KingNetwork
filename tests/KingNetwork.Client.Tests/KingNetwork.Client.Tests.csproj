@@ -20,7 +20,6 @@
     </PackageReference>
   </ItemGroup>
 
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\KingNetwork.Client\KingNetwork.Client.csproj" />
     <ProjectReference Include="..\..\src\KingNetwork.Server\KingNetwork.Server.csproj" />
