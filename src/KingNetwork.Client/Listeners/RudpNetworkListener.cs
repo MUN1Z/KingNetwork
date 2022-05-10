@@ -82,13 +82,13 @@ namespace KingNetwork.Client.Listeners
 
             _udpListener.Send(array);
 
-            array = new byte[16];
+            array = new byte[1];
 
             _udpListener.ReceiveTimeout = 5000;
             int receivedUdp = _udpListener.Receive(array);
             _udpListener.ReceiveTimeout = 0;
 
-            if (receivedUdp != 16 || array[0] != 1)
+            if (receivedUdp != 1 || array[0] != 1)
             {
                 throw new Exception("Timeout waiting for UDP acknowledgement from server.");
             }
