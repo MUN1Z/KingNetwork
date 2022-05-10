@@ -11,13 +11,24 @@ namespace KingNetwork.Shared.Encryptation
             if (key == null)
                 throw new ArgumentException("Key invalid");
 
-            var pad = msg.BufferData.Length % 8;
+            var lengthInBytes = BitConverter.GetBytes((ushort)(msg.BufferData.Length));
+            var bufferData = Combine(lengthInBytes, msg.BufferData);
+
+            var pad = 8 - (bufferData.Length % 8);
+
             if (pad > 0)
-                msg.AddPaddingBytes(8 - pad);
+            {
+                var paddingData = new byte[pad];
 
-            var words = Split(msg.BufferData.AsSpan(0, msg.BufferData.Length));
+                for (int i = 0; i < pad; i++)
+                    paddingData[i] = (byte)0x33;
 
-            for (var pos = 0; pos < msg.BufferData.Length / 4; pos += 2)
+                bufferData = Combine(bufferData, paddingData);
+            }
+
+            var words = Split(bufferData.AsSpan(0, bufferData.Length));
+
+            for (var pos = 0; pos < bufferData.Length / 4; pos += 2)
             {
                 uint x_sum = 0, x_delta = 0x9e3779b9, x_count = 32;
 
@@ -69,7 +80,15 @@ namespace KingNetwork.Shared.Encryptation
                 }
             }
 
-            return KingBufferReader.Create(buffer);
+            var messageSizeLength = sizeof(ushort);
+
+            var bufferData = buffer[messageSizeLength..];
+            var bufferDataLength = buffer[..messageSizeLength];
+
+            var lengthOfMessage = BitConverter.ToInt16(bufferDataLength);
+            bufferData = bufferData[..lengthOfMessage];
+
+            return KingBufferReader.Create(bufferData);
         }
 
         public static unsafe KingBufferReader Decrypt(KingBufferReader msg, uint[] key)
@@ -138,6 +157,14 @@ namespace KingNetwork.Shared.Encryptation
             }
 
             return newArray.AsSpan();
+        }
+
+        private static byte[] Combine(byte[] first, byte[] second)
+        {
+            var bytes = new byte[first.Length + second.Length];
+            Buffer.BlockCopy(first, 0, bytes, 0, first.Length);
+            Buffer.BlockCopy(second, 0, bytes, first.Length, second.Length);
+            return bytes;
         }
 
         #endregion

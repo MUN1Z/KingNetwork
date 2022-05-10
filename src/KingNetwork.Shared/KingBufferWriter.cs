@@ -27,7 +27,7 @@ namespace KingNetwork.Shared
         #region properties
         
         /// <inheritdoc/>
-        public byte[] BufferData => _buffer;
+        public byte[] BufferData => _buffer[..Length];
 
         /// <inheritdoc/>
         public Encoding Encoding { get; private set; }
@@ -116,18 +116,6 @@ namespace KingNetwork.Shared
         #endregion
 
         #region public methods implementation   
-
-        /// <summary>
-        ///     Adds padding right bytes (0x33) to buffer
-        /// </summary>
-        /// <param name="count">how many times the padding will be added</param>
-        public void AddPaddingBytes(int count)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                Write((byte)0x33);
-            }
-        }
 
         /// <inheritdoc/>
         public void Write(byte value)
